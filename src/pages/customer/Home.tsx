@@ -3,7 +3,7 @@
 import Banner from "../../components/Banner";
 // import CTAButton from "../components/CTAButton"; đặt lịch tư vấn
 import Mission from "../../components/Mission";
-import Doctors from "./Doctor";
+// import Doctors from "./Doctor";
 import Services from "./Services";
 
 export default function Home() {
@@ -13,7 +13,7 @@ export default function Home() {
       <Mission />
 
       <Services />
-      <Doctors />
+      {/* <Doctors /> */}
     </>
   );
 }
