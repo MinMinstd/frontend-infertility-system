@@ -7,6 +7,8 @@ import OnlineConsult from "./components/OnlineResult";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
+import ServiceDetails from "./pages/customer/serviceDetails";
+import FloatingNav from "./components/FloatingNav";
 
 export default function App() {
   return (
@@ -14,9 +16,11 @@ export default function App() {
       <div className="min-h-screen flex flex-col">
         <Header />
         <main className="flex-1">
+          <FloatingNav />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/services" element={<Services />} />
+            <Route path="/services/:id" element={<ServiceDetails />} />
             <Route path="/doctors" element={<Doctors />} />
             <Route path="/appointment" element={<AppointmentForm />} />
             <Route path="/consult" element={<OnlineConsult />} />
