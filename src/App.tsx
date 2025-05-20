@@ -11,16 +11,20 @@ import Header from "./components/Header";
 export default function App() {
   return (
     <BrowserRouter>
-      <Header />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/services" element={<Services />} />
-        <Route path="/doctors" element={<Doctors />} />
-        <Route path="/appointment" element={<AppointmentForm />} />
-        <Route path="/consult" element={<OnlineConsult />} />
-        <Route path="/contact" element={<Contact />} />
-      </Routes>
-      <Footer />
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/doctors" element={<Doctors />} />
+            <Route path="/appointment" element={<AppointmentForm />} />
+            <Route path="/consult" element={<OnlineConsult />} />
+            <Route path="/contact" element={<Contact />} />
+          </Routes>
+        </main>
+        <Footer />
+      </div>
     </BrowserRouter>
   );
 }

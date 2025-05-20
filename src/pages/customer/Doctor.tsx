@@ -39,6 +39,18 @@ const doctors = [
     experience: "10 năm kinh nghiệm",
     avatar: "../public/Images/doctor-avatar.png",
   },
+  {
+    name: "BS. Lê Văn C",
+    specialty: "Nam học",
+    experience: "10 năm kinh nghiệm",
+    avatar: "../public/Images/doctor-avatar.png",
+  },
+  {
+    name: "BS. Lê Văn C",
+    specialty: "Nam học",
+    experience: "10 năm kinh nghiệm",
+    avatar: "../public/Images/doctor-avatar.png",
+  },
 ];
 
 // Tạo component DoctorDetail (tạm thời inline, sẽ tách riêng sau)
