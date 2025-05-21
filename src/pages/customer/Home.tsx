@@ -11,9 +11,7 @@ export default function Home() {
     <>
       <Banner />
       <Mission />
-
       <Services />
-      {/* <Doctors /> */}
     </>
   );
 }
