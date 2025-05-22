@@ -54,6 +54,25 @@ const Notification = () => {
     };
   }, [isOpen]);
 
+  const handleMarkAllAsRead = () => {
+    setNotifications((prevNotifications) =>
+      prevNotifications.map((notification) => ({
+        ...notification,
+        isRead: true,
+      }))
+    );
+  };
+
+  const handleMarkAsRead = (id: number) => {
+    setNotifications((prevNotifications) =>
+      prevNotifications.map((notification) =>
+        notification.id === id
+          ? { ...notification, isRead: true }
+          : notification
+      )
+    );
+  };
+
   return (
     <div className="relative" ref={dropdownRef}>
       <button
@@ -87,7 +106,10 @@ const Notification = () => {
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
           <h3 className="font-semibold text-gray-900">Thông báo</h3>
-          <button className="text-sm text-pink-600 hover:text-pink-700">
+          <button
+            onClick={handleMarkAllAsRead}
+            className="text-sm text-pink-600 hover:text-pink-700"
+          >
             Đánh dấu tất cả đã đọc
           </button>
         </div>
@@ -117,6 +139,7 @@ const Notification = () => {
                 className={`flex items-center px-4 py-3 hover:bg-gray-50 cursor-pointer ${
                   !item.isRead ? "bg-pink-50" : ""
                 }`}
+                onClick={() => handleMarkAsRead(item.id)}
               >
                 <img
                   src={item.avatar}
