@@ -1,4 +1,5 @@
 import LoginButton from "./LoginButton";
+import Notification from "./Notification";
 import Search from "./Search";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -111,7 +112,9 @@ export default function Header() {
             </a>
           ))}
           {/* Thêm thanh tìm kiếm */}
+
           <Search />
+          <Notification />
           <LoginButton />
         </nav>
       </div>

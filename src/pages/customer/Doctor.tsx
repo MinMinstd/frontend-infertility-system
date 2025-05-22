@@ -2,6 +2,13 @@
 import { useState } from "react";
 import DoctorCard from "../../components/DoctorCard";
 
+interface Doctor {
+  name: string;
+  specialty: string;
+  experience: string;
+  avatar: string;
+}
+
 const doctors = [
   {
     name: "BS. Nguyễn Văn A",
@@ -58,7 +65,7 @@ const DoctorDetail = ({
   doctor,
   onClose,
 }: {
-  doctor: any;
+  doctor: Doctor;
   onClose: () => void;
 }) => {
   if (!doctor) return null;
@@ -88,7 +95,7 @@ const DoctorDetail = ({
 };
 
 export default function Doctors() {
-  const [selectedDoctor, setSelectedDoctor] = useState<any>(null);
+  const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
   return (
     <section className="py-12 px-4 bg-pink-50" id="doctors">
       <div className="max-w-5xl mx-auto">
