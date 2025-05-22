@@ -17,23 +17,45 @@ const FeedbackCard: React.FC<FeedbackCardProps> = ({
   rating,
   comment,
   date,
-  avatarUrl
+  avatarUrl,
 }) => {
   return (
-    <Card style={{ marginBottom: 16 }}>
-      <div style={{ display: 'flex', alignItems: 'start', gap: 16 }}>
-        <Avatar 
-          size={48} 
-          icon={<UserOutlined />} 
+    <Card
+      style={{
+        marginBottom: 24,
+        borderRadius: 12,
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+        background: 'linear-gradient(135deg, #ffffff 0%, #f9fafb 100%)',
+        transition: 'all 0.3s ease',
+      }}
+      hoverable
+    >
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, padding: 16 }}>
+        <Avatar
+          size={64}
+          icon={<UserOutlined />}
           src={avatarUrl}
+          style={{ border: '2px solid #f472b6', backgroundColor: '#fde8f3' }}
         />
         <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-            <Text strong>{userName}</Text>
-            <Text type="secondary">{date}</Text>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <Text strong style={{ fontSize: 18, color: '#1f2937' }}>
+              {userName}
+            </Text>
+            <Text type="secondary" style={{ fontSize: 14 }}>
+              {new Date(date).toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </Text>
           </div>
-          <Rate disabled defaultValue={rating} style={{ fontSize: 16, marginBottom: 8 }} />
-          <Paragraph>{comment}</Paragraph>
+          <Rate
+            disabled
+            value={rating}
+            style={{ fontSize: 16, color: '#f472b6', marginBottom: 12 }}
+          />
+          <Paragraph
+            style={{ fontSize: 16, color: '#4b5563', lineHeight: '1.6', margin: 0 }}
+          >
+            {comment}
+          </Paragraph>
         </div>
       </div>
     </Card>
