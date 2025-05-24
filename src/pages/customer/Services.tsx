@@ -1,6 +1,5 @@
 //Thông tin dịch vụ
 import { ServiceCard } from "../../components/ServiceCard";
-import { Link } from "react-router-dom";
 
 const services = [
   //hiện tại đang fix cứng
@@ -30,14 +29,14 @@ export default function Services() {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {services.map((service) => (
-            <Link to={`/services/${service.id}`} key={service.id}>
-              <ServiceCard {...service} />
-            </Link>
+            <ServiceCard
+              key={service.id}
+              {...service}
+              detailLink={`/services/${service.id}`}
+            />
           ))}
         </div>
       </div>
     </section>
   );
 }
-
-// đã xóa khung dịch vụ lưu trữ tình trùng

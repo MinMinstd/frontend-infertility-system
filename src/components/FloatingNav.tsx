@@ -54,7 +54,7 @@ export default function FloatingNav() {
         onMouseLeave={hideNav}
       >
         <NavLink
-          to="/contact"
+          to="/support_user"
           className={({ isActive }) => (isActive ? "active" : undefined)}
         >
           Hỗ trợ khách hàng

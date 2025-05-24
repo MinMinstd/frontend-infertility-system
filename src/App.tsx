@@ -9,6 +9,8 @@ import Footer from "./components/Footer";
 import Header from "./components/Header";
 import ServiceDetails from "./pages/customer/serviceDetails";
 import FloatingNav from "./components/FloatingNav";
+import RegisterService from "./components/RegisterService";
+import SupportUser from "./pages/customer/SupportUser";
 
 export default function App() {
   return (
@@ -25,6 +27,13 @@ export default function App() {
             <Route path="/appointment" element={<AppointmentForm />} />
             <Route path="/consult" element={<OnlineConsult />} />
             <Route path="/contact" element={<Contact />} />
+            <Route
+              path="/user/register_service"
+              element={<RegisterService />}
+            />
+
+            <Route path="/support_user" element={<SupportUser />} />
+            {/* Thêm các route khác nếu cần */}
           </Routes>
         </main>
         <Footer />

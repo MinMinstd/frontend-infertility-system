@@ -11,7 +11,7 @@ export default function Banner() {
         hạnh phúc.
       </p>
       <img
-        src="/banner-infertility.jpg"
+        src="../public/Images/Banner.jpg"
         alt="Infertility Hospital"
         className="rounded-xl shadow-lg w-full max-w-3xl mx-auto"
       />
