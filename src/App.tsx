@@ -11,6 +11,7 @@ import ServiceDetails from "./pages/customer/serviceDetails";
 import FloatingNav from "./components/FloatingNav";
 import RegisterService from "./components/RegisterService";
 import SupportUser from "./pages/customer/SupportUser";
+import Profile from "./pages/customer/Profile";
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
 
             <Route path="/support_user" element={<SupportUser />} />
             {/* Thêm các route khác nếu cần */}
+            <Route path="/profile" element={<Profile />} />
           </Routes>
         </main>
         <Footer />
