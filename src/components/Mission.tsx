@@ -64,7 +64,7 @@ export default function Mission() {
     <>
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 py-8 px-4 bg-white">
         {/* Grid left: 3/4 */}
-        <div className="lg:col-span-3 flex flex-col">
+        <div className="lg:col-span-3 flex flex-col h-[800px]">
           <div className="max-w-3xl mx-auto text-center lg:text-left mb-6">
             <h2 className="text-2xl md:text-3xl font-semibold text-pink-600 mb-4">
               Sứ mệnh & Cơ sở vật chất
@@ -77,11 +77,11 @@ export default function Mission() {
             </p>
           </div>
 
-          <div id="default-carousel" className="relative w-full">
+          <div id="default-carousel" className="relative flex-1 w-full">
             {/* Carousel wrapper */}
-            <div className="relative h-56 overflow-hidden rounded-lg md:h-96">
+            <div className="absolute inset-0 rounded-lg overflow-hidden">
               {/* Item 1 */}
-              <div className="hidden duration-700 ease-in-out carousel-item">
+              <div className="hidden duration-700 ease-in-out carousel-item h-full">
                 <img
                   src="/Images/Mission/ms_1.jpg"
                   className="absolute block w-full h-full object-cover"
@@ -89,7 +89,7 @@ export default function Mission() {
                 />
               </div>
               {/* Item 2 */}
-              <div className="hidden duration-700 ease-in-out carousel-item">
+              <div className="hidden duration-700 ease-in-out carousel-item h-full">
                 <img
                   src="/Images/Mission/ms_2.jpg"
                   className="absolute block w-full h-full object-cover"
@@ -97,7 +97,7 @@ export default function Mission() {
                 />
               </div>
               {/* Item 3 */}
-              <div className="hidden duration-700 ease-in-out carousel-item">
+              <div className="hidden duration-700 ease-in-out carousel-item h-full">
                 <img
                   src="/Images/Mission/ms_3.jpeg"
                   className="absolute block w-full h-full object-cover"
