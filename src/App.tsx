@@ -12,6 +12,7 @@ import FloatingNav from "./components/FloatingNav";
 import RegisterService from "./components/RegisterService";
 import SupportUser from "./pages/customer/SupportUser";
 import Profile from "./pages/customer/Profile";
+import LoginPage from "./pages/customer/Login";
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
           <FloatingNav />
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/login" element={<LoginPage />} />
             <Route path="/services" element={<Services />} />
             <Route path="/services/:id" element={<ServiceDetails />} />
             <Route path="/doctors" element={<Doctors />} />
