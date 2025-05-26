@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { useRef, useState } from "react";
-import "../Style/FloatingNav.css";
+import "../components/Style/FloatingNav.css";
 
 const chatIcon = (
   <svg

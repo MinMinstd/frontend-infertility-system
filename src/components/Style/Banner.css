@@ -1,0 +1,7 @@
+.back-ground {
+  background-image: 'url("/Images/Banner.jpg")';
+  background-size: "cover";
+  background-size: "center";
+  background-repeat: "no-repeat";
+  filter: "brightness(0.9)";
+}

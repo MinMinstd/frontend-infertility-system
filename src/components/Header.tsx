@@ -95,7 +95,7 @@ export default function Header() {
 
           {/* Góc Tri Ân */}
           <a
-            href="/"
+            href="/gratefull"
             className="flex items-center gap-1 text-gray-700 hover:text-pink-500 transition-colors"
           >
             Góc Tri Ân
