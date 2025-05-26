@@ -14,6 +14,7 @@ import RegisterService from "./components/RegisterService";
 import SupportUser from "./pages/customer/SupportUser";
 import Profile from "./pages/customer/Profile";
 import LoginPage from "./pages/customer/Login";
+import Gratefull from "./pages/customer/Gratefull";
 
 export default function App() {
   return (
@@ -36,7 +37,7 @@ export default function App() {
                 path="/user/register_service"
                 element={<RegisterService />}
               />
-
+              <Route path="/gratefull" element={<Gratefull />} />
               <Route path="/support_user" element={<SupportUser />} />
               {/* Thêm các route khác nếu cần */}
               <Route path="/profile" element={<Profile />} />
