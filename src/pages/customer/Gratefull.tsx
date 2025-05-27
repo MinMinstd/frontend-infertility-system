@@ -68,7 +68,7 @@ const sampleStories: SuccessStory[] = [
 
 export const Gratefull = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-pink-50 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-pink-50 py-12">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <Title level={1} className="text-blue-700 mb-4">
@@ -80,11 +80,11 @@ export const Gratefull = () => {
           </Paragraph>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-14">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-14  ">
           {sampleStories.map((story) => (
             <Card
               key={story.id}
-              className="rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-0"
+              className="rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-0 aspect-square"
               style={{
                 background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
               }}
