@@ -10,6 +10,8 @@ import Header from "./components/Header";
 import ServiceDetails from "./pages/customer/serviceDetails";
 import FloatingNav from "./components/FloatingNav";
 import Profile from "./pages/customer/Profile";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+
 
 export default function App() {
   return (
@@ -27,6 +29,7 @@ export default function App() {
             <Route path="/consult" element={<OnlineConsult />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/admin" element={<AdminDashboard />} />
           </Routes>
         </main>
         <Footer />
