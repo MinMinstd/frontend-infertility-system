@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import ProfileCard from '../../components/ProfileCard';
+import { useState } from "react";
+import ProfileCard from "../../components/ProfileCard";
 
 interface UserProfile {
   name: string;
@@ -9,9 +9,9 @@ interface UserProfile {
 
 const Profile: React.FC = () => {
   const [profile, setProfile] = useState<UserProfile>({
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    phone: '+1234567890',
+    name: "John Doe",
+    email: "john.doe@example.com",
+    phone: "+1234567890",
   });
 
   const handleSave = (values: UserProfile) => {
@@ -19,7 +19,15 @@ const Profile: React.FC = () => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#f0f2f5' }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        background: "#f0f2f5",
+      }}
+    >
       <ProfileCard profile={profile} onSave={handleSave} />
     </div>
   );

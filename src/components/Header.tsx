@@ -81,12 +81,12 @@ export default function Header() {
                     </Link>
                   </li>
                   <li>
-                    <a
-                      href="/services"
+                    <Link
+                      to="/services"
                       className="block px-4 py-2 hover:bg-gray-100"
                     >
                       Services
-                    </a>
+                    </Link>
                   </li>
                 </ul>
               </div>
@@ -94,24 +94,24 @@ export default function Header() {
           </div>
 
           {/* Góc Tri Ân */}
-          <a
-            href="/gratefull"
+          <Link
+            to="/gratefull"
             className="flex items-center gap-1 text-gray-700 hover:text-pink-500 transition-colors"
           >
             Góc Tri Ân
-          </a>
+          </Link>
         </nav>
 
         {/* Right nav + Login/Profile */}
         <nav className="flex gap-6 items-center">
           {rightNavLinks.map((link) => (
-            <a
+            <Link
               key={link.name}
-              href={link.href}
+              to={link.href}
               className="flex items-center gap-1 text-gray-700 hover:text-pink-500 transition-colors"
             >
               {link.name}
-            </a>
+            </Link>
           ))}
           {/* Thêm thanh tìm kiếm */}
 
