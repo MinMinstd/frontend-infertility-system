@@ -12,11 +12,12 @@ import ServiceDetails from "./pages/customer/serviceDetails";
 import FloatingNav from "./components/FloatingNav";
 import RegisterService from "./components/RegisterService";
 import SupportUser from "./pages/customer/SupportUser";
-import Profile from "./pages/customer/Profile";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import LoginPage from "./pages/customer/Login";
 import Gratefull from "./pages/customer/Gratefull";
 import { GratefulDetail } from "./pages/customer/GratefulDetail";
+import ProfileCard from "./components/ProfileCard";
+import HistoryMedical from "./pages/customer/HistoryMedical";
 
 export default function App() {
   return (
@@ -35,14 +36,18 @@ export default function App() {
               <Route path="/appointment" element={<AppointmentForm />} />
               <Route path="/consult" element={<OnlineConsult />} />
               <Route path="/contact" element={<Contact />} />
-              <Route
-                path="/user/register_service"
-                element={<RegisterService />}
-              />
+              <Route path="/register_service" element={<RegisterService />} />
               <Route path="/gratefull" element={<Gratefull />} />
               <Route path="/gratefull/:id" element={<GratefulDetail />} />
               <Route path="/support_user" element={<SupportUser />} />
-              <Route path="/profile" element={<Profile />} />
+
+              {/* Thông tin cá nhân bệnh nhân */}
+              <Route path="/user/profile" element={<ProfileCard />} />
+              <Route
+                path="/user/history_medical"
+                element={<HistoryMedical />}
+              />
+
               <Route path="/admin" element={<AdminDashboard />} />
             </Routes>
           </main>
