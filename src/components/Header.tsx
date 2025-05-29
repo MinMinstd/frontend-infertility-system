@@ -1,7 +1,9 @@
 import LoginButton from "./LoginButton";
+import Notification from "./Notification";
 import Search from "./Search";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const rightNavLinks = [
   { name: "Đặt lịch hẹn", href: "/appointment" },
@@ -10,6 +12,7 @@ const rightNavLinks = [
 
 export default function Header() {
   const [showDropdown, setShowDropdown] = useState(false);
+  const { isLoggedIn } = useAuth();
 
   return (
     <header className="bg-white shadow sticky top-0 z-50">
@@ -92,14 +95,14 @@ export default function Header() {
 
           {/* Góc Tri Ân */}
           <a
-            href="/"
+            href="/gratefull"
             className="flex items-center gap-1 text-gray-700 hover:text-pink-500 transition-colors"
           >
             Góc Tri Ân
           </a>
         </nav>
 
-        {/* Right nav + Login + Profile */}
+        {/* Right nav + Login/Profile */}
         <nav className="flex gap-6 items-center">
           {rightNavLinks.map((link) => (
             <a
@@ -111,23 +114,28 @@ export default function Header() {
             </a>
           ))}
           {/* Thêm thanh tìm kiếm */}
+
           <Search />
-          {/* Nút Profile */}
-          <Link
-            to="/profile"
-            className="flex items-center gap-1 text-gray-700 hover:text-pink-500 transition-colors"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
+          <Notification />
+
+          {isLoggedIn ? (
+            <Link
+              to="/profile"
+              className="flex items-center gap-1 text-gray-700 hover:text-pink-500 transition-colors"
             >
-              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-            </svg>
-            Profile
-          </Link>
-          <LoginButton />
+              <svg
+                className="w-5 h-5"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+              </svg>
+              Profile
+            </Link>
+          ) : (
+            <LoginButton />
+          )}
         </nav>
       </div>
     </header>

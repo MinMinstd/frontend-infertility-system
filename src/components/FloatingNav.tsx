@@ -1,5 +1,21 @@
 import { NavLink } from "react-router-dom";
 import { useRef, useState } from "react";
+import "../components/Style/FloatingNav.css";
+
+const chatIcon = (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#d81b60"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+  </svg>
+);
 
 export default function FloatingNav() {
   const [visible, setVisible] = useState(false);
@@ -18,79 +34,34 @@ export default function FloatingNav() {
 
   return (
     <>
-      {/* Hotspot nhỏ bên phải với ký tự nhận biết */}
+      {/* CSS cho media query ẩn trên mobile */}
+      <style>{`
+        @media (max-width: 767px) {
+          .floating-nav-hotspot, .floating-nav-panel { display: none !important; }
+        }
+      `}</style>
+      {/* Hotspot nhỏ bên phải với icon chat */}
       <div
-        style={{
-          position: "fixed",
-          top: "45%",
-          right: 0,
-          width: 18,
-          height: 60,
-          zIndex: 999,
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "#d81b60",
-          fontSize: "18px",
-          userSelect: "none",
-        }}
+        className="floating-nav-hotspot"
         onMouseEnter={showNav}
         onMouseLeave={hideNav}
       >
-        ❓
+        {chatIcon}
       </div>
       <div
-        style={{
-          position: "fixed",
-          top: "50%",
-          right: 0,
-          transform: "translateY(-50%)",
-          zIndex: 1000,
-          display: "flex",
-          flexDirection: "column",
-          gap: "8px",
-          padding: "4px 0",
-          background: "pink",
-          borderRadius: "8px 0 0 8px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-          border: "1px solid #eee",
-          opacity: visible ? 1 : 0,
-          pointerEvents: visible ? "auto" : "none",
-          transition: "opacity 0.3s",
-        }}
+        className={`floating-nav-panel${visible ? " visible" : ""}`}
         onMouseEnter={showNav}
         onMouseLeave={hideNav}
       >
         <NavLink
-          to="/contact"
-          style={({ isActive }) => ({
-            display: "block",
-            padding: "8px 12px",
-            fontSize: "13px",
-            color: isActive ? "#d81b60" : "#333",
-            textDecoration: "none",
-            fontWeight: 500,
-            borderRadius: "8px 0 0 8px",
-            background: isActive ? "#fff0f6" : "transparent",
-            transition: "background 0.2s, color 0.2s",
-          })}
+          to="/support_user"
+          className={({ isActive }) => (isActive ? "active" : undefined)}
         >
           Hỗ trợ khách hàng
         </NavLink>
         <NavLink
           to="/consult"
-          style={({ isActive }) => ({
-            display: "block",
-            padding: "8px 12px",
-            fontSize: "13px",
-            color: isActive ? "#d81b60" : "#333",
-            textDecoration: "none",
-            fontWeight: 500,
-            borderRadius: "8px 0 0 8px",
-            background: isActive ? "#fff0f6" : "transparent",
-            transition: "background 0.2s, color 0.2s",
-          })}
+          className={({ isActive }) => (isActive ? "active" : undefined)}
         >
           Tra cứu kết quả
         </NavLink>

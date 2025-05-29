@@ -11,7 +11,7 @@ export default function OnlineConsult() {
   } = useForm();
   const [submitted, setSubmitted] = useState(false);
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data) => {
     console.log(data);
     setSubmitted(true);
     reset();
