@@ -1,39 +1,55 @@
 import { useParams } from "react-router-dom";
+import { Typography, Steps, Card } from "antd";
+import { ServiceInfo } from "../../data/ServiceInformation";
 
-const serviceDetailsData = {
-  ivf: {
-    name: "IVF (Thụ tinh trong ống nghiệm)",
-    description: "Phương pháp hỗ trợ sinh sản hiện đại, tỷ lệ thành công cao.",
-    detail: "Thông tin chi tiết về IVF...",
-  },
-  iui: {
-    name: "IUI (Bơm tinh trùng vào buồng tử cung)",
-    description: "Giải pháp tối ưu cho các trường hợp vô sinh nhẹ.",
-    detail: "Thông tin chi tiết về IUI...",
-  },
-  exam: {
-    name: "Khám lâm sàng",
-    description: "Tư vấn, khám tổng quát và đánh giá sức khỏe sinh sản.",
-    detail: "Thông tin chi tiết về khám lâm sàng...",
-  },
-};
+const { Title, Paragraph, Text } = Typography;
 
-export default function ServiceDetails() {
+const ServiceDetails = () => {
   const { id } = useParams();
-  const service = serviceDetailsData[id as keyof typeof serviceDetailsData];
-  // để TypeScript hiểu rằng id là một trong các key hợp lệ ("ivf" | "iui" | "exam")
+  const service = ServiceInfo.find((s) => s.id === id);
 
-  if (!service) return <div>Không tìm thấy dịch vụ!</div>;
+  if (!service) {
+    return <div>Không tìm thấy dịch vụ</div>;
+  }
 
   return (
-    <section className="bg-white-50 min-h-[60vh]">
-      <div className="mx-auto  rounded-xl  p-8">
-        <h2 className="text-2xl font-bold text-pink-700 mb-4">
-          {service.name}
-        </h2>
-        <p className="text-gray-700 mb-4">{service.description}</p>
-        <div className="text-gray-600">{service.detail}</div>
-      </div>
-    </section>
+    <div className="max-w-4xl mx-auto py-8 px-4">
+      <Title level={2} className="text-blue-700 mb-6">
+        {service.title}
+      </Title>
+      <Paragraph className="text-lg mb-8">{service.description}</Paragraph>
+
+      <Title level={3} className="mb-6">
+        Quy trình điều trị
+      </Title>
+      <Steps
+        direction="vertical"
+        current={-1}
+        items={service.steps.map((step) => ({
+          title: (
+            <Text strong className="text-lg">
+              {step.title}
+            </Text>
+          ),
+          description: (
+            <Card className="mt-2" bordered={false}>
+              <Paragraph>{step.description}</Paragraph>
+              {step.duration && (
+                <Text type="secondary" className="block mt-2">
+                  Thời gian: {step.duration}
+                </Text>
+              )}
+              {step.notes && (
+                <Text type="warning" className="block mt-2">
+                  Lưu ý: {step.notes}
+                </Text>
+              )}
+            </Card>
+          ),
+        }))}
+      />
+    </div>
   );
-}
+};
+
+export default ServiceDetails;

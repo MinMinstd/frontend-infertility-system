@@ -1,5 +1,5 @@
 .back-ground {
-  background-image: 'url("/Images/Banner.jpg")';
+  background-image: 'url("../public/Images/Banner.jpg")';
   background-size: "cover";
   background-size: "center";
   background-repeat: "no-repeat";
