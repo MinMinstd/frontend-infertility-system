@@ -1,299 +1,206 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight, Play, Pause } from "lucide-react";
+
+const carouselImages = [
+  {
+    src: "/placeholder.svg?height=600&width=800",
+    alt: "Phòng khám hiện đại 1",
+    title: "Phòng khám hiện đại",
+  },
+  {
+    src: "/placeholder.svg?height=600&width=800",
+    alt: "Phòng khám hiện đại 2",
+    title: "Trang thiết bị tiên tiến",
+  },
+  {
+    src: "/placeholder.svg?height=600&width=800",
+    alt: "Phòng khám hiện đại 3",
+    title: "Không gian thân thiện",
+  },
+];
+
+const newsItems = [
+  {
+    id: 1,
+    title: "Tin tức mới nhất về bệnh viện",
+    description:
+      "Cập nhật những thông tin mới nhất về hoạt động và dịch vụ của bệnh viện.",
+    image: "/placeholder.svg?height=200&width=300",
+    date: "2024-01-15",
+  },
+  {
+    id: 2,
+    title: "Sự kiện sắp diễn ra",
+    description:
+      "Thông tin về các sự kiện, hội thảo và chương trình sắp diễn ra tại bệnh viện.",
+    image: "/placeholder.svg?height=200&width=300",
+    date: "2024-01-20",
+  },
+  {
+    id: 3,
+    title: "Công nghệ mới trong điều trị",
+    description:
+      "Giới thiệu về những công nghệ tiên tiến mới được áp dụng trong điều trị.",
+    image: "/placeholder.svg?height=200&width=300",
+    date: "2024-01-25",
+  },
+];
 
 export default function Mission() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
+
   useEffect(() => {
-    // Initialize carousel when component mounts
-    const carousel = document.getElementById("default-carousel");
-    const items = carousel?.getElementsByClassName("carousel-item");
-    const indicators = carousel?.getElementsByClassName("carousel-indicator");
-    let currentSlide = 0;
+    if (!isPlaying) return;
 
-    function showSlide(index: number) {
-      if (!items || !indicators) return;
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
+    }, 5000);
 
-      // Hide all slides
-      for (let i = 0; i < items.length; i++) {
-        items[i].classList.add("hidden");
-        indicators[i].classList.remove("bg-white");
-        indicators[i].classList.add("bg-white/50");
-      }
+    return () => clearInterval(interval);
+  }, [isPlaying]);
 
-      // Show current slide
-      items[index].classList.remove("hidden");
-      indicators[index].classList.remove("bg-white/50");
-      indicators[index].classList.add("bg-white");
-      currentSlide = index;
-    }
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
+  };
 
-    function nextSlide() {
-      if (!items) return;
-      showSlide((currentSlide + 1) % items.length);
-    }
-
-    function prevSlide() {
-      if (!items) return;
-      showSlide((currentSlide - 1 + items.length) % items.length);
-    }
-
-    // Add event listeners
-    document
-      .querySelector("[data-carousel-next]")
-      ?.addEventListener("click", nextSlide);
-    document
-      .querySelector("[data-carousel-prev]")
-      ?.addEventListener("click", prevSlide);
-
-    // Show first slide
-    showSlide(0);
-
-    // Auto advance slides
-    const interval = setInterval(nextSlide, 5000);
-
-    return () => {
-      clearInterval(interval);
-      document
-        .querySelector("[data-carousel-next]")
-        ?.removeEventListener("click", nextSlide);
-      document
-        .querySelector("[data-carousel-prev]")
-        ?.removeEventListener("click", prevSlide);
-    };
-  }, []);
+  const prevSlide = () => {
+    setCurrentSlide(
+      (prev) => (prev - 1 + carouselImages.length) % carouselImages.length
+    );
+  };
 
   return (
-    <>
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 py-8 px-4 bg-white">
-        {/* Grid left: 3/4 */}
-        <div className="lg:col-span-3 flex flex-col h-[800px]">
-          <div className="max-w-3xl mx-auto text-center lg:text-left mb-6">
-            <h2 className="text-2xl md:text-3xl font-semibold text-pink-600 mb-4">
-              Sứ mệnh & Cơ sở vật chất
-            </h2>
-            <p className="text-gray-700 mb-4">
-              Sứ mệnh của chúng tôi là mang lại hy vọng và hạnh phúc cho các gia
-              đình hiếm muộn. Bệnh viện được trang bị hệ thống phòng lab hiện
-              đại tiên tiến, phòng khám tiện nghi, không gian thân thiện và
-              riêng tư.
-            </p>
-          </div>
-
-          <div id="default-carousel" className="relative flex-1 w-full">
-            {/* Carousel wrapper */}
-            <div className="absolute inset-0 rounded-lg overflow-hidden">
-              {/* Item 1 */}
-              <div className="hidden duration-700 ease-in-out carousel-item h-full">
-                <img
-                  src="/Images/Mission/ms_1.jpg"
-                  className="absolute block w-full h-full object-cover"
-                  alt="Phòng khám hiện đại 1"
-                />
-              </div>
-              {/* Item 2 */}
-              <div className="hidden duration-700 ease-in-out carousel-item h-full">
-                <img
-                  src="/Images/Mission/ms_2.jpg"
-                  className="absolute block w-full h-full object-cover"
-                  alt="Phòng khám hiện đại 2"
-                />
-              </div>
-              {/* Item 3 */}
-              <div className="hidden duration-700 ease-in-out carousel-item h-full">
-                <img
-                  src="/Images/Mission/ms_3.jpeg"
-                  className="absolute block w-full h-full object-cover"
-                  alt="Phòng khám hiện đại 3"
-                />
-              </div>
+    <section className="py-16 bg-gradient-to-b from-white to-gray-50">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Main Content - 3/4 */}
+          <div className="lg:col-span-3 space-y-8">
+            {/* Header */}
+            <div className="text-center lg:text-left">
+              <h2 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-pink-600 to-blue-600 bg-clip-text text-transparent mb-4">
+                Sứ mệnh & Cơ sở vật chất
+              </h2>
+              <p className="text-gray-700 text-lg leading-relaxed max-w-4xl">
+                Sứ mệnh của chúng tôi là mang lại hy vọng và hạnh phúc cho các
+                gia đình hiếm muộn. Bệnh viện được trang bị hệ thống phòng lab
+                hiện đại tiên tiến, phòng khám tiện nghi, không gian thân thiện
+                và riêng tư.
+              </p>
+              <div className="w-24 h-1 bg-gradient-to-r from-pink-500 to-blue-500 mt-4 rounded-full lg:mx-0 mx-auto" />
             </div>
 
-            {/* Slider indicators */}
-            <div className="absolute z-30 flex -translate-x-1/2 bottom-5 left-1/2 space-x-3 rtl:space-x-reverse">
-              <button
-                type="button"
-                className="w-3 h-3 rounded-full carousel-indicator bg-white/50"
-                aria-current="true"
-                aria-label="Slide 1"
-              ></button>
-              <button
-                type="button"
-                className="w-3 h-3 rounded-full carousel-indicator bg-white/50"
-                aria-current="false"
-                aria-label="Slide 2"
-              ></button>
-              <button
-                type="button"
-                className="w-3 h-3 rounded-full carousel-indicator bg-white/50"
-                aria-current="false"
-                aria-label="Slide 3"
-              ></button>
+            {/* Carousel */}
+            <div className="relative bg-white rounded-3xl shadow-2xl overflow-hidden group">
+              <div className="relative h-[500px] lg:h-[600px]">
+                {carouselImages.map((image, index) => (
+                  <div
+                    key={index}
+                    className={`absolute inset-0 transition-opacity duration-1000 ${
+                      index === currentSlide ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
+                    <img
+                      src={image.src || "/placeholder.svg"}
+                      alt={image.alt}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                    <div className="absolute bottom-8 left-8 text-white">
+                      <h3 className="text-2xl font-bold mb-2">{image.title}</h3>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Controls */}
+                <button
+                  onClick={prevSlide}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white p-3 rounded-full transition-all duration-300 opacity-0 group-hover:opacity-100"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+                <button
+                  onClick={nextSlide}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white p-3 rounded-full transition-all duration-300 opacity-0 group-hover:opacity-100"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+
+                {/* Play/Pause */}
+                <button
+                  onClick={() => setIsPlaying(!isPlaying)}
+                  className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white p-3 rounded-full transition-all duration-300 opacity-0 group-hover:opacity-100"
+                >
+                  {isPlaying ? (
+                    <Pause className="w-5 h-5" />
+                  ) : (
+                    <Play className="w-5 h-5" />
+                  )}
+                </button>
+
+                {/* Indicators */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+                  {carouselImages.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentSlide(index)}
+                      className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                        index === currentSlide
+                          ? "bg-white scale-125"
+                          : "bg-white/50 hover:bg-white/75"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
-
-            {/* Slider controls */}
-            <button
-              type="button"
-              className="absolute top-0 start-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none"
-              data-carousel-prev
-            >
-              <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/30 group-hover:bg-white/50 group-focus:ring-4 group-focus:ring-white group-focus:outline-none">
-                <svg
-                  className="w-4 h-4 text-white rtl:rotate-180"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 6 10"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 1 1 5l4 4"
-                  />
-                </svg>
-                <span className="sr-only">Previous</span>
-              </span>
-            </button>
-            <button
-              type="button"
-              className="absolute top-0 end-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none"
-              data-carousel-next
-            >
-              <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/30 group-hover:bg-white/50 group-focus:ring-4 group-focus:ring-white group-focus:outline-none">
-                <svg
-                  className="w-4 h-4 text-white rtl:rotate-180"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 6 10"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="m1 9 4-4-4-4"
-                  />
-                </svg>
-                <span className="sr-only">Next</span>
-              </span>
-            </button>
           </div>
-        </div>
 
-        {/* Grid right: 1/4 */}
-        <div className="lg:col-span-1 flex flex-col space-y-4">
-          <div className="bg-pink-50 rounded-xl shadow-sm p-4">
-            <div className="space-y-4">
-              {/* News item 1 */}
-              <div className="bg-white border border-gray-100 rounded-lg shadow-sm overflow-hidden">
-                <img
-                  className="w-full h-48 object-cover"
-                  src="/Images/Mission/ms_1.jpg"
-                  alt="Tin tức về bệnh viện"
-                />
-                <div className="p-5">
-                  <h5 className="mb-2 text-xl font-bold tracking-tight text-gray-900">
-                    Tin tức mới nhất về bệnh viện
-                  </h5>
-                  <p className="mb-3 font-normal text-gray-700">
-                    Cập nhật những thông tin mới nhất về hoạt động và dịch vụ
-                    của bệnh viện.
-                  </p>
-                  <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-pink-600 rounded-lg hover:bg-pink-700 focus:ring-4 focus:outline-none focus:ring-pink-300">
-                    Xem thêm
-                    <svg
-                      className="rtl:rotate-180 w-3.5 h-3.5 ms-2"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 14 10"
-                    >
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M1 5h12m0 0L9 1m4 4L9 9"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              </div>
+          {/* Sidebar - 1/4 */}
+          <div className="lg:col-span-1 space-y-6">
+            <div className="bg-gradient-to-br from-pink-50 to-blue-50 rounded-3xl p-6 shadow-lg">
+              <h3 className="text-xl font-bold text-gray-800 mb-6 text-center">
+                Tin tức & Sự kiện
+              </h3>
 
-              {/* News item 2 */}
-              <div className="bg-white border border-gray-100 rounded-lg shadow-sm overflow-hidden">
-                <img
-                  className="w-full h-48 object-cover"
-                  src="/Images/Mission/ms_2.jpg"
-                  alt="Sự kiện sắp diễn ra"
-                />
-                <div className="p-5">
-                  <h5 className="mb-2 text-xl font-bold tracking-tight text-gray-900">
-                    Sự kiện sắp diễn ra
-                  </h5>
-                  <p className="mb-3 font-normal text-gray-700">
-                    Thông tin về các sự kiện, hội thảo và chương trình sắp diễn
-                    ra tại bệnh viện.
-                  </p>
-                  <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-pink-600 rounded-lg hover:bg-pink-700 focus:ring-4 focus:outline-none focus:ring-pink-300">
-                    Xem thêm
-                    <svg
-                      className="rtl:rotate-180 w-3.5 h-3.5 ms-2"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 14 10"
-                    >
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M1 5h12m0 0L9 1m4 4L9 9"
+              <div className="space-y-6">
+                {newsItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer"
+                  >
+                    <div className="relative">
+                      <img
+                        src={item.image || "/placeholder.svg"}
+                        alt={item.title}
+                        className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
                       />
-                    </svg>
-                  </button>
-                </div>
-              </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    </div>
 
-              <div className="bg-white border border-gray-100 rounded-lg shadow-sm overflow-hidden">
-                <img
-                  className="w-full h-48 object-cover"
-                  src="/Images/Mission/ms_2.jpg"
-                  alt="Sự kiện sắp diễn ra"
-                />
-                <div className="p-5">
-                  <h5 className="mb-2 text-xl font-bold tracking-tight text-gray-900">
-                    Sự kiện sắp diễn ra
-                  </h5>
-                  <p className="mb-3 font-normal text-gray-700">
-                    Thông tin về các sự kiện, hội thảo và chương trình sắp diễn
-                    ra tại bệnh viện.
-                  </p>
-                  <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-pink-600 rounded-lg hover:bg-pink-700 focus:ring-4 focus:outline-none focus:ring-pink-300">
-                    Xem thêm
-                    <svg
-                      className="rtl:rotate-180 w-3.5 h-3.5 ms-2"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 14 10"
-                    >
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M1 5h12m0 0L9 1m4 4L9 9"
-                      />
-                    </svg>
-                  </button>
-                </div>
+                    <div className="p-4">
+                      <h4 className="font-bold text-gray-800 mb-2 group-hover:text-pink-600 transition-colors line-clamp-2">
+                        {item.title}
+                      </h4>
+                      <p className="text-gray-600 text-sm mb-3 line-clamp-3">
+                        {item.description}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-gray-500">
+                          {new Date(item.date).toLocaleDateString("vi-VN")}
+                        </span>
+                        <button className="text-pink-600 hover:text-pink-700 text-sm font-medium group-hover:translate-x-1 transition-all duration-300">
+                          Xem thêm →
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </div>
-    </>
+    </section>
   );
 }

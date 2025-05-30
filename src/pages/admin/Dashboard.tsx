@@ -1,6 +1,6 @@
-import React from 'react';
-import { Card, Row, Col, Statistic } from 'antd';
-import { Line } from 'react-chartjs-2';
+import React from "react";
+import { Card, Row, Col, Statistic } from "antd";
+import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -10,30 +10,38 @@ import {
   Title,
   Tooltip,
   Legend,
-} from 'chart.js';
+} from "chart.js";
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const Dashboard: React.FC = () => {
   const appointmentData = {
-    labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5'],
+    labels: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5"],
     datasets: [
       {
-        label: 'Số lượng cuộc hẹn',
+        label: "Số lượng cuộc hẹn",
         data: [10, 15, 12, 100100, 20],
-        borderColor: 'rgb(75, 192, 192)',
+        borderColor: "rgb(75, 192, 192)",
         tension: 0.1,
       },
     ],
   };
 
   const revenueData = {
-    labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5'],
+    labels: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5"],
     datasets: [
       {
-        label: 'Doanh thu',
+        label: "Doanh thu",
         data: [1000, 1500, 1200, 1800, 2000],
-        borderColor: 'rgb(255, 99, 132)',
+        borderColor: "rgb(255, 99, 132)",
         tension: 0.1,
       },
     ],
@@ -41,11 +49,17 @@ const Dashboard: React.FC = () => {
 
   return (
     <div>
-      <h2 style={{ fontSize: 24, color: '#1890ff' }}>Hello Admin!</h2>
+      <h2 style={{ fontSize: 24, color: "#1890ff" }}>Hello Admin!</h2>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={8}>
           <Card>
-            <Statistic title="July activity" value={24.345585} precision={2} valueStyle={{ color: '#3f8600' }} prefix="$" />
+            <Statistic
+              title="July activity"
+              value={24.345585}
+              precision={2}
+              valueStyle={{ color: "#3f8600" }}
+              prefix="$"
+            />
           </Card>
         </Col>
         <Col span={8}>
@@ -66,7 +80,6 @@ const Dashboard: React.FC = () => {
               <li>01 Tư Vấn </li>
               <li>02 IVF</li>
               <li>03 IUI</li>
-           
             </ul>
           </Card>
         </Col>

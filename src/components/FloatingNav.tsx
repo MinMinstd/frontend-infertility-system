@@ -65,6 +65,12 @@ export default function FloatingNav() {
         >
           Tra cứu kết quả
         </NavLink>
+        <NavLink
+          to="/feedback"
+          className={({ isActive }) => (isActive ? "active" : undefined)}
+        >
+          Feedback
+        </NavLink>
       </div>
     </>
   );

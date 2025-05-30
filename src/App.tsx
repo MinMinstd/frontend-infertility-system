@@ -18,6 +18,7 @@ import Gratefull from "./pages/customer/Gratefull";
 import { GratefulDetail } from "./pages/customer/GratefulDetail";
 import ProfileCard from "./components/ProfileCard";
 import HistoryMedical from "./pages/customer/HistoryMedical";
+import FeedbackPage from "./pages/customer/Feedback";
 
 export default function App() {
   return (
@@ -40,7 +41,7 @@ export default function App() {
               <Route path="/gratefull" element={<Gratefull />} />
               <Route path="/gratefull/:id" element={<GratefulDetail />} />
               <Route path="/support_user" element={<SupportUser />} />
-
+              <Route path="/feedback" element={<FeedbackPage />} />
               {/* Thông tin cá nhân bệnh nhân */}
               <Route path="/user/profile" element={<ProfileCard />} />
               <Route
