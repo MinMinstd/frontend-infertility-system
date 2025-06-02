@@ -15,8 +15,16 @@ import SupportUser from "../pages/customer/SupportUser";
 
 export const userRoutes: RouteObject[] = [
   { path: "/", element: <Home /> },
-  { path: "/login", element: <LoginPage /> },
-  { path: "/register", element: <RegisterPage /> },
+  {
+    path: "/login",
+    element: <LoginPage />,
+    handle: { layout: "none" },
+  },
+  {
+    path: "/register",
+    element: <RegisterPage />,
+    handle: { layout: "none" },
+  },
   { path: "/services", element: <Services /> },
   { path: "/services/:id", element: <ServiceDetails /> },
   { path: "/doctors", element: <Doctors /> },
