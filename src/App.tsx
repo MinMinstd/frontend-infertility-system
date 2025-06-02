@@ -19,6 +19,7 @@ import { GratefulDetail } from "./pages/customer/GratefulDetail";
 import ProfileCard from "./components/ProfileCard";
 import HistoryMedical from "./pages/customer/HistoryMedical";
 import FeedbackPage from "./pages/customer/Feedback";
+import RegisterPage from "./pages/customer/Register";
 
 export default function App() {
   return (
@@ -29,8 +30,9 @@ export default function App() {
           <main className="flex-1">
             <FloatingNav />
             <Routes>
-              <Route path="/" element={<Home />} />
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/register" element={<RegisterPage />} />
               <Route path="/services" element={<Services />} />
               <Route path="/services/:id" element={<ServiceDetails />} />
               <Route path="/doctors" element={<Doctors />} />
