@@ -41,7 +41,7 @@ export default function WhyChooseUs() {
         <div className="w-24 h-1 bg-gradient-to-r from-pink-500 to-blue-500 mx-auto rounded-full" />
       </div>
 
-      <div className="space-y-10">
+      <div className="space-y-12">
         {reasons.map((reason, index) => {
           const IconComponent = reason.icon;
           return (

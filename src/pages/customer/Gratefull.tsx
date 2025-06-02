@@ -19,7 +19,7 @@ export const Gratefull = ({ limit }: GratefullProps) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl mx-auto px-4 py-12 bg-gradient-to-b from-pink-50 to-blue-50 rounded-3xl shadow-lg">
       {/* Header */}
       <div className="text-center lg:text-left">
         <h2 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-pink-600 to-blue-600 bg-clip-text text-transparent mb-4">
