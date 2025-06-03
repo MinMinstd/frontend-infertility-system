@@ -1,48 +1,23 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Play, Pause } from "lucide-react";
+import newsItems from "../data/newsItems";
+import { Link } from "react-router-dom";
 
 const carouselImages = [
   {
-    src: "/placeholder.svg?height=600&width=800",
+    src: " /Images/PhongKhamThanThien.jpg",
     alt: "Phòng khám hiện đại 1",
     title: "Phòng khám hiện đại",
   },
   {
-    src: "/placeholder.svg?height=600&width=800",
+    src: "/Images/TrangThietBi.jpg",
     alt: "Phòng khám hiện đại 2",
     title: "Trang thiết bị tiên tiến",
   },
   {
-    src: "/placeholder.svg?height=600&width=800",
+    src: "/Images/KhongGianThanThien.jpg ",
     alt: "Phòng khám hiện đại 3",
     title: "Không gian thân thiện",
-  },
-];
-
-const newsItems = [
-  {
-    id: 1,
-    title: "Tin tức mới nhất về bệnh viện",
-    description:
-      "Cập nhật những thông tin mới nhất về hoạt động và dịch vụ của bệnh viện.",
-    image: "/placeholder.svg?height=200&width=300",
-    date: "2024-01-15",
-  },
-  {
-    id: 2,
-    title: "Sự kiện sắp diễn ra",
-    description:
-      "Thông tin về các sự kiện, hội thảo và chương trình sắp diễn ra tại bệnh viện.",
-    image: "/placeholder.svg?height=200&width=300",
-    date: "2024-01-20",
-  },
-  {
-    id: 3,
-    title: "Công nghệ mới trong điều trị",
-    description:
-      "Giới thiệu về những công nghệ tiên tiến mới được áp dụng trong điều trị.",
-    image: "/placeholder.svg?height=200&width=300",
-    date: "2024-01-25",
   },
 ];
 
@@ -189,9 +164,12 @@ export default function Mission() {
                         <span className="text-xs text-gray-500">
                           {new Date(item.date).toLocaleDateString("vi-VN")}
                         </span>
-                        <button className="text-pink-600 hover:text-pink-700 text-sm font-medium group-hover:translate-x-1 transition-all duration-300">
+                        <Link
+                          to={item.url || "#"}
+                          className="text-pink-600 hover:text-pink-700 text-sm font-medium group-hover:translate-x-1 transition-all duration-300"
+                        >
                           Xem thêm →
-                        </button>
+                        </Link>
                       </div>
                     </div>
                   </div>
