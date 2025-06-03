@@ -4,7 +4,7 @@ import Search from "./Search";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import Profile from "../pages/customer/Profile";
+import Profile from "../pages/customer/InfoAccount";
 
 const rightNavLinks = [
   { name: "Đặt lịch hẹn", href: "/appointment" },
