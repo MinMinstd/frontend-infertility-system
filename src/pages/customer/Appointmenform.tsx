@@ -9,7 +9,7 @@ export default function AppointmentForm() {
     formState: { errors, isSubmitSuccessful },
   } = useForm();
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data) => {
     alert("Đặt lịch thành công! Chúng tôi sẽ liên hệ với bạn.");
     reset();
     console.log(data);
