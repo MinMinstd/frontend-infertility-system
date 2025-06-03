@@ -119,7 +119,13 @@ export default function Header() {
           <Search />
           <Notification />
 
-          {isLoggedIn ? <Profile /> : <LoginButton />}
+          {isLoggedIn ? (
+            <div className="relative">
+              <Profile />
+            </div>
+          ) : (
+            <LoginButton />
+          )}
         </nav>
       </div>
     </header>

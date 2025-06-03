@@ -1,8 +1,9 @@
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom"; // Thay thế useRouter từ next/navigation
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { message } from "antd";
 import { Heart, Mail, Lock, User, Stethoscope } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 
 interface LoginFormInputs {
   userOrEmail: string;
@@ -11,7 +12,8 @@ interface LoginFormInputs {
 }
 
 const LoginPage = () => {
-  const navigate = useNavigate(); // Sử dụng useNavigate thay vì useRouter
+  const { login } = useAuth();
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -36,13 +38,9 @@ const LoginPage = () => {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Hiển thị thông báo thành công
+      login(); // Gọi hàm login từ AuthContext
       message.success("Đăng nhập thành công!");
-
-      // Đợi 1 giây để người dùng thấy thông báo
-      setTimeout(() => {
-        navigate("/"); // Sử dụng navigate thay vì router.push
-      }, 1000);
+      navigate("/"); // Chuyển về trang chủ sau khi đăng nhập
     } catch (err) {
       console.error("Login error:", err);
       message.error("Đăng nhập thất bại. Vui lòng thử lại!");
