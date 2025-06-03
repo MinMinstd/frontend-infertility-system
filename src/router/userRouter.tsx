@@ -12,6 +12,8 @@ import ProfileCard from "../components/ProfileCard";
 import HistoryMedical from "../pages/customer/HistoryMedical";
 import FeedbackPage from "../pages/customer/Feedback";
 import SupportUser from "../pages/customer/SupportUser";
+import RegisterService from "../components/RegisterService";
+import Contact from "../components/Contact";
 
 export const userRoutes: RouteObject[] = [
   { path: "/", element: <Home /> },
@@ -33,6 +35,8 @@ export const userRoutes: RouteObject[] = [
   { path: "/gratefull/:id", element: <GratefulDetail /> },
   { path: "/support_user", element: <SupportUser /> },
   { path: "/feedback", element: <FeedbackPage /> },
+  { path: "/contact", element: <Contact /> },
+  { path: "/user/register_service", element: <RegisterService /> },
   { path: "/user/profile", element: <ProfileCard /> },
   { path: "/user/history_medical", element: <HistoryMedical /> },
 ];

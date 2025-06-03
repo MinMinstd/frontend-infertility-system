@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import "../components/Style/Banner.css";
 import { Heart, Award, Users, Clock } from "lucide-react";
 //Giới thiệu cơ sở y tế
@@ -54,9 +55,11 @@ export default function Banner() {
 
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button className="bg-gradient-to-r from-pink-500 to-pink-600 text-white px-8 py-4 rounded-full font-semibold text-lg hover:from-pink-600 hover:to-pink-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-            Đặt lịch khám ngay
-          </button>
+          <Link to="/user/register_service" className="w-full sm:w-auto">
+            <button className="bg-gradient-to-r from-pink-500 to-pink-600 text-white px-8 py-4 rounded-full font-semibold text-lg hover:from-pink-600 hover:to-pink-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
+              Đặt lịch khám ngay
+            </button>
+          </Link>
           <button className="bg-white/90 text-gray-800 px-8 py-4 rounded-full font-semibold text-lg hover:bg-white transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border border-gray-200">
             Tư vấn miễn phí
           </button>
