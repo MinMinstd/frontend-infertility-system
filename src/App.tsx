@@ -29,8 +29,17 @@ export default function App() {
             <Route
               key={route.path}
               path={route.path}
-              element={<MainLayout>{route.element}</MainLayout>}
-            />
+              element={route.element}
+            >
+              {route.children && route.children.map((child, idx) => (
+                <Route
+                  key={child.path || idx}
+                  index={child.index}
+                  path={child.path}
+                  element={child.element}
+                />
+              ))}
+            </Route>
           ))}
         </Routes>
       </BrowserRouter>
