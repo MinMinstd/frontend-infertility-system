@@ -1,6 +1,6 @@
 // This is a pure content component for the admin nested layout. Do not add layout/sidebar/header/footer here.
 import React, { useState } from "react";
-import { Form, Input, Button, Select, message, Typography, Card } from "antd";
+import { Form, Input, Button, Select, message, Typography } from "antd";
 const { Title } = Typography;
 
 const roleOptions = [
@@ -13,7 +13,8 @@ const CreateAccount: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string>("");
 
-  const handleFinish = (values: any) => {
+  //Có sử dụng biến ở dây để lưu trạng thái thông báo value
+  const handleFinish = () => {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
@@ -28,7 +29,9 @@ const CreateAccount: React.FC = () => {
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 max-w-lg mx-auto">
-      <Title level={3} className="text-center text-pink-600 font-bold mb-6">Cấp tài khoản mới</Title>
+      <Title level={3} className="text-center text-pink-600 font-bold mb-6">
+        Cấp tài khoản mới
+      </Title>
       <Form
         form={form}
         layout="vertical"
@@ -40,9 +43,9 @@ const CreateAccount: React.FC = () => {
           name="role"
           rules={[{ required: true, message: "Vui lòng chọn vai trò!" }]}
         >
-          <Select 
-            options={roleOptions} 
-            placeholder="Chọn vai trò" 
+          <Select
+            options={roleOptions}
+            placeholder="Chọn vai trò"
             onChange={handleRoleChange}
           />
         </Form.Item>
@@ -56,12 +59,16 @@ const CreateAccount: React.FC = () => {
         <Form.Item
           label={<span className="font-semibold text-pink-600">Email</span>}
           name="email"
-          rules={[{ required: true, type: "email", message: "Email không hợp lệ!" }]}
+          rules={[
+            { required: true, type: "email", message: "Email không hợp lệ!" },
+          ]}
         >
           <Input placeholder="Nhập email" />
         </Form.Item>
         <Form.Item
-          label={<span className="font-semibold text-pink-600">Số điện thoại</span>}
+          label={
+            <span className="font-semibold text-pink-600">Số điện thoại</span>
+          }
           name="phone"
           rules={[{ required: true, message: "Vui lòng nhập số điện thoại!" }]}
         >
@@ -69,14 +76,13 @@ const CreateAccount: React.FC = () => {
         </Form.Item>
         {selectedRole === "doctor" && (
           <Form.Item
-            label={<span className="font-semibold text-pink-600">Kinh nghiệm</span>}
+            label={
+              <span className="font-semibold text-pink-600">Kinh nghiệm</span>
+            }
             name="experience"
             rules={[{ required: true, message: "Vui lòng nhập kinh nghiệm!" }]}
           >
-            <Input.TextArea 
-              placeholder="Nhập kinh nghiệm làm việc" 
-              rows={4}
-            />
+            <Input.TextArea placeholder="Nhập kinh nghiệm làm việc" rows={4} />
           </Form.Item>
         )}
         {selectedRole === "manager" && (
@@ -85,21 +91,27 @@ const CreateAccount: React.FC = () => {
             name="address"
             rules={[{ required: true, message: "Vui lòng nhập địa chỉ!" }]}
           >
-            <Input.TextArea 
-              placeholder="Nhập địa chỉ" 
-              rows={4}
-            />
+            <Input.TextArea placeholder="Nhập địa chỉ" rows={4} />
           </Form.Item>
         )}
         <Form.Item
           label={<span className="font-semibold text-pink-600">Mật khẩu</span>}
           name="password"
-          rules={[{ required: true, min: 6, message: "Mật khẩu tối thiểu 6 ký tự!" }]}
+          rules={[
+            { required: true, min: 6, message: "Mật khẩu tối thiểu 6 ký tự!" },
+          ]}
         >
-          <Input.Password placeholder="Nhập mật khẩu" autoComplete="new-password" />
+          <Input.Password
+            placeholder="Nhập mật khẩu"
+            autoComplete="new-password"
+          />
         </Form.Item>
         <Form.Item
-          label={<span className="font-semibold text-pink-600">Xác nhận mật khẩu</span>}
+          label={
+            <span className="font-semibold text-pink-600">
+              Xác nhận mật khẩu
+            </span>
+          }
           name="confirmPassword"
           dependencies={["password"]}
           rules={[
@@ -109,12 +121,17 @@ const CreateAccount: React.FC = () => {
                 if (!value || getFieldValue("password") === value) {
                   return Promise.resolve();
                 }
-                return Promise.reject(new Error("Mật khẩu xác nhận không khớp!"));
+                return Promise.reject(
+                  new Error("Mật khẩu xác nhận không khớp!")
+                );
               },
             }),
           ]}
         >
-          <Input.Password placeholder="Nhập lại mật khẩu" autoComplete="new-password" />
+          <Input.Password
+            placeholder="Nhập lại mật khẩu"
+            autoComplete="new-password"
+          />
         </Form.Item>
         <Form.Item>
           <Button
@@ -131,4 +148,4 @@ const CreateAccount: React.FC = () => {
   );
 };
 
-export default CreateAccount; 
+export default CreateAccount;

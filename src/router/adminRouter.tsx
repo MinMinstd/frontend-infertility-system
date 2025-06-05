@@ -8,44 +8,40 @@ import DoctorWorkList from "../pages/admin/DoctorWorkList";
 import Profile from "../pages/admin/Profile";
 import CreateAccount from "../pages/admin/CreateAccount";
 
-
 export const adminRoutes: RouteObject[] = [
   {
-    path: "/",
+    path: "/admin",
     element: <AdminDashboard />,
-
-  },
 
     children: [
       {
         index: true,
-        element: <Dashboard />
+        element: <Dashboard />,
       },
       {
         path: "profile",
-        element: <Profile />
+        element: <Profile />,
       },
       {
         path: "customers",
-        element: <CustomerList />
+        element: <CustomerList />,
       },
       {
         path: "dashboard",
-        element: <Dashboard />
+        element: <Dashboard />,
       },
       {
         path: "appointments",
-        element: <AppointmentList />
+        element: <AppointmentList />,
       },
       {
         path: "doctors",
-        element: <DoctorWorkList />
+        element: <DoctorWorkList />,
       },
       {
         path: "create-account",
-        element: <CreateAccount />
-      }
-    ]
-  }
-
+        element: <CreateAccount />,
+      },
+    ],
+  },
 ];

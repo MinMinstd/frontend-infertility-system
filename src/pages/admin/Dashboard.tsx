@@ -1,6 +1,6 @@
 // This is a pure content component for the admin nested layout. Do not add layout/sidebar/header/footer here.
 import React from "react";
-import { Card, Row, Col, Statistic } from "antd";
+import { Statistic } from "antd";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -54,7 +54,9 @@ const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center">
           <Statistic
-            title={<span className="text-pink-600 font-semibold">July activity</span>}
+            title={
+              <span className="text-pink-600 font-semibold">July activity</span>
+            }
             value={24.345585}
             precision={2}
             valueStyle={{ color: "#3f8600" }}
@@ -62,10 +64,22 @@ const Dashboard: React.FC = () => {
           />
         </div>
         <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center">
-          <Statistic title={<span className="text-pink-600 font-semibold">Total booking</span>} value={202} />
+          <Statistic
+            title={
+              <span className="text-pink-600 font-semibold">Total booking</span>
+            }
+            value={202}
+          />
         </div>
         <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center">
-          <Statistic title={<span className="text-pink-600 font-semibold">Total Customer</span>} value={554} />
+          <Statistic
+            title={
+              <span className="text-pink-600 font-semibold">
+                Total Customer
+              </span>
+            }
+            value={554}
+          />
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -89,7 +103,9 @@ const Dashboard: React.FC = () => {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-lg font-bold text-pink-600 mb-2">Số lượng cuộc hẹn</h3>
+          <h3 className="text-lg font-bold text-pink-600 mb-2">
+            Số lượng cuộc hẹn
+          </h3>
           <Line data={appointmentData} />
         </div>
         <div className="bg-white rounded-xl shadow-lg p-6">
