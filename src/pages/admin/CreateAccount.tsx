@@ -11,6 +11,7 @@ const roleOptions = [
 const CreateAccount: React.FC = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<string>("");
 
   const handleFinish = (values: any) => {
     setLoading(true);
@@ -19,6 +20,10 @@ const CreateAccount: React.FC = () => {
       form.resetFields();
       message.success("Tạo tài khoản thành công!");
     }, 1200);
+  };
+
+  const handleRoleChange = (value: string) => {
+    setSelectedRole(value);
   };
 
   return (
@@ -35,7 +40,11 @@ const CreateAccount: React.FC = () => {
           name="role"
           rules={[{ required: true, message: "Vui lòng chọn vai trò!" }]}
         >
-          <Select options={roleOptions} placeholder="Chọn vai trò" />
+          <Select 
+            options={roleOptions} 
+            placeholder="Chọn vai trò" 
+            onChange={handleRoleChange}
+          />
         </Form.Item>
         <Form.Item
           label={<span className="font-semibold text-pink-600">Họ và tên</span>}
@@ -58,6 +67,30 @@ const CreateAccount: React.FC = () => {
         >
           <Input placeholder="Nhập số điện thoại" />
         </Form.Item>
+        {selectedRole === "doctor" && (
+          <Form.Item
+            label={<span className="font-semibold text-pink-600">Kinh nghiệm</span>}
+            name="experience"
+            rules={[{ required: true, message: "Vui lòng nhập kinh nghiệm!" }]}
+          >
+            <Input.TextArea 
+              placeholder="Nhập kinh nghiệm làm việc" 
+              rows={4}
+            />
+          </Form.Item>
+        )}
+        {selectedRole === "manager" && (
+          <Form.Item
+            label={<span className="font-semibold text-pink-600">Địa chỉ</span>}
+            name="address"
+            rules={[{ required: true, message: "Vui lòng nhập địa chỉ!" }]}
+          >
+            <Input.TextArea 
+              placeholder="Nhập địa chỉ" 
+              rows={4}
+            />
+          </Form.Item>
+        )}
         <Form.Item
           label={<span className="font-semibold text-pink-600">Mật khẩu</span>}
           name="password"

@@ -15,7 +15,7 @@ import SupportUser from "../pages/customer/SupportUser";
 import RegisterService from "../components/RegisterService";
 import Contact from "../components/Contact";
 import TreatmentManagement from "../pages/customer/TreatmentProcess";
-
+import MedicalRecord from "../pages/customer/MedicalRecord";
 export const userRoutes: RouteObject[] = [
   { path: "/", element: <Home /> },
   {
@@ -41,4 +41,5 @@ export const userRoutes: RouteObject[] = [
   { path: "/user/profile", element: <ProfileCard /> },
   { path: "/user/history_medical", element: <HistoryMedical /> },
   {path: "/user/treatment_management", element: <TreatmentManagement /> },
+  {path: "/user/medical_record", element: <MedicalRecord /> },
 ];
