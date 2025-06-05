@@ -1,3 +1,4 @@
+// This is a pure content component for the admin nested layout. Do not add layout/sidebar/header/footer here.
 import React from "react";
 import { Card, Row, Col, Statistic } from "antd";
 import { Line } from "react-chartjs-2";
@@ -48,64 +49,54 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div>
-      <h2 style={{ fontSize: 24, color: "#1890ff" }}>Hello Admin!</h2>
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="July activity"
-              value={24.345585}
-              precision={2}
-              valueStyle={{ color: "#3f8600" }}
-              prefix="$"
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card>
-            <Statistic title="Total booking" value={202} />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card>
-            <Statistic title="Total Customer" value={554} />
-          </Card>
-        </Col>
-      </Row>
-      <Row gutter={16}>
-        <Col span={12}>
-          <Card title="Top Service">
-            <ul>
-              <li>01 Tư Vấn </li>
-              <li>02 IVF</li>
-              <li>03 IUI</li>
-            </ul>
-          </Card>
-        </Col>
-        <Col span={12}>
-          <Card title="VIP Customer">
-            <ul>
-              <li>01 Đoàn Khánh - 123456 - 15</li>
-              <li>02 MinhMinh - 56785 - 10</li>
-              <li>03 HuyHuy - 55 - 2</li>
-              <li>04 DuyDuy - 18 - 1</li>
-            </ul>
-          </Card>
-        </Col>
-      </Row>
-      <Row gutter={16} style={{ marginTop: 16 }}>
-        <Col span={12}>
-          <Card title="Số lượng cuộc hẹn">
-            <Line data={appointmentData} />
-          </Card>
-        </Col>
-        <Col span={12}>
-          <Card title="Doanh thu">
-            <Line data={revenueData} />
-          </Card>
-        </Col>
-      </Row>
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold text-pink-600 mb-4">Hello Admin!</h2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center">
+          <Statistic
+            title={<span className="text-pink-600 font-semibold">July activity</span>}
+            value={24.345585}
+            precision={2}
+            valueStyle={{ color: "#3f8600" }}
+            prefix="$"
+          />
+        </div>
+        <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center">
+          <Statistic title={<span className="text-pink-600 font-semibold">Total booking</span>} value={202} />
+        </div>
+        <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center">
+          <Statistic title={<span className="text-pink-600 font-semibold">Total Customer</span>} value={554} />
+        </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h3 className="text-lg font-bold text-pink-600 mb-2">Top Service</h3>
+          <ul className="space-y-1 text-gray-700">
+            <li>01 Tư Vấn </li>
+            <li>02 IVF</li>
+            <li>03 IUI</li>
+          </ul>
+        </div>
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h3 className="text-lg font-bold text-pink-600 mb-2">VIP Customer</h3>
+          <ul className="space-y-1 text-gray-700">
+            <li>01 Đoàn Khánh - 123456 - 15</li>
+            <li>02 MinhMinh - 56785 - 10</li>
+            <li>03 HuyHuy - 55 - 2</li>
+            <li>04 DuyDuy - 18 - 1</li>
+          </ul>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h3 className="text-lg font-bold text-pink-600 mb-2">Số lượng cuộc hẹn</h3>
+          <Line data={appointmentData} />
+        </div>
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h3 className="text-lg font-bold text-pink-600 mb-2">Doanh thu</h3>
+          <Line data={revenueData} />
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,3 +1,4 @@
+// This is a pure content component for the admin nested layout. Do not add layout/sidebar/header/footer here.
 import React from "react";
 import { Table, Button } from "antd";
 
@@ -30,23 +31,21 @@ const DoctorWorkList: React.FC = () => {
   ];
 
   const columns = [
-    { title: "Họ và tên", dataIndex: "doctor", key: "doctor" },
-    { title: "Email", dataIndex: "email", key: "email" },
-    { title: "Thời gian làm việc", dataIndex: "time", key: "time" },
-    { title: "Trạng thái", dataIndex: "status", key: "status" },
+    { title: <span className="text-pink-600 font-semibold">Họ và tên</span>, dataIndex: "doctor", key: "doctor" },
+    { title: <span className="text-pink-600 font-semibold">Email</span>, dataIndex: "email", key: "email" },
+    { title: <span className="text-pink-600 font-semibold">Thời gian làm việc</span>, dataIndex: "time", key: "time" },
+    { title: <span className="text-pink-600 font-semibold">Trạng thái</span>, dataIndex: "status", key: "status" },
     {
-      title: "Hành động",
+      title: <span className="text-pink-600 font-semibold">Hành động</span>,
       key: "action",
-      render: (_, record) => <Button type="link">{record.action}</Button>,
+      render: (_, record) => <Button type="primary" className="bg-pink-500 hover:bg-pink-600 border-none rounded-lg text-white">{record.action}</Button>,
     },
   ];
 
   return (
-    <div>
-      <h2 style={{ fontSize: 24, color: "#1890ff" }}>
-        Danh sách lịch làm việc
-      </h2>
-      <Table dataSource={dataSource} columns={columns} />
+    <div className="bg-white rounded-xl shadow-lg p-6">
+      <h2 className="text-2xl font-bold text-pink-600 mb-4">Danh sách lịch làm việc</h2>
+      <Table dataSource={dataSource} columns={columns} pagination={false} className="rounded-lg overflow-hidden" />
     </div>
   );
 };

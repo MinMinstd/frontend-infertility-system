@@ -64,7 +64,7 @@ const Profile = () => {
           </li>
           <li>
             <Link
-              to="#"
+              to="/user/medical_record"
               className="block px-4 py-1 hover:bg-pink-800 dark:hover:bg-pink-800 dark:hover:text-white"
             >
               Hồ sơ bệnh án

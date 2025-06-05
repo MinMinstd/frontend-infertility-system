@@ -1,96 +1,69 @@
 import React from "react";
-import { Layout, Menu, Breadcrumb } from "antd";
+import { Menu, Breadcrumb } from "antd";
 import {
   UserOutlined,
   TeamOutlined,
   CalendarOutlined,
   BarChartOutlined,
 } from "@ant-design/icons";
-import Profile from "./Profile";
-import CustomerList from "./CustomerList";
-import DoctorWorkList from "./DoctorWorkList";
-import AppointmentList from "./AppointmentList";
-import Dashboard from "./Dashboard";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
-const { Header, Content, Sider } = Layout;
+const menuItems = [
+  { key: "dashboard", label: "Bảng điều khiển", icon: <BarChartOutlined />, path: "dashboard" },
+  { key: "profile", label: "Hồ sơ cá nhân", icon: <UserOutlined />, path: "profile" },
+  { key: "customers", label: "Danh sách khách hàng", icon: <TeamOutlined />, path: "customers" },
+  { key: "doctors", label: "Danh sách lịch làm việc", icon: <CalendarOutlined />, path: "doctors" },
+  { key: "appointments", label: "Danh sách lịch hẹn", icon: <CalendarOutlined />, path: "appointments" },
+  { key: "create-account", label: "Cấp tài khoản", icon: <UserOutlined />, path: "create-account" },
+];
 
 const AdminDashboard: React.FC = () => {
-  const [selectedMenu, setSelectedMenu] = React.useState("1");
+  const location = useLocation();
+  const navigate = useNavigate();
+  const selectedKey = menuItems.find(item => location.pathname.includes(item.path))?.key || "dashboard";
 
-  const renderContent = () => {
-    switch (selectedMenu) {
-      case "1":
-        return <Profile />;
-      case "2":
-        return <CustomerList />;
-      case "3":
-        return <DoctorWorkList />;
-      case "4":
-        return <AppointmentList />;
-      case "5":
-        return <Dashboard />;
-      default:
-        return <Profile />;
-    }
+  const handleMenuClick = (path: string) => {
+    navigate(`/admin/${path}`);
   };
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <Sider collapsible>
-        <div
-          className="logo"
-          style={{
-            height: 32,
-            margin: "16px",
-            background: "rgba(255, 255, 255, 0.2)",
-          }}
-        />
+    <div className="min-h-screen flex bg-gradient-to-br from-pink-50 to-blue-50">
+      {/* Sidebar */}
+      <aside className="w-64 bg-gradient-to-b from-pink-200 to-blue-100 rounded-xl shadow-xl m-4 flex flex-col">
+        <div className="flex items-center justify-center py-8">
+          <img src="/logo.png" alt="Logo" className="h-12 w-12 rounded-full shadow" />
+        </div>
         <Menu
-          theme="dark"
+          theme="light"
           mode="inline"
-          selectedKeys={[selectedMenu]}
-          onClick={({ key }) => setSelectedMenu(key)}
+          selectedKeys={[selectedKey]}
+          className="bg-transparent border-none flex-1"
+          onClick={({ key }) => {
+            const item = menuItems.find(item => item.key === key);
+            if (item) handleMenuClick(item.path);
+          }}
         >
-          <Menu.Item key="1" icon={<UserOutlined />}>
-            Hồ sơ cá nhân
-          </Menu.Item>
-          <Menu.Item key="2" icon={<TeamOutlined />}>
-            Danh sách khách hàng
-          </Menu.Item>
-          <Menu.Item key="3" icon={<CalendarOutlined />}>
-            Danh sách lịch làm việc
-          </Menu.Item>
-          <Menu.Item key="4" icon={<CalendarOutlined />}>
-            Danh sách lịch hẹn
-          </Menu.Item>
-          <Menu.Item key="5" icon={<BarChartOutlined />}>
-            Bảng điều khiển
-          </Menu.Item>
+          {menuItems.map(item => (
+            <Menu.Item key={item.key} icon={item.icon} className="!rounded-lg hover:!bg-pink-100 transition">
+              {item.label}
+            </Menu.Item>
+          ))}
         </Menu>
-      </Sider>
-      <Layout>
-        <Header style={{ padding: 0, background: "#fff" }} />
-        <Content style={{ margin: "0 16px" }}>
-          <Breadcrumb style={{ margin: "16px 0" }}>
-            <Breadcrumb.Item>Admin</Breadcrumb.Item>
-            <Breadcrumb.Item>
-              {selectedMenu === "1"
-                ? "Hồ sơ cá nhân"
-                : selectedMenu === "2"
-                ? "Danh sách khách hàng"
-                : selectedMenu === "3"
-                ? "Danh sách lịch làm việc"
-                : selectedMenu === "4"
-                ? "Danh sách lịch hẹn"
-                : "Bảng điều khiển"}
+      </aside>
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col m-4">
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-4">
+          <Breadcrumb className="mb-2">
+            <Breadcrumb.Item className="text-pink-600 font-semibold">Admin</Breadcrumb.Item>
+            <Breadcrumb.Item className="font-semibold">
+              {menuItems.find(item => item.key === selectedKey)?.label}
             </Breadcrumb.Item>
           </Breadcrumb>
-          <div style={{ padding: 24, background: "#fff", minHeight: 360 }}>
-            {renderContent()}
-          </div>
-        </Content>
-      </Layout>
-    </Layout>
+          <div className="border-b border-gray-100 mb-4" />
+          <Outlet />
+        </div>
+      </main>
+    </div>
   );
 };
 
