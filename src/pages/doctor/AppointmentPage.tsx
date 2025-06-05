@@ -259,7 +259,7 @@ export default function AppointmentsPage() {
                         <Button size="small" icon={<PhoneOutlined />}>
                           Call
                         </Button>,
-                        <Link to={`/patients/${appointment.id}`}>
+                        <Link to={`/doctor/patients/${appointment.id}`}>
                           <Button type="primary" size="small">
                             View Patient
                           </Button>
