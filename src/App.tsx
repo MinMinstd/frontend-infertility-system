@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { userRoutes } from "./router/userRouter";
-import { adminRoutes } from "./router/adminRouter";
 import { MainLayout } from "./layouts/MainLayout";
+import { doctorRoutes } from "./router/doctorRouter";
 
 export default function App() {
   return (
@@ -24,14 +24,31 @@ export default function App() {
             />
           ))}
 
-          {/* Admin Routes */}
-          {adminRoutes.map((route) => (
-            <Route
-              key={route.path}
-              path={route.path}
-              element={<MainLayout>{route.element}</MainLayout>}
-            />
+          {/* Route doctor */}
+          {doctorRoutes.map((route) => (
+            <Route key={route.path} path={route.path} element={route.element}>
+              {route.children &&
+                route.children.map((child) => (
+                  <Route
+                    key={child.path || "index"}
+                    index={child.index}
+                    path={child.path}
+                    element={child.element}
+                  />
+                ))}
+            </Route>
           ))}
+
+          {/* Admin Routes */}
+          {/* <Route>
+            {adminRoutes.map((route) => (
+              <Route
+                key={route.path}
+                path={route.path}
+                element={route.element}
+              />
+            ))}
+          </Route> */}
         </Routes>
       </BrowserRouter>
     </AuthProvider>
