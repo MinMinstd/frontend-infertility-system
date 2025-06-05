@@ -1,5 +1,6 @@
 import type { RouteObject } from "react-router-dom";
 import AdminDashboard from "../pages/admin/AdminDashboard";
+
 import CustomerList from "../pages/admin/CustomerList";
 import Dashboard from "../pages/admin/Dashboard";
 import AppointmentList from "../pages/admin/AppointmentList";
@@ -7,10 +8,14 @@ import DoctorWorkList from "../pages/admin/DoctorWorkList";
 import Profile from "../pages/admin/Profile";
 import CreateAccount from "../pages/admin/CreateAccount";
 
+
 export const adminRoutes: RouteObject[] = [
   {
-    path: "/admin",
+    path: "/",
     element: <AdminDashboard />,
+
+  },
+
     children: [
       {
         index: true,
@@ -42,4 +47,5 @@ export const adminRoutes: RouteObject[] = [
       }
     ]
   }
+
 ];
