@@ -60,7 +60,7 @@ export default function FloatingNav() {
           Hỗ trợ khách hàng
         </NavLink>
         <NavLink
-          to="/consult"
+          to="/onlineResult"
           className={({ isActive }) => (isActive ? "active" : undefined)}
         >
           Tra cứu kết quả

@@ -16,6 +16,7 @@ import RegisterService from "../components/RegisterService";
 import Contact from "../components/Contact";
 import TreatmentManagement from "../pages/customer/TreatmentProcess";
 import MedicalRecord from "../pages/customer/MedicalRecord";
+import OnlineConsult from "../components/OnlineResult";
 export const userRoutes: RouteObject[] = [
   { path: "/", element: <Home /> },
   {
@@ -37,9 +38,10 @@ export const userRoutes: RouteObject[] = [
   { path: "/support_user", element: <SupportUser /> },
   { path: "/feedback", element: <FeedbackPage /> },
   { path: "/contact", element: <Contact /> },
+  { path: "/onlineResult", element: <OnlineConsult /> },
   { path: "/user/register_service", element: <RegisterService /> },
   { path: "/user/profile", element: <ProfileCard /> },
   { path: "/user/history_medical", element: <HistoryMedical /> },
-  {path: "/user/treatment_management", element: <TreatmentManagement /> },
-  {path: "/user/medical_record", element: <MedicalRecord /> },
+  { path: "/user/treatment_management", element: <TreatmentManagement /> },
+  { path: "/user/medical_record", element: <MedicalRecord /> },
 ];
