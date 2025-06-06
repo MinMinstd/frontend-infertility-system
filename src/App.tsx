@@ -4,6 +4,7 @@ import { userRoutes } from "./router/userRouter";
 import { MainLayout } from "./layouts/MainLayout";
 import { doctorRoutes } from "./router/doctorRouter";
 import { adminRoutes } from "./router/adminRouter";
+import managerRouter from "./router/managerRouter";
 
 export default function App() {
   return (
@@ -55,7 +56,22 @@ export default function App() {
             </Route>
           ))}
 
+
           {/* Router Manager */}
+          {/* Manager Routes */}
+          {managerRouter.map((route) => (
+            <Route key={route.path} path={route.path} element={route.element}>
+              {route.children &&
+                route.children.map((child) => (
+                  <Route
+                    key={child.path || "index"}
+                    index={child.index}
+                    path={child.path}
+                    element={child.element}
+                  />
+                ))}
+            </Route>
+          ))}
         </Routes>
       </BrowserRouter>
     </AuthProvider>
