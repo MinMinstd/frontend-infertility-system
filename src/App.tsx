@@ -54,6 +54,8 @@ export default function App() {
                 ))}
             </Route>
           ))}
+
+          {/* Router Manager */}
         </Routes>
       </BrowserRouter>
     </AuthProvider>
