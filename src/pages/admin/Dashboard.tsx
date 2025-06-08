@@ -55,7 +55,7 @@ const Dashboard: React.FC = () => {
         <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center">
           <Statistic
             title={
-              <span className="text-pink-600 font-semibold">July activity</span>
+              <span className="text-pink-600 font-semibold">Hoạt động tháng này</span>
             }
             value={24.345585}
             precision={2}
@@ -66,7 +66,7 @@ const Dashboard: React.FC = () => {
         <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center">
           <Statistic
             title={
-              <span className="text-pink-600 font-semibold">Total booking</span>
+              <span className="text-pink-600 font-semibold">Tổng số lịch hẹn đã đặt</span>
             }
             value={202}
           />
@@ -75,7 +75,7 @@ const Dashboard: React.FC = () => {
           <Statistic
             title={
               <span className="text-pink-600 font-semibold">
-                Total Customer
+                Tổng số khách hàng đã đặt lịch
               </span>
             }
             value={554}
@@ -84,7 +84,7 @@ const Dashboard: React.FC = () => {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-lg font-bold text-pink-600 mb-2">Top Service</h3>
+          <h3 className="text-lg font-bold text-pink-600 mb-2">Dịch vụ được yêu thích</h3>
           <ul className="space-y-1 text-gray-700">
             <li>01 Tư Vấn </li>
             <li>02 IVF</li>
@@ -92,7 +92,7 @@ const Dashboard: React.FC = () => {
           </ul>
         </div>
         <div className="bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-lg font-bold text-pink-600 mb-2">VIP Customer</h3>
+          <h3 className="text-lg font-bold text-pink-600 mb-2">Khách hàng VIP</h3>
           <ul className="space-y-1 text-gray-700">
             <li>01 Đoàn Khánh - 123456 - 15</li>
             <li>02 MinhMinh - 56785 - 10</li>
