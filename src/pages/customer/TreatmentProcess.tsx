@@ -148,18 +148,7 @@ const initialTreatments: Treatment[] = [
 const TreatmentManagement: React.FC = () => {
   const [treatments, setTreatments] = useState<Treatment[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [newTreatment, setNewTreatment] = useState<Treatment>({
-    id: 0,
-    stepName: '',
-    date: '',
-    status: 'Chưa thực hiện',
-    note: '',
-    doctor: '',
-    location: '',
-  });
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [showForm, setShowForm] = useState<boolean>(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
   const [selectedTreatment, setSelectedTreatment] = useState<Treatment | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -172,79 +161,6 @@ const TreatmentManagement: React.FC = () => {
 
     return () => clearTimeout(timer);
   }, []);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setNewTreatment((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const resetForm = () => {
-    setNewTreatment({
-      id: 0,
-      stepName: '',
-      date: '',
-      status: 'Chưa thực hiện',
-      note: '',
-      doctor: '',
-      location: '',
-    });
-    setEditingId(null);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!newTreatment.stepName || !newTreatment.date) {
-      alert('Vui lòng nhập tên bước điều trị và ngày thực hiện.');
-      return;
-    }
-
-    if (editingId) {
-      setTreatments(treatments.map((tr) =>
-        tr.id === editingId ? { ...newTreatment, id: editingId } : tr
-      ));
-    } else {
-      setTreatments([...treatments, { ...newTreatment, id: Date.now() }]);
-    }
-
-    resetForm();
-    setShowForm(false);
-  };
-
-  const handleEdit = (treatment: Treatment) => {
-    setNewTreatment(treatment);
-    setEditingId(treatment.id);
-    setShowForm(true);
-
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    });
-  };
-
-  const handleCancel = () => {
-    resetForm();
-    setShowForm(false);
-  };
-
-  const toggleStatus = (id: number) => {
-    setTreatments((prev) =>
-      prev.map((tr) => {
-        if (tr.id === id) {
-          if (tr.status === 'Đã hoàn thành') return { ...tr, status: 'Đang tiến hành' };
-          if (tr.status === 'Đang tiến hành') return { ...tr, status: 'Chưa thực hiện' };
-          return { ...tr, status: 'Đã hoàn thành' };
-        }
-        return tr;
-      })
-    );
-  };
-
-  const removeTreatment = (id: number) => {
-    if (window.confirm('Bạn có chắc muốn xóa bước điều trị này không?')) {
-      setTreatments((prev) => prev.filter((tr) => tr.id !== id));
-    }
-  };
 
   // Lọc dữ liệu theo từ khóa tìm kiếm
   const filteredTreatments = treatments.filter(
@@ -264,10 +180,10 @@ const TreatmentManagement: React.FC = () => {
         </p>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6 mb-8">
+      <div className="flex flex-col lg:flex-row gap-6 mb-8 justify-between items-center">
         {/* Thống kê */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:w-2/3">
-          <div className="bg-pink-50 dark:bg-gray-700 border-l-4 border-pink-500 p-4 rounded-lg flex items-center transition-all duration-300">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:w-2/3">
+          <div className="bg-pink-50 dark:bg-gray-700 border-l-4 border-pink-500 p-4 rounded-lg flex items-center transition-all duration-300 hover:shadow-lg">
             <div className="rounded-full w-12 h-12 flex items-center justify-center bg-pink-100 dark:bg-pink-900 mr-4">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -292,7 +208,7 @@ const TreatmentManagement: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-pink-50 dark:bg-gray-700 border-l-4 border-pink-500 p-4 rounded-lg flex items-center transition-all duration-300">
+          <div className="bg-pink-50 dark:bg-gray-700 border-l-4 border-pink-500 p-4 rounded-lg flex items-center transition-all duration-300 hover:shadow-lg">
             <div className="rounded-full w-12 h-12 flex items-center justify-center bg-pink-100 dark:bg-pink-900 mr-4">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -312,7 +228,7 @@ const TreatmentManagement: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-yellow-50 dark:bg-gray-700 border-l-4 border-yellow-500 p-4 rounded-lg flex items-center transition-all duration-300">
+          <div className="bg-yellow-50 dark:bg-gray-700 border-l-4 border-yellow-500 p-4 rounded-lg flex items-center transition-all duration-300 hover:shadow-lg">
             <div className="rounded-full w-12 h-12 flex items-center justify-center bg-yellow-100 dark:bg-yellow-900 mr-4">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -338,36 +254,15 @@ const TreatmentManagement: React.FC = () => {
           </div>
         </div>
 
-        {/* Các nút action */}
+        {/* Search bar */}
         <div className="flex flex-col lg:w-1/3 justify-center space-y-3">
-          <button
-            onClick={() => {
-              resetForm();
-              setShowForm(!showForm);
-            }}
-            className="bg-pink-500 dark:bg-pink-400 text-white px-4 py-2 rounded-lg hover:bg-pink-600 dark:hover:bg-pink-500 transition-colors flex items-center justify-center"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 mr-2"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-            {editingId ? 'Thêm bước mới' : showForm ? 'Ẩn biểu mẫu' : 'Thêm bước mới'}
-          </button>
-          <div className="relative">
+          <div className="relative w-full">
             <input
               type="text"
               placeholder="Tìm kiếm..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-200 text-black"
+              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-pink-500 dark:bg-gray-700 dark:text-gray-200 text-black transition-all duration-300 hover:border-pink-400"
             />
             <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-300">
               <svg
@@ -385,101 +280,6 @@ const TreatmentManagement: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Form nhập liệu */}
-      <div
-        className={`bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md mb-8 transition-all duration-300 ${
-          showForm ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 h-0 overflow-hidden'
-        }`}
-      >
-        <h2 className="text-xl font-bold text-black dark:text-gray-200 mb-4">
-          {editingId ? 'Cập nhật bước điều trị' : 'Thêm bước điều trị mới'}
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="stepName" className="block text-sm font-medium text-black dark:text-gray-200 mb-1">
-                Bước điều trị <span className="text-red-500">*</span>
-              </label>
-              <input
-                id="stepName"
-                type="text"
-                name="stepName"
-                placeholder="Nhập tên bước điều trị"
-                value={newTreatment.stepName}
-                onChange={handleInputChange}
-                required
-                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-pink-500 dark:bg-gray-700 dark:text-gray-200 text-black"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="date" className="block text-sm font-medium text-black dark:text-gray-200 mb-1">
-                Ngày thực hiện <span className="text-red-500">*</span>
-              </label>
-              <input
-                id="date"
-                type="date"
-                name="date"
-                value={newTreatment.date}
-                onChange={handleInputChange}
-                required
-                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-pink-500 dark:bg-gray-700 dark:text-gray-200 text-black"
-              />
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="status" className="block text-sm font-medium text-black dark:text-gray-200 mb-1">
-                Trạng thái
-              </label>
-              <select
-                id="status"
-                name="status"
-                value={newTreatment.status}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-pink-500 dark:bg-gray-700 dark:text-gray-200 text-black"
-              >
-                <option value="Chưa thực hiện">Chưa thực hiện</option>
-                <option value="Đang tiến hành">Đang tiến hành</option>
-                <option value="Đã hoàn thành">Đã hoàn thành</option>
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="note" className="block text-sm font-medium text-black dark:text-gray-200 mb-1">
-                Ghi chú
-              </label>
-              <input
-                id="note"
-                type="text"
-                name="note"
-                placeholder="Thêm ghi chú (nếu có)"
-                value={newTreatment.note}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-pink-500 dark:bg-gray-700 dark:text-gray-200 text-black"
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="bg-white dark:bg-gray-600 dark:text-gray-200 text-black border border-gray-300 dark:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-500 px-4 py-2 rounded-lg transition-colors duration-200"
-            >
-              Hủy
-            </button>
-            <button
-              type="submit"
-              className="bg-pink-500 dark:bg-pink-400 text-white px-4 py-2 rounded-lg hover:bg-pink-600 dark:hover:bg-pink-500 transition-colors"
-            >
-              {editingId ? 'Cập nhật' : 'Thêm mới'}
-            </button>
-          </div>
-        </form>
       </div>
 
       {/* Hiển thị dữ liệu */}
@@ -515,55 +315,36 @@ const TreatmentManagement: React.FC = () => {
           )}
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-2xl shadow-lg bg-white">
+        <div className="overflow-x-auto rounded-2xl shadow-lg bg-white dark:bg-gray-700 transition-all duration-300">
           <table className="min-w-full">
             <thead>
-              <tr className="bg-pink-100">
-                <th className="px-6 py-4 text-left text-base font-bold text-pink-700 rounded-tl-2xl">Bước điều trị</th>
-                <th className="px-6 py-4 text-left text-base font-bold text-pink-700">Ngày thực hiện</th>
-                <th className="px-6 py-4 text-left text-base font-bold text-pink-700">Trạng thái</th>
-                <th className="px-6 py-4 text-left text-base font-bold text-pink-700">Ghi chú</th>
-                <th className="px-6 py-4 text-right text-base font-bold text-pink-700 rounded-tr-2xl">Hành động</th>
+              <tr className="bg-pink-100 dark:bg-gray-600">
+                <th className="px-6 py-4 text-left text-base font-bold text-pink-700 dark:text-pink-300 rounded-tl-2xl">Bước điều trị</th>
+                <th className="px-6 py-4 text-left text-base font-bold text-pink-700 dark:text-pink-300">Ngày thực hiện</th>
+                <th className="px-6 py-4 text-left text-base font-bold text-pink-700 dark:text-pink-300">Trạng thái</th>
+                <th className="px-6 py-4 text-left text-base font-bold text-pink-700 dark:text-pink-300 rounded-tr-2xl">Ghi chú</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-pink-50">
+            <tbody className="divide-y divide-pink-50 dark:divide-gray-600">
               {filteredTreatments.map((tr) => (
-                <tr key={tr.id} className="hover:bg-pink-50 transition cursor-pointer" onClick={() => { setSelectedTreatment(tr); setModalVisible(true); }}>
-                  <td className="px-6 py-4 font-medium text-gray-900">{tr.stepName}</td>
-                  <td className="px-6 py-4 text-gray-700">{new Date(tr.date).toLocaleDateString('vi-VN')}</td>
+                <tr 
+                  key={tr.id} 
+                  className="hover:bg-pink-50 dark:hover:bg-gray-600 transition-all duration-300 cursor-pointer" 
+                  onClick={() => { setSelectedTreatment(tr); setModalVisible(true); }}
+                >
+                  <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-200">{tr.stepName}</td>
+                  <td className="px-6 py-4 text-gray-700 dark:text-gray-300">{new Date(tr.date).toLocaleDateString('vi-VN')}</td>
                   <td className="px-6 py-4">
                     <span className={
-                      `inline-block px-3 py-1 rounded-full text-xs font-semibold
+                      `inline-block px-3 py-1 rounded-full text-xs font-semibold transition-all duration-300
                       ${tr.status === 'Đã hoàn thành' ? 'bg-pink-500 text-white' :
                         tr.status === 'Đang tiến hành' ? 'bg-yellow-400 text-white' :
-                        'bg-gray-300 text-gray-700'}`
+                        'bg-gray-300 text-gray-700 dark:bg-gray-500 dark:text-gray-200'}`
                     }>
                       {tr.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-gray-700">{tr.note || '—'}</td>
-                  <td className="px-6 py-4 text-right">
-                    <button
-                      onClick={e => { e.stopPropagation(); handleEdit(tr); }}
-                      className="inline-flex items-center px-3 py-1 bg-pink-100 text-pink-600 rounded-lg hover:bg-pink-200 transition"
-                      title="Chỉnh sửa"
-                    >
-                      <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                        <path d="M15.232 5.232l3.536 3.536M9 11l6 6M3 21h18" />
-                      </svg>
-                      Sửa
-                    </button>
-                    <button
-                      onClick={e => { e.stopPropagation(); removeTreatment(tr.id); }}
-                      className="inline-flex items-center px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition"
-                      title="Xóa"
-                    >
-                      <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                        <path d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                      Xóa
-                    </button>
-                  </td>
+                  <td className="px-6 py-4 text-gray-700 dark:text-gray-300">{tr.note || '—'}</td>
                 </tr>
               ))}
             </tbody>
@@ -579,14 +360,15 @@ const TreatmentManagement: React.FC = () => {
         footer={null}
         width={900}
         bodyStyle={{ padding: 0 }}
+        className="treatment-modal"
       >
         {selectedTreatment && (
-          <div className="bg-white rounded-lg p-8">
+          <div className="bg-white dark:bg-gray-700 rounded-lg p-8">
             <div className="flex flex-col md:flex-row md:space-x-8">
               {/* Cột trái: mô tả & thông tin chi tiết */}
               <div className="flex-1 mb-8 md:mb-0">
                 <div className="flex items-center mb-2">
-                  <span className="text-xl font-bold mr-4">{selectedTreatment.stepName}</span>
+                  <span className="text-xl font-bold mr-4 text-gray-900 dark:text-gray-200">{selectedTreatment.stepName}</span>
                   {selectedTreatment.status === 'Đã hoàn thành' && (
                     <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm ml-2">Đã hoàn thành</span>
                   )}
@@ -597,75 +379,80 @@ const TreatmentManagement: React.FC = () => {
                     <span className="bg-gray-400 text-white px-3 py-1 rounded-full text-sm ml-2">Chưa thực hiện</span>
                   )}
                 </div>
-                <div className="text-gray-500 mb-2">
+                <div className="text-gray-500 dark:text-gray-400 mb-2">
                   {new Date(selectedTreatment.date).toLocaleDateString('vi-VN')}
                 </div>
                 <div className="mb-2">
-                  <span className="font-medium text-gray-600">Địa điểm: </span>
-                  <span>{selectedTreatment.location}</span>
+                  <span className="font-medium text-gray-600 dark:text-gray-300">Địa điểm: </span>
+                  <span className="text-gray-700 dark:text-gray-200">{selectedTreatment.location}</span>
                 </div>
                 {selectedTreatment.grades && (
                   <div className="mb-2">
-                    <span className="font-medium text-gray-600">Các khối tham gia: </span>
-                    <span>{selectedTreatment.grades}</span>
+                    <span className="font-medium text-gray-600 dark:text-gray-300">Đánh giá: </span>
+                    <span className="text-gray-700 dark:text-gray-200">{selectedTreatment.grades}</span>
                   </div>
                 )}
                 {selectedTreatment.partnerUnit && (
                   <div className="mb-2">
-                    <span className="font-medium text-gray-600">Đơn vị phối hợp: </span>
-                    <span>{selectedTreatment.partnerUnit}</span>
+                    <span className="font-medium text-gray-600 dark:text-gray-300">Đơn vị phối hợp: </span>
+                    <span className="text-gray-700 dark:text-gray-200">{selectedTreatment.partnerUnit}</span>
                   </div>
                 )}
                 <div className="mb-4">
-                  <span className="font-medium text-gray-600">Mô tả: </span>
-                  <span>{selectedTreatment.description}</span>
+                  <span className="font-medium text-gray-600 dark:text-gray-300">Mô tả: </span>
+                  <span className="text-gray-700 dark:text-gray-200">{selectedTreatment.description}</span>
                 </div>
                 <div className="mb-4">
-                  <span className="font-medium text-gray-600">Người phụ trách: </span>
-                  <span>{selectedTreatment.doctor}</span>
+                  <span className="font-medium text-gray-600 dark:text-gray-300">Người phụ trách: </span>
+                  <span className="text-gray-700 dark:text-gray-200">{selectedTreatment.doctor}</span>
                 </div>
                 <div className="mb-4">
-                  <span className="font-medium text-gray-600">Kết quả: </span>
-                  <span>{selectedTreatment.result || 'Chưa có'}</span>
+                  <span className="font-medium text-gray-600 dark:text-gray-300">Kết quả: </span>
+                  <span className="text-gray-700 dark:text-gray-200">{selectedTreatment.result || 'Chưa có'}</span>
                 </div>
                 {selectedTreatment.caution && (
                   <div className="mb-4">
-                    <span className="font-medium text-gray-600">Lưu ý: </span>
-                    <span>{selectedTreatment.caution}</span>
+                    <span className="font-medium text-gray-600 dark:text-gray-300">Lưu ý: </span>
+                    <span className="text-gray-700 dark:text-gray-200">{selectedTreatment.caution}</span>
                   </div>
                 )}
                 {selectedTreatment.failReason && (
                   <div className="mb-4">
-                    <span className="font-medium text-gray-600">Lý do không thành công: </span>
-                    <span>{selectedTreatment.failReason}</span>
+                    <span className="font-medium text-gray-600 dark:text-gray-300">Lý do không thành công: </span>
+                    <span className="text-gray-700 dark:text-gray-200">{selectedTreatment.failReason}</span>
                     <br />
-                    <span className="font-medium text-gray-600">Thời gian hẹn lại: </span>
-                    <span>{selectedTreatment.retryDate}</span>
+                    <span className="font-medium text-gray-600 dark:text-gray-300">Thời gian hẹn lại: </span>
+                    <span className="text-gray-700 dark:text-gray-200">{selectedTreatment.retryDate}</span>
                   </div>
                 )}
               </div>
               {/* Cột phải: hoạt động tiếp theo */}
-              <div className="flex-1 border-l pl-8">
-                <div className="font-semibold text-gray-700 mb-4">Hoạt động kế tiếp</div>
+              <div className="flex-1 border-l border-gray-200 dark:border-gray-600 pl-8">
+                <div className="font-semibold text-gray-700 dark:text-gray-300 mb-4">Hoạt động kế tiếp</div>
                 <ul className="space-y-4">
                   {selectedTreatment.nextActions && selectedTreatment.nextActions.length > 0 ? (
                     selectedTreatment.nextActions.map((action, idx) => (
                       <li key={idx} className="flex items-start">
-                        <span className={`w-3 h-3 mt-1 rounded-full mr-3 ${action.done ? 'bg-green-500' : 'bg-gray-300'}`}></span>
+                        <span className={`w-3 h-3 mt-1 rounded-full mr-3 ${action.done ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-500'}`}></span>
                         <div>
-                          <div className={`font-semibold ${action.done ? 'text-green-700' : 'text-gray-700'}`}>{action.name}</div>
-                          <div className="text-gray-500 text-sm">{action.desc}</div>
+                          <div className={`font-semibold ${action.done ? 'text-green-700 dark:text-green-400' : 'text-gray-700 dark:text-gray-300'}`}>{action.name}</div>
+                          <div className="text-gray-500 dark:text-gray-400 text-sm">{action.desc}</div>
                         </div>
                       </li>
                     ))
                   ) : (
-                    <li className="text-gray-400">Không có hoạt động kế tiếp</li>
+                    <li className="text-gray-400 dark:text-gray-500">Không có hoạt động kế tiếp</li>
                   )}
                 </ul>
               </div>
             </div>
             <div className="flex justify-end mt-8">
-              <Button onClick={() => setModalVisible(false)} className="border rounded-lg px-6 py-2">Xem chi tiết</Button>
+              <Button 
+                onClick={() => setModalVisible(false)} 
+                className="border rounded-lg px-6 py-2 bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-500 transition-all duration-300"
+              >
+                Đóng
+              </Button>
             </div>
           </div>
         )}

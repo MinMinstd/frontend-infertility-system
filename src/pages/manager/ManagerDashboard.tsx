@@ -19,6 +19,8 @@ import {
   TeamOutlined,
   BarChartOutlined,
   MessageOutlined,
+  FundOutlined,
+  
 } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -30,8 +32,9 @@ const menuItems = [
   { key: "doctors", icon: <UserOutlined />, label: "Quản lý bác sĩ" },
   { key: "treatment-history", icon: <HistoryOutlined />, label: "Quản lý lịch sử điều trị" },
   { key: "customers", icon: <TeamOutlined />, label: "Quản lý Người Dùng" },
-  { key: "services", icon: <DollarOutlined />, label: "Quản lý dịch vụ" },
+  { key: "services", icon: <FundOutlined />, label: "Quản lý dịch vụ" },
   { key: "feedbacks", icon: <MessageOutlined />, label: "Quản lí các phản hồi" },
+  { key: "finance", icon: <DollarOutlined />, label: "Quản lý tài chính" },
   { key: "reports", icon: <BarChartOutlined />, label: "Báo cáo thống kê" },
 ];
 
@@ -93,7 +96,7 @@ const ManagerDashboard = () => {
     },
     {
       title: "Quản lí các phản hồi",
-      icon: < MessageCircle className="w-6 h-6 text-blue-500" />,
+      icon: <MessageCircle className="w-6 h-6 text-blue-500" />,
       description: "Quản lí các phản hồi từ khách hàng",
       link: "/manager/feedbacks",
       color: "from-blue-500 to-blue-600",
@@ -105,7 +108,6 @@ const ManagerDashboard = () => {
       link: "/manager/finance",
       color: "from-yellow-500 to-yellow-600",
     },
-    
   ];
 
   return (
