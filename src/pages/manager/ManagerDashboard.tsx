@@ -1,5 +1,5 @@
 import React from "react";
-import { Layout, Menu, Card, Row, Col, Statistic } from "antd";
+import { Card, Row, Col, Statistic, Typography, Space } from "antd";
 import {
   Calendar,
   Users,
@@ -10,39 +10,12 @@ import {
   DollarSign,
   MessageCircle,
 } from "lucide-react";
-import {
-  HistoryOutlined,
-  DashboardOutlined,
-  CalendarOutlined,
-  DollarOutlined,
-  UserOutlined,
-  TeamOutlined,
-  BarChartOutlined,
-  MessageOutlined,
-  FundOutlined,
-  
-} from "@ant-design/icons";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-const { Header, Sider, Content } = Layout;
-
-const menuItems = [
-  { key: "", icon: <DashboardOutlined />, label: "Bảng điều khiển" },
-  { key: "appointments", icon: <CalendarOutlined />, label: "Quản lý lịch hẹn" },
-  { key: "doctors", icon: <UserOutlined />, label: "Quản lý bác sĩ" },
-  { key: "treatment-history", icon: <HistoryOutlined />, label: "Quản lý lịch sử điều trị" },
-  { key: "customers", icon: <TeamOutlined />, label: "Quản lý Người Dùng" },
-  { key: "services", icon: <FundOutlined />, label: "Quản lý dịch vụ" },
-  { key: "feedbacks", icon: <MessageOutlined />, label: "Quản lí các phản hồi" },
-  { key: "finance", icon: <DollarOutlined />, label: "Quản lý tài chính" },
-  { key: "reports", icon: <BarChartOutlined />, label: "Báo cáo thống kê" },
-];
+const { Title, Text } = Typography;
 
 const ManagerDashboard = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const selectedKey = location.pathname.split("/").pop() || "";
-
   // Mock data - replace with actual API calls
   const stats = {
     totalAppointments: 156,
@@ -54,152 +27,144 @@ const ManagerDashboard = () => {
   const managementSections = [
     {
       title: "Quản lý lịch hẹn",
-      icon: <Calendar className="w-6 h-6 text-blue-500" />,
+      icon: <Calendar className="w-6 h-6 text-white" />,
       description: "Xem và quản lý tất cả lịch hẹn",
       link: "/manager/appointments",
-      color: "from-blue-500 to-blue-600",
+      bgColor: "bg-blue-500",
     },
     {
       title: "Quản lý bác sĩ",
-      icon: <User className="w-6 h-6 text-green-500" />,
+      icon: <User className="w-6 h-6 text-white" />,
       description: "Quản lý thông tin và lịch làm việc của bác sĩ",
       link: "/manager/doctors",
-      color: "from-green-500 to-green-600",
+      bgColor: "bg-green-500",
     },
     {
       title: "Quản lý lịch sử điều trị",
-      icon: <NotebookPen className="w-6 h-6 text-red-500" />,
+      icon: <NotebookPen className="w-6 h-6 text-white" />,
       description: "Xem và quản lý lịch sử điều trị",
       link: "/manager/treatment-history",
-      color: "from-red-500 to-red-600",
+      bgColor: "bg-red-500",
     },
     {
       title: "Quản lý người dùng",
-      icon: <Users className="w-6 h-6 text-purple-500" />,
+      icon: <Users className="w-6 h-6 text-white" />,
       description: "Xem và quản lý hồ sơ bệnh nhân",
       link: "/manager/customers",
-      color: "from-purple-500 to-purple-600",
+      bgColor: "bg-purple-500",
     },
     {
       title: "Báo cáo thống kê",
-      icon: <BarChart className="w-6 h-6 text-orange-500" />,
+      icon: <BarChart className="w-6 h-6 text-white" />,
       description: "Xem báo cáo và thống kê",
       link: "/manager/reports",
-      color: "from-orange-500 to-orange-600",
+      bgColor: "bg-orange-500",
     },
     {
       title: "Quản lý dịch vụ",
-      icon: <FileText className="w-6 h-6 text-pink-500" />,
+      icon: <FileText className="w-6 h-6 text-white" />,
       description: "Quản lý các dịch vụ khám chữa bệnh",
       link: "/manager/services",
-      color: "from-pink-500 to-pink-600",
-    },
-    {
-      title: "Quản lí các phản hồi",
-      icon: <MessageCircle className="w-6 h-6 text-blue-500" />,
-      description: "Quản lí các phản hồi từ khách hàng",
-      link: "/manager/feedbacks",
-      color: "from-blue-500 to-blue-600",
+      bgColor: "bg-pink-500",
     },
     {
       title: "Quản lý tài chính",
-      icon: <DollarSign className="w-6 h-6 text-yellow-500" />,
+      icon: <DollarSign className="w-6 h-6 text-white" />,
       description: "Theo dõi doanh thu và chi phí",
       link: "/manager/finance",
-      color: "from-yellow-500 to-yellow-600",
+      bgColor: "bg-emerald-500",
+    },
+    {
+      title: "Quản lý phản hồi",
+      icon: <MessageCircle className="w-6 h-6 text-white" />,
+      description: "Xem và phản hồi ý kiến khách hàng",
+      link: "/manager/feedbacks",
+      bgColor: "bg-indigo-500",
     },
   ];
 
   return (
-    <Layout className="min-h-screen">
-      <Sider width={250} className="bg-white shadow-lg">
-        <div className="p-4">
-          <h1 className="text-xl font-bold text-pink-600">Quản lý hệ thống</h1>
+    <div className="p-6">
+      <Space direction="vertical" size="large" className="w-full">
+        <div>
+          <Title level={2} className="text-pink-600 !mb-0">
+            Bảng điều khiển
+          </Title>
+          <Text type="secondary">
+            Tổng quan về hoạt động của hệ thống
+          </Text>
         </div>
-        <Menu
-          mode="inline"
-          selectedKeys={[selectedKey]}
-          items={menuItems}
-          onClick={({ key }) => navigate(`/manager/${key}`)}
-          className="border-r-0"
-        />
-      </Sider>
-      <Layout>
-        <Header className="bg-white shadow-sm px-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-lg font-semibold text-gray-800">
-              {menuItems.find((item) => item.key === selectedKey)?.label || "Bảng điều khiển"}
-            </h2>
-          </div>
-        </Header>
-        <Content className="m-6">
-          {/* Statistics Cards */}
-          <Row gutter={[16, 16]} className="mb-8">
-            <Col xs={24} sm={12} lg={6}>
-              <Card className="hover:shadow-lg transition-shadow">
-                <Statistic
-                  title="Tổng số lịch hẹn"
-                  value={stats.totalAppointments}
-                  prefix={<Calendar className="w-4 h-4 text-blue-500 mr-2" />}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} lg={6}>
-              <Card className="hover:shadow-lg transition-shadow">
-                <Statistic
-                  title="Tổng số bệnh nhân"
-                  value={stats.totalPatients}
-                  prefix={<Users className="w-4 h-4 text-purple-500 mr-2" />}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} lg={6}>
-              <Card className="hover:shadow-lg transition-shadow">
-                <Statistic
-                  title="Tổng số bác sĩ"
-                  value={stats.totalDoctors}
-                  prefix={<User className="w-4 h-4 text-green-500 mr-2" />}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} lg={6}>
-              <Card className="hover:shadow-lg transition-shadow">
-                <Statistic
-                  title="Doanh thu tháng"
-                  value={stats.totalRevenue}
-                  prefix={<DollarSign className="w-4 h-4 text-yellow-500 mr-2" />}
-                  formatter={(value) => `${value.toLocaleString('vi-VN')} VNĐ`}
-                />
-              </Card>
-            </Col>
-          </Row>
 
-          {/* Management Sections */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {managementSections.map((section, index) => (
+        <Row gutter={[16, 16]}>
+          <Col xs={24} sm={12} md={6}>
+            <Card className="shadow-md hover:shadow-lg transition-shadow">
+              <Statistic
+                title={<span className="text-gray-600">Tổng số lịch hẹn</span>}
+                value={stats.totalAppointments}
+                prefix={<div className="p-3 rounded-lg bg-blue-500 flex items-center justify-center"><Calendar className="w-6 h-6 text-white" /></div>}
+                valueStyle={{ color: '#3b82f6' }}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Card className="shadow-md hover:shadow-lg transition-shadow">
+              <Statistic
+                title={<span className="text-gray-600">Tổng số bệnh nhân</span>}
+                value={stats.totalPatients}
+                prefix={<div className="p-3 rounded-lg bg-purple-500 flex items-center justify-center"><Users className="w-6 h-6 text-white" /></div>}
+                valueStyle={{ color: '#a855f7' }}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Card className="shadow-md hover:shadow-lg transition-shadow">
+              <Statistic
+                title={<span className="text-gray-600">Tổng số bác sĩ</span>}
+                value={stats.totalDoctors}
+                prefix={<div className="p-3 rounded-lg bg-green-500 flex items-center justify-center"><User className="w-6 h-6 text-white" /></div>}
+                valueStyle={{ color: '#22c55e' }}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Card className="shadow-md hover:shadow-lg transition-shadow">
+              <Statistic
+                title={<span className="text-gray-600">Doanh thu</span>}
+                value={stats.totalRevenue}
+                prefix={<div className="p-3 rounded-lg bg-emerald-500 flex items-center justify-center"><DollarSign className="w-6 h-6 text-white" /></div>}
+                valueStyle={{ color: '#10b981' }}
+                suffix="VNĐ"
+              />
+            </Card>
+          </Col>
+        </Row>
+
+        <Row gutter={[16, 16]}>
+          {managementSections.map((section, index) => (
+            <Col xs={24} sm={12} md={8} lg={6} key={index}>
               <Card
-                key={index}
-                hoverable
-                className="h-full transition-all duration-300 hover:scale-105"
+                className="shadow-md hover:shadow-lg transition-shadow cursor-pointer"
                 onClick={() => navigate(section.link)}
               >
-                <div className="flex items-start gap-4">
-                  <div className={`p-3 rounded-lg bg-gradient-to-r ${section.color}`}>
+                <div className="flex items-center space-x-4">
+                  <div className={`p-3 rounded-lg ${section.bgColor} flex items-center justify-center`}>
                     {section.icon}
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                    <Title level={5} className="!mb-1">
                       {section.title}
-                    </h3>
-                    <p className="text-gray-600">{section.description}</p>
+                    </Title>
+                    <Text type="secondary" className="text-sm">
+                      {section.description}
+                    </Text>
                   </div>
                 </div>
               </Card>
-            ))}
-          </div>
-        </Content>
-      </Layout>
-    </Layout>
+            </Col>
+          ))}
+        </Row>
+      </Space>
+    </div>
   );
 };
 
