@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Table,
   Card,
@@ -8,14 +8,12 @@ import {
   Statistic,
   DatePicker,
   Space,
-  theme,
 } from 'antd';
 import { DollarOutlined, UserOutlined, MedicineBoxOutlined, MessageOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 
-const { Title } = Typography;
-const { useToken } = theme;
+const { Title, Text } = Typography;
 
 interface ServiceStats {
   key: string;
@@ -24,209 +22,142 @@ interface ServiceStats {
   revenue: number;
 }
 
-interface DoctorStats {
-  key: string;
-  doctorName: string;
-  appointmentCount: number;
-  rating: number;
-}
-
 const ManagerReport: React.FC = () => {
-  const { token } = useToken();
-  const [loading, setLoading] = useState(true);
   const [currentMonth, setCurrentMonth] = useState(dayjs());
-  const [monthlyRevenue, setMonthlyRevenue] = useState(0);
-  const [newAccounts, setNewAccounts] = useState(0);
-  const [totalFeedbacks, setTotalFeedbacks] = useState(0);
-  const [serviceStats, setServiceStats] = useState<ServiceStats[]>([]);
-  const [doctorStats, setDoctorStats] = useState<DoctorStats[]>([]);
+  const [monthlyRevenue] = useState(25000000);
+  const [newAccounts] = useState(45);
+  const [totalServices] = useState(156);
+  const [totalFeedbacks] = useState(89);
 
-  const serviceColumns: ColumnsType<ServiceStats> = [
+  const columns: ColumnsType<ServiceStats> = [
     {
-      title: 'Tên dịch vụ',
+      title: <span className="text-pink-600 font-semibold">Tên dịch vụ</span>,
       dataIndex: 'serviceName',
       key: 'serviceName',
     },
     {
-      title: 'Số lần sử dụng',
+      title: <span className="text-pink-600 font-semibold">Số lần sử dụng</span>,
       dataIndex: 'usageCount',
       key: 'usageCount',
-      sorter: (a, b) => a.usageCount - b.usageCount,
+      render: (count: number) => (
+        <span className="text-blue-600 font-medium">{count}</span>
+      ),
     },
     {
-      title: 'Doanh thu (VNĐ)',
+      title: <span className="text-pink-600 font-semibold">Doanh thu</span>,
       dataIndex: 'revenue',
       key: 'revenue',
-      render: (value) => value.toLocaleString('vi-VN'),
-      sorter: (a, b) => a.revenue - b.revenue,
+      render: (amount: number) => (
+        <span className="text-green-600 font-medium">
+          {amount.toLocaleString('vi-VN')} VNĐ
+        </span>
+      ),
     },
   ];
 
-  const doctorColumns: ColumnsType<DoctorStats> = [
+  const data: ServiceStats[] = [
     {
-      title: 'Tên bác sĩ',
-      dataIndex: 'doctorName',
-      key: 'doctorName',
+      key: '1',
+      serviceName: 'Khám tổng quát',
+      usageCount: 45,
+      revenue: 4500000,
     },
     {
-      title: 'Số ca khám',
-      dataIndex: 'appointmentCount',
-      key: 'appointmentCount',
-      sorter: (a, b) => a.appointmentCount - b.appointmentCount,
+      key: '2',
+      serviceName: 'Siêu âm',
+      usageCount: 32,
+      revenue: 6400000,
     },
     {
-      title: 'Đánh giá trung bình',
-      dataIndex: 'rating',
-      key: 'rating',
-      render: (value) => value.toFixed(1) + '/5',
-      sorter: (a, b) => a.rating - b.rating,
+      key: '3',
+      serviceName: 'Xét nghiệm máu',
+      usageCount: 28,
+      revenue: 4200000,
+    },
+    {
+      key: '4',
+      serviceName: 'Tư vấn dinh dưỡng',
+      usageCount: 15,
+      revenue: 1500000,
     },
   ];
-
-  useEffect(() => {
-    // TODO: Replace with actual API calls
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        // Simulated data - replace with actual API calls
-        setMonthlyRevenue(150000000);
-        setNewAccounts(45);
-        setTotalFeedbacks(120);
-        setServiceStats([
-          { key: '1', serviceName: 'Khám tổng quát', usageCount: 150, revenue: 45000000 },
-          { key: '2', serviceName: 'Siêu âm', usageCount: 120, revenue: 36000000 },
-          { key: '3', serviceName: 'Xét nghiệm', usageCount: 200, revenue: 60000000 },
-        ]);
-        setDoctorStats([
-          { key: '1', doctorName: 'Dr. Nguyễn Văn A', appointmentCount: 80, rating: 4.8 },
-          { key: '2', doctorName: 'Dr. Trần Thị B', appointmentCount: 65, rating: 4.7 },
-          { key: '3', doctorName: 'Dr. Lê Văn C', appointmentCount: 55, rating: 4.9 },
-        ]);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-      setLoading(false);
-    };
-
-    fetchData();
-  }, [currentMonth]);
-
-  const cardStyle = {
-    borderRadius: token.borderRadiusLG,
-    boxShadow: token.boxShadowTertiary,
-    height: '100%',
-  };
-
-  const statisticCardStyle = {
-    ...cardStyle,
-    background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorPrimaryBg} 100%)`,
-    color: token.colorWhite,
-  };
-
-  const tableCardStyle = {
-    ...cardStyle,
-    background: token.colorBgContainer,
-  };
 
   return (
-    <div style={{ padding: '24px', background: token.colorBgLayout }}>
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+    <div className="p-6">
+      <Space direction="vertical" size="large" className="w-full">
+        <div>
+          <Title level={2} className="text-pink-600 !mb-0">
+            Báo cáo thống kê
+          </Title>
+          <Text type="secondary">
+            Theo dõi và phân tích dữ liệu hệ thống
+          </Text>
+        </div>
+
         <Row justify="space-between" align="middle">
-          <Col>
-            <Title level={2} style={{ color: token.colorTextHeading, margin: 0 }}>
-              Báo cáo thống kê
-            </Title>
-          </Col>
           <Col>
             <DatePicker
               picker="month"
               value={currentMonth}
               onChange={(date) => date && setCurrentMonth(date)}
-              style={{
-                borderRadius: token.borderRadiusLG,
-                borderColor: token.colorBorder,
-              }}
+              className="rounded-lg"
             />
           </Col>
         </Row>
 
         <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} md={8} lg={6}>
-            <Card style={statisticCardStyle}>
+          <Col xs={24} sm={12} md={6}>
+            <Card className="shadow-md hover:shadow-lg transition-shadow">
               <Statistic
-                title={<span style={{ color: token.colorWhite }}>Doanh thu tháng</span>}
+                title={<span className="text-gray-600">Doanh thu tháng</span>}
                 value={monthlyRevenue}
-                prefix={<DollarOutlined style={{ color: token.colorWhite }} />}
+                prefix={<DollarOutlined className="text-emerald-500" />}
                 suffix="VNĐ"
-                valueStyle={{ color: token.colorWhite }}
+                valueStyle={{ color: '#10b981' }}
               />
             </Card>
           </Col>
-          <Col xs={24} sm={12} md={8} lg={6}>
-            <Card style={statisticCardStyle}>
+          <Col xs={24} sm={12} md={6}>
+            <Card className="shadow-md hover:shadow-lg transition-shadow">
               <Statistic
-                title={<span style={{ color: token.colorWhite }}>Tài khoản mới</span>}
+                title={<span className="text-gray-600">Tài khoản mới</span>}
                 value={newAccounts}
-                prefix={<UserOutlined style={{ color: token.colorWhite }} />}
-                valueStyle={{ color: token.colorWhite }}
+                prefix={<UserOutlined className="text-blue-500" />}
+                valueStyle={{ color: '#3b82f6' }}
               />
             </Card>
           </Col>
-          <Col xs={24} sm={12} md={8} lg={6}>
-            <Card style={statisticCardStyle}>
+          <Col xs={24} sm={12} md={6}>
+            <Card className="shadow-md hover:shadow-lg transition-shadow">
               <Statistic
-                title={<span style={{ color: token.colorWhite }}>Dịch vụ đã sử dụng</span>}
-                value={serviceStats.reduce((acc, curr) => acc + curr.usageCount, 0)}
-                prefix={<MedicineBoxOutlined style={{ color: token.colorWhite }} />}
-                valueStyle={{ color: token.colorWhite }}
+                title={<span className="text-gray-600">Dịch vụ đã sử dụng</span>}
+                value={totalServices}
+                prefix={<MedicineBoxOutlined className="text-purple-500" />}
+                valueStyle={{ color: '#a855f7' }}
               />
             </Card>
           </Col>
-          <Col xs={24} sm={12} md={8} lg={6}>
-            <Card style={statisticCardStyle}>
+          <Col xs={24} sm={12} md={6}>
+            <Card className="shadow-md hover:shadow-lg transition-shadow">
               <Statistic
-                title={<span style={{ color: token.colorWhite }}>Phản hồi</span>}
+                title={<span className="text-gray-600">Phản hồi mới</span>}
                 value={totalFeedbacks}
-                prefix={<MessageOutlined style={{ color: token.colorWhite }} />}
-                valueStyle={{ color: token.colorWhite }}
+                prefix={<MessageOutlined className="text-pink-500" />}
+                valueStyle={{ color: '#ec4899' }}
               />
             </Card>
           </Col>
         </Row>
 
-        <Card 
-          title="Thống kê dịch vụ" 
-          style={tableCardStyle}
-          headStyle={{
-            background: token.colorPrimary,
-            color: token.colorWhite,
-            borderRadius: `${token.borderRadiusLG}px ${token.borderRadiusLG}px 0 0`,
-          }}
-        >
+        <Card className="shadow-lg">
+          <Title level={4} className="text-pink-600 !mb-4">
+            Thống kê dịch vụ
+          </Title>
           <Table
-            columns={serviceColumns}
-            dataSource={serviceStats}
-            loading={loading}
+            columns={columns}
+            dataSource={data}
             pagination={false}
-            rowClassName={() => 'hover-row'}
-          />
-        </Card>
-
-        <Card 
-          title="Thống kê bác sĩ" 
-          style={tableCardStyle}
-          headStyle={{
-            background: token.colorPrimary,
-            color: token.colorWhite,
-            borderRadius: `${token.borderRadiusLG}px ${token.borderRadiusLG}px 0 0`,
-          }}
-        >
-          <Table
-            columns={doctorColumns}
-            dataSource={doctorStats}
-            loading={loading}
-            pagination={false}
-            rowClassName={() => 'hover-row'}
+            className="rounded-lg overflow-hidden"
           />
         </Card>
       </Space>
