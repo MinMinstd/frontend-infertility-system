@@ -10,7 +10,7 @@ import ManagerFinance from "../pages/manager/ManagerFinance";
 import ManagerReport from "../pages/manager/ManagerReport";
 import ManagerLayoutWithSidebar from "../pages/manager/ManagerLayoutWithSidebar";
 import ManagerAccount from "../pages/manager/ManagerAccount";
-
+import DoctorSchedule from "../pages/manager/DoctorSchedule";
 const managerRouter: RouteObject[] = [
   {
     path: "/manager",
@@ -51,6 +51,10 @@ const managerRouter: RouteObject[] = [
       {
         path: "customers",
         element: <ManagerAccount />,
+      },
+      {
+        path: "doctors/:id/schedule",
+        element: <DoctorSchedule />,
       },
 
     ],

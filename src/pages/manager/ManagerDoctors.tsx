@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Table, Button, Modal, Form, Input, Select, Space, message } from "antd";
-import { Edit, Delete, Plus, User } from "lucide-react";
+import { Delete, Plus, Calendar as CalendarIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import type { ColumnsType } from "antd/es/table";
 
 interface Doctor {
@@ -13,8 +14,24 @@ interface Doctor {
   status: "active" | "inactive";
 }
 
+// Interface định nghĩa cấu trúc dữ liệu lịch làm việc
+interface TimeSlot {
+  start: string;
+  end: string;
+  isAvailable: boolean;
+}
+
+interface Schedule {
+  date: string;
+  morning: boolean;  // true nếu có lịch buổi sáng
+  afternoon: boolean; // true nếu có lịch buổi chiều
+  timeSlots: TimeSlot[]; // Danh sách các khung giờ 30 phút
+}
+
 const ManagerDoctors: React.FC = () => {
+  const navigate = useNavigate();
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isScheduleModalVisible, setIsScheduleModalVisible] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
   const [form] = Form.useForm();
 
@@ -47,6 +64,42 @@ const ManagerDoctors: React.FC = () => {
       email: "levanc@example.com",
       status: "inactive",
     },
+  ];
+
+  // Dữ liệu mẫu cho lịch làm việc - sẽ được thay thế bằng API call
+  const mockSchedule: Schedule[] = [
+    { 
+      date: "2024-03-18", 
+      morning: true, 
+      afternoon: false,
+      timeSlots: [
+        { start: "07:00", end: "07:30", isAvailable: true },
+        { start: "07:30", end: "08:00", isAvailable: true },
+        { start: "08:00", end: "08:30", isAvailable: false },
+        { start: "08:30", end: "09:00", isAvailable: true },
+        { start: "09:00", end: "09:30", isAvailable: false },
+        { start: "09:30", end: "10:00", isAvailable: true },
+        { start: "10:00", end: "10:30", isAvailable: true },
+        { start: "10:30", end: "11:00", isAvailable: false },
+        { start: "11:00", end: "11:30", isAvailable: true },
+      ]
+    },
+    { 
+      date: "2024-03-19", 
+      morning: false, 
+      afternoon: true,
+      timeSlots: [
+        { start: "13:00", end: "13:30", isAvailable: true },
+        { start: "13:30", end: "14:00", isAvailable: false },
+        { start: "14:00", end: "14:30", isAvailable: true },
+        { start: "14:30", end: "15:00", isAvailable: true },
+        { start: "15:00", end: "15:30", isAvailable: false },
+        { start: "15:30", end: "16:00", isAvailable: true },
+        { start: "16:00", end: "16:30", isAvailable: true },
+        { start: "16:30", end: "17:00", isAvailable: false },
+      ]
+    },
+    // ... other days with similar structure
   ];
 
   const columns: ColumnsType<Doctor> = [
@@ -105,10 +158,10 @@ const ManagerDoctors: React.FC = () => {
         <Space size="middle">
           <Button
             type="primary"
-            icon={<Edit className="w-4 h-4" />}
-            onClick={() => handleEdit(record)}
+            icon={<CalendarIcon className="w-4 h-4" />}
+            onClick={() => handleViewSchedule(record)}
           >
-            Sửa
+            Xem lịch
           </Button>
           <Button
             danger
@@ -122,12 +175,6 @@ const ManagerDoctors: React.FC = () => {
     },
   ];
 
-  const handleEdit = (doctor: Doctor) => {
-    setSelectedDoctor(doctor);
-    form.setFieldsValue(doctor);
-    setIsModalVisible(true);
-  };
-
   const handleDelete = (doctor: Doctor) => {
     Modal.confirm({
       title: "Xác nhận xóa",
@@ -140,6 +187,10 @@ const ManagerDoctors: React.FC = () => {
         message.success("Đã xóa bác sĩ thành công");
       },
     });
+  };
+
+  const handleViewSchedule = (doctor: Doctor) => {
+    navigate(`/manager/doctors/${doctor.id}/schedule`);
   };
 
   const handleSubmit = (values: Doctor) => {
@@ -182,6 +233,72 @@ const ManagerDoctors: React.FC = () => {
           />
         </div>
       </div>
+
+      <Modal
+        title={`Lịch làm việc - ${selectedDoctor?.name}`}
+        open={isScheduleModalVisible}
+        onCancel={() => {
+          setIsScheduleModalVisible(false);
+          setSelectedDoctor(null);
+        }}
+        footer={null}
+        width={800}
+      >
+        <div className="mt-4">
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold mb-2">Lịch làm việc trong tuần</h3>
+            {/* Grid hiển thị lịch làm việc */}
+            <div className="grid grid-cols-2 gap-4">
+              {mockSchedule.map((schedule, index) => (
+                <div key={index} className="bg-gray-50 p-4 rounded-lg">
+                  {/* Hiển thị ngày tháng */}
+                  <div className="font-medium mb-2">
+                    {new Date(schedule.date).toLocaleDateString('vi-VN', { 
+                      weekday: 'long', 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })}
+                  </div>
+                  {/* Hiển thị trạng thái ca sáng và chiều */}
+                  <div className="space-y-2">
+                    <div className={`flex items-center ${schedule.morning ? 'text-green-600' : 'text-gray-400'}`}>
+                      <span className="mr-2">Buổi sáng:</span>
+                      {schedule.morning ? 'Có lịch' : 'Nghỉ'}
+                    </div>
+                    <div className={`flex items-center ${schedule.afternoon ? 'text-green-600' : 'text-gray-400'}`}>
+                      <span className="mr-2">Buổi chiều:</span>
+                      {schedule.afternoon ? 'Có lịch' : 'Nghỉ'}
+                    </div>
+                    
+                    {/* Hiển thị chi tiết từng khung giờ */}
+                    <div className="mt-4">
+                      <h4 className="font-medium mb-2">Chi tiết khung giờ:</h4>
+                      <div className="grid grid-cols-2 gap-2">
+                        {schedule.timeSlots.map((slot, slotIndex) => (
+                          <div 
+                            key={slotIndex}
+                            className={`p-2 rounded text-sm ${
+                              slot.isAvailable 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-gray-100 text-gray-500'
+                            }`}
+                          >
+                            <div className="font-medium">{slot.start} - {slot.end}</div>
+                            <div className="text-xs">
+                              {slot.isAvailable ? 'Có lịch' : 'Chưa có lịch'}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Modal>
 
       <Modal
         title={selectedDoctor ? "Sửa thông tin bác sĩ" : "Thêm bác sĩ mới"}
