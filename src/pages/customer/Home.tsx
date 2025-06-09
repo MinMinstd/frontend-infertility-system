@@ -19,7 +19,7 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
             {/* Success Stories */}
             <div className="order-2 lg:order-1">
-              <Gratefull limit={3} />
+              <Gratefull limit={4} />
             </div>
 
             {/* Why Choose Us */}

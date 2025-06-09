@@ -205,7 +205,7 @@ export default function PatientsPage() {
                         icon={<EyeOutlined />}
                         onClick={() => detailLink(patient.id)}
                       >
-                        View Details
+                        Xem chi tiết
                       </Button>
                       <Button icon={<EditOutlined />}>Update</Button>
                     </div>
@@ -320,7 +320,7 @@ export default function PatientsPage() {
                           <Link to={`/patients/${patient.id}`}>
                             <Button className="w-full sm:w-auto">
                               <EyeOutlined />
-                              View Details
+                              Xem chi tiết
                             </Button>
                           </Link>
                         </div>

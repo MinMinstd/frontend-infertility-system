@@ -8,7 +8,7 @@ const ServiceDetails = () => {
   const { id } = useParams();
   const service = ServiceInfo.find((s) => s.id === id);
 
-  if (!service) {
+  if (!service || !service.steps) {
     return <div>Không tìm thấy dịch vụ</div>;
   }
 

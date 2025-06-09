@@ -102,22 +102,22 @@ export default function AppointmentsPage() {
     {
       key: "/doctor",
       icon: <DashboardOutlined />,
-      label: <Link to="/doctor">Dashboard</Link>,
+      label: <Link to="/doctor">Thống kê</Link>,
     },
     {
       key: "/doctor/patients",
       icon: <UserOutlined />,
-      label: <Link to="/doctor/patients">Patients</Link>,
+      label: <Link to="/doctor/patients">Bệnh nhân</Link>,
     },
     {
       key: "/doctor/appointments",
       icon: <CalendarOutlined />,
-      label: <Link to="/doctor/appointments">Appointments</Link>,
+      label: <Link to="/doctor/appointments">Dịch vụ</Link>,
     },
     {
       key: "/treatment-history",
       icon: <ClockCircleOutlined />,
-      label: <Link to="/doctor/treatment_history">Treatment History</Link>,
+      label: <Link to="/doctor/treatment_history">Lịch trình điều trị</Link>,
     },
   ];
 
@@ -128,9 +128,9 @@ export default function AppointmentsPage() {
           style={{ padding: "24px 16px", borderBottom: "1px solid #f0f0f0" }}
         >
           <Title level={4} style={{ margin: 0 }}>
-            Fertility Clinic
+            CỔNG THÔNG TIN
           </Title>
-          <Text type="secondary">Dr. Management Portal</Text>
+          <Text type="secondary">Trang bác sĩ quản lí thông tin</Text>
         </div>
         <Menu
           mode="inline"
@@ -145,9 +145,9 @@ export default function AppointmentsPage() {
           <div style={{ marginBottom: 32 }}>
             <Row justify="space-between" align="middle">
               <Col>
-                <Title level={2}>Appointments</Title>
+                <Title level={2}>Dịch vụ</Title>
                 <Text type="secondary">
-                  Manage patient appointments and scheduling
+                  Quản lí lịch hẹn với bệnh nhân và liệu trình
                 </Text>
               </Col>
               <Col>

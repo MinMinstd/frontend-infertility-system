@@ -16,7 +16,7 @@ import {
   Tag,
 } from "antd";
 import {
-  UserOutlined,
+  // UserOutlined,
   CalendarOutlined,
   HeartOutlined,
   MedicineBoxOutlined,
@@ -89,20 +89,20 @@ export default function AppointmentForm() {
     }
   };
 
-  const services = [
-    "Khám tổng quát",
-    "Khám chuyên khoa tim mạch",
-    "Khám chuyên khoa thần kinh",
-    "Khám chuyên khoa nội tiết",
-    "Khám chuyên khoa tiêu hóa",
-    "Khám phụ khoa",
-    "Khám nhi khoa",
-    "Khám mắt",
-    "Khám tai mũi họng",
-    "Khám da liễu",
-    "Tư vấn dinh dưỡng",
-    "Vật lý trị liệu",
-  ];
+  // const services = [
+  //   "Khám tổng quát",
+  //   "Khám chuyên khoa tim mạch",
+  //   "Khám chuyên khoa thần kinh",
+  //   "Khám chuyên khoa nội tiết",
+  //   "Khám chuyên khoa tiêu hóa",
+  //   "Khám phụ khoa",
+  //   "Khám nhi khoa",
+  //   "Khám mắt",
+  //   "Khám tai mũi họng",
+  //   "Khám da liễu",
+  //   "Tư vấn dinh dưỡng",
+  //   "Vật lý trị liệu",
+  // ];
 
   return (
     <section
@@ -144,7 +144,7 @@ export default function AppointmentForm() {
               size="large"
               className="space-y-2"
             >
-              <Row gutter={[24, 0]}>
+              {/* <Row gutter={[24, 0]}>
                 <Col xs={24} md={12}>
                   <Form.Item
                     name="name"
@@ -185,9 +185,9 @@ export default function AppointmentForm() {
                     />
                   </Form.Item>
                 </Col>
-              </Row>
+              </Row> */}
 
-              <Row gutter={[24, 0]}>
+              {/* <Row gutter={[24, 0]}>
                 <Col xs={24} md={12}>
                   <Form.Item
                     name="gender"
@@ -239,7 +239,7 @@ export default function AppointmentForm() {
                     </Select>
                   </Form.Item>
                 </Col>
-              </Row>
+              </Row> */}
 
               <Row gutter={[24, 0]}>
                 <Col xs={24} md={12}>

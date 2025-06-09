@@ -2,7 +2,7 @@ interface Step {
   stepNumber?: number;
   title?: string;
   description?: string;
-  duration?: string; // optional property for time duration
+  duration?: string; //
   medication?: string[]; // optional property for medications used in the step
   notes?: string; // optional property for additional notes
 }
