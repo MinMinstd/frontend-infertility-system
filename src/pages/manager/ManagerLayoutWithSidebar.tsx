@@ -10,7 +10,6 @@ import {
   BarChartOutlined,
   MessageOutlined,
   FundOutlined,
-  SettingOutlined,
 } from "@ant-design/icons";
 import { useLocation, useNavigate, Outlet } from "react-router-dom";
 
