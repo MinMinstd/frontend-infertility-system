@@ -13,16 +13,9 @@ import {
   CheckCircle,
   ArrowLeft,
 } from "lucide-react";
-
-interface RegisterFormInputs {
-  username: string;
-  email: string;
-  phone: string;
-  address: string;
-  password: string;
-  confirmPassword: string;
-  agreeTerms: boolean;
-}
+import type { RegisterItem } from "../../types/auth.d";
+import AuthApi from "../../servers/auth.api";
+import type { AxiosError } from "axios";
 
 const RegisterPage = () => {
   const {
@@ -31,7 +24,7 @@ const RegisterPage = () => {
     watch,
     formState: { errors },
     setValue,
-  } = useForm<RegisterFormInputs>({
+  } = useForm<RegisterItem>({
     defaultValues: {
       agreeTerms: false,
     },
@@ -42,24 +35,31 @@ const RegisterPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const agreeTerms = watch("agreeTerms");
 
-  const onSubmit = async (data: RegisterFormInputs) => {
+  const onSubmit = async (data: RegisterItem) => {
     setIsLoading(true);
     try {
-      // TODO: Thêm logic gọi API đăng ký ở đây
-      console.log("Register data:", data);
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await AuthApi.Register(data); // Không cần gán biến nếu không dùng
 
       setIsRegistered(true);
       message.success("Đăng ký tài khoản thành công!");
     } catch (err) {
+      const error = err as AxiosError<{ message: string }>;
       console.error("Register error:", err);
-      message.error("Đăng ký thất bại. Vui lòng thử lại!");
+      const errorMessage =
+        error.response?.data?.message || "Đăng ký thất bại. Vui lòng thử lại!";
+      message.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
+
+  //Chức năng tự động đăng nhập sau khi đăng kí
+  // const loginResponse = await AuthApi.Login({
+  //   usernameOrEmail: data.email,
+  //   password: data.password,
+  // });
+  // login(loginResponse.data.accessToken);
+  // navigate("/");
 
   const handleBackToLogin = () => {
     navigate("/login"); // Sử dụng navigate thay vì router.push

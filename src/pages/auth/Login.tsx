@@ -4,9 +4,10 @@ import { useState } from "react";
 import { message } from "antd";
 import { Heart, Mail, Lock, User, Stethoscope } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import AuthApi from "../../servers/auth.api";
 
 interface LoginFormInputs {
-  userOrEmail: string;
+  Username: string;
   password: string;
   rememberMe: boolean;
 }
@@ -36,9 +37,19 @@ const LoginPage = () => {
       console.log("Login data:", data);
 
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const respone = await AuthApi.Login({
+        Username: data.Username,
+        Password: data.password,
+      });
 
-      login(); // Gọi hàm login từ AuthContext
+      if (!respone.data?.token) {
+        console.log("Token không tồn tại", respone.data);
+        throw new Error("Token không hợp lệ");
+      }
+
+      console.log("Login response:", respone.data);
+
+      login(respone.data.token); // Gọi hàm login từ AuthContext
       message.success("Đăng nhập thành công!");
       navigate("/"); // Chuyển về trang chủ sau khi đăng nhập
     } catch (err) {
@@ -68,7 +79,7 @@ const LoginPage = () => {
   };
 
   // Hàm kiểm tra user/email
-  const validateUserOrEmail = (value: string) => {
+  const validateUsername = (value: string) => {
     if (!value) return "Vui lòng nhập user hoặc email";
     // Regex kiểm tra email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -127,9 +138,9 @@ const LoginPage = () => {
             <div className="relative">
               <input
                 type="text"
-                {...register("userOrEmail", { validate: validateUserOrEmail })}
+                {...register("Username", { validate: validateUsername })}
                 className={`w-full px-4 py-3 pl-12 border rounded-xl focus:outline-none focus:ring-3 focus:ring-pink-300 focus:border-pink-400 transition-all duration-200 bg-white/70 backdrop-blur-sm ${
-                  errors.userOrEmail
+                  errors.Username
                     ? "border-red-400 focus:border-red-500 focus:ring-red-200"
                     : "border-pink-200 hover:border-pink-300"
                 }`}
@@ -138,10 +149,10 @@ const LoginPage = () => {
               />
               <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-pink-400" />
             </div>
-            {errors.userOrEmail && (
+            {errors.Username && (
               <p className="text-red-500 text-sm mt-2 flex items-center gap-1">
                 <span className="w-1 h-1 bg-red-500 rounded-full"></span>
-                {errors.userOrEmail.message as string}
+                {errors.Username.message as string}
               </p>
             )}
           </div>
