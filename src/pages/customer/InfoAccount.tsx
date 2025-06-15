@@ -1,5 +1,6 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 
 const Profile = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -7,6 +8,9 @@ const Profile = () => {
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
+
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="relative">
@@ -72,12 +76,21 @@ const Profile = () => {
           </li>
         </ul>
         <div className="py-2">
-          <Link
-            to="#"
+          <button
+            //   <Link
+            //   to="#"
+            //   className="block px-4 py-2 text-sm text-gray-700  hover:bg-pink-800 dark:hover:bg-pink-800 dark:text-gray-200 dark:hover:text-white"
+            // >
+            //   Sign out
+            // </Link>
             className="block px-4 py-2 text-sm text-gray-700  hover:bg-pink-800 dark:hover:bg-pink-800 dark:text-gray-200 dark:hover:text-white"
+            onClick={() => {
+              logout();
+              navigate("/");
+            }}
           >
             Sign out
-          </Link>
+          </button>
         </div>
       </div>
     </div>
