@@ -1,5 +1,7 @@
+"use client";
+
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom"; // Thay thế useRouter từ next/navigation
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { message } from "antd";
 import {
@@ -12,10 +14,20 @@ import {
   Stethoscope,
   CheckCircle,
   ArrowLeft,
+  Calendar,
+  Users,
 } from "lucide-react";
-import type { RegisterItem } from "../../types/auth.d";
-import AuthApi from "../../servers/auth.api";
-import type { AxiosError } from "axios";
+
+interface RegisterItem {
+  fullName: string;
+  email: string;
+  phone: string;
+  password: string;
+  gender: string;
+  birthday: string;
+  address: string;
+  agreeTerms: boolean;
+}
 
 const RegisterPage = () => {
   const {
@@ -27,10 +39,11 @@ const RegisterPage = () => {
   } = useForm<RegisterItem>({
     defaultValues: {
       agreeTerms: false,
+      gender: "",
     },
   });
 
-  const navigate = useNavigate(); // Sử dụng useNavigate thay vì useRouter
+  const navigate = useNavigate();
   const [isRegistered, setIsRegistered] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const agreeTerms = watch("agreeTerms");
@@ -38,31 +51,27 @@ const RegisterPage = () => {
   const onSubmit = async (data: RegisterItem) => {
     setIsLoading(true);
     try {
-      await AuthApi.Register(data); // Không cần gán biến nếu không dùng
+      // Convert birthday string to DateTime format for backend
+      const formattedData = {
+        ...data,
+        birthday: new Date(data.birthday).toISOString(),
+      };
+
+      // await AuthApi.Register(formattedData);
+      console.log("Registration data:", formattedData);
 
       setIsRegistered(true);
       message.success("Đăng ký tài khoản thành công!");
     } catch (err) {
-      const error = err as AxiosError<{ message: string }>;
       console.error("Register error:", err);
-      const errorMessage =
-        error.response?.data?.message || "Đăng ký thất bại. Vui lòng thử lại!";
-      message.error(errorMessage);
+      message.error("Đăng ký thất bại. Vui lòng thử lại!");
     } finally {
       setIsLoading(false);
     }
   };
 
-  //Chức năng tự động đăng nhập sau khi đăng kí
-  // const loginResponse = await AuthApi.Login({
-  //   usernameOrEmail: data.email,
-  //   password: data.password,
-  // });
-  // login(loginResponse.data.accessToken);
-  // navigate("/");
-
   const handleBackToLogin = () => {
-    navigate("/login"); // Sử dụng navigate thay vì router.push
+    navigate("/login");
   };
 
   if (isRegistered) {
@@ -119,7 +128,7 @@ const RegisterPage = () => {
         </div>
       </div>
 
-      <div className="w-full max-w-lg relative z-10">
+      <div className="w-full max-w-2xl relative z-10">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-pink-500 to-rose-500 rounded-full mb-4 shadow-lg">
@@ -152,45 +161,49 @@ const RegisterPage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            {/* Username Field */}
+            {/* Full Name Field */}
             <div>
-              <label className=" mb-2 font-medium text-gray-700  items-center gap-2">
-                <User className="w-4 h-4 text-pink-500" />
-                Tên đăng nhập
+              <label className="block mb-2 font-medium text-gray-700">
+                <div className="flex items-center gap-2">
+                  <User className="w-4 h-4 text-pink-500" />
+                  Họ và tên
+                </div>
               </label>
               <div className="relative">
                 <input
                   type="text"
-                  {...register("username", {
-                    required: "Vui lòng nhập tên đăng nhập",
+                  {...register("fullName", {
+                    required: "Vui lòng nhập họ và tên",
                     minLength: {
-                      value: 3,
-                      message: "Tên đăng nhập phải có ít nhất 3 ký tự",
+                      value: 2,
+                      message: "Họ và tên phải có ít nhất 2 ký tự",
                     },
                   })}
                   className={`w-full px-4 py-3 pl-12 border rounded-xl focus:outline-none focus:ring-3 focus:ring-pink-300 focus:border-pink-400 transition-all duration-200 bg-white/70 backdrop-blur-sm ${
-                    errors.username
+                    errors.fullName
                       ? "border-red-400 focus:border-red-500 focus:ring-red-200"
                       : "border-pink-200 hover:border-pink-300"
                   }`}
-                  placeholder="Nhập tên đăng nhập"
+                  placeholder="Nhập họ và tên"
                   disabled={isLoading}
                 />
                 <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-pink-400" />
               </div>
-              {errors.username && (
+              {errors.fullName && (
                 <p className="text-red-500 text-sm mt-2 flex items-center gap-1">
                   <span className="w-1 h-1 bg-red-500 rounded-full"></span>
-                  {errors.username.message as string}
+                  {errors.fullName.message as string}
                 </p>
               )}
             </div>
 
             {/* Email Field */}
             <div>
-              <label className=" mb-2 font-medium text-gray-700  items-center gap-2">
-                <Mail className="w-4 h-4 text-pink-500" />
-                Email
+              <label className="block mb-2 font-medium text-gray-700">
+                <div className="flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-pink-500" />
+                  Email
+                </div>
               </label>
               <div className="relative">
                 <input
@@ -224,9 +237,11 @@ const RegisterPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             {/* Phone Field */}
             <div>
-              <label className=" mb-2 font-medium text-gray-700  items-center gap-2">
-                <Phone className="w-4 h-4 text-pink-500" />
-                Số điện thoại
+              <label className="block mb-2 font-medium text-gray-700">
+                <div className="flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-pink-500" />
+                  Số điện thoại
+                </div>
               </label>
               <div className="relative">
                 <input
@@ -256,11 +271,87 @@ const RegisterPage = () => {
               )}
             </div>
 
+            {/* Gender Field */}
+            <div>
+              <label className="block mb-2 font-medium text-gray-700">
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-pink-500" />
+                  Giới tính
+                </div>
+              </label>
+              <div className="relative">
+                <select
+                  {...register("gender", {
+                    required: "Vui lòng chọn giới tính",
+                  })}
+                  className={`w-full px-4 py-3 pl-12 border rounded-xl focus:outline-none focus:ring-3 focus:ring-pink-300 focus:border-pink-400 transition-all duration-200 bg-white/70 backdrop-blur-sm ${
+                    errors.gender
+                      ? "border-red-400 focus:border-red-500 focus:ring-red-200"
+                      : "border-pink-200 hover:border-pink-300"
+                  }`}
+                  disabled={isLoading}
+                >
+                  <option value="">Chọn giới tính</option>
+                  <option value="Nam">Nam</option>
+                  <option value="Nữ">Nữ</option>
+                  <option value="Khác">Khác</option>
+                </select>
+                <Users className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-pink-400" />
+              </div>
+              {errors.gender && (
+                <p className="text-red-500 text-sm mt-2 flex items-center gap-1">
+                  <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+                  {errors.gender.message as string}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            {/* Birthday Field */}
+            <div>
+              <label className="block mb-2 font-medium text-gray-700">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-pink-500" />
+                  Ngày sinh
+                </div>
+              </label>
+              <div className="relative">
+                <input
+                  type="date"
+                  {...register("birthday", {
+                    required: "Vui lòng chọn ngày sinh",
+                    validate: (value) => {
+                      const today = new Date();
+                      const birthDate = new Date(value);
+                      const age = today.getFullYear() - birthDate.getFullYear();
+                      return age >= 13 || "Bạn phải từ 13 tuổi trở lên";
+                    },
+                  })}
+                  className={`w-full px-4 py-3 pl-12 border rounded-xl focus:outline-none focus:ring-3 focus:ring-pink-300 focus:border-pink-400 transition-all duration-200 bg-white/70 backdrop-blur-sm ${
+                    errors.birthday
+                      ? "border-red-400 focus:border-red-500 focus:ring-red-200"
+                      : "border-pink-200 hover:border-pink-300"
+                  }`}
+                  disabled={isLoading}
+                />
+                <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-pink-400" />
+              </div>
+              {errors.birthday && (
+                <p className="text-red-500 text-sm mt-2 flex items-center gap-1">
+                  <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+                  {errors.birthday.message as string}
+                </p>
+              )}
+            </div>
+
             {/* Address Field */}
             <div>
-              <label className=" mb-2 font-medium text-gray-700  items-center gap-2">
-                <MapPin className="w-4 h-4 text-pink-500" />
-                Địa chỉ
+              <label className="block mb-2 font-medium text-gray-700">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-pink-500" />
+                  Địa chỉ
+                </div>
               </label>
               <div className="relative">
                 <input
@@ -287,77 +378,44 @@ const RegisterPage = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            {/* Password Field */}
-            <div>
-              <label className=" mb-2 font-medium text-gray-700  items-center gap-2">
+          {/* Password Field */}
+          <div className="mb-6">
+            <label className="block mb-2 font-medium text-gray-700">
+              <div className="flex items-center gap-2">
                 <Lock className="w-4 h-4 text-pink-500" />
                 Mật khẩu
-              </label>
-              <div className="relative">
-                <input
-                  type="password"
-                  {...register("password", {
-                    required: "Vui lòng nhập mật khẩu",
-                    minLength: {
-                      value: 6,
-                      message: "Mật khẩu phải có ít nhất 6 ký tự",
-                    },
-                    pattern: {
-                      value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-                      message: "Mật khẩu phải có chữ hoa, chữ thường và số",
-                    },
-                  })}
-                  className={`w-full px-4 py-3 pl-12 border rounded-xl focus:outline-none focus:ring-3 focus:ring-pink-300 focus:border-pink-400 transition-all duration-200 bg-white/70 backdrop-blur-sm ${
-                    errors.password
-                      ? "border-red-400 focus:border-red-500 focus:ring-red-200"
-                      : "border-pink-200 hover:border-pink-300"
-                  }`}
-                  placeholder="Nhập mật khẩu"
-                  disabled={isLoading}
-                />
-                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-pink-400" />
               </div>
-              {errors.password && (
-                <p className="text-red-500 text-sm mt-2 flex items-center gap-1">
-                  <span className="w-1 h-1 bg-red-500 rounded-full"></span>
-                  {errors.password.message as string}
-                </p>
-              )}
+            </label>
+            <div className="relative">
+              <input
+                type="password"
+                {...register("password", {
+                  required: "Vui lòng nhập mật khẩu",
+                  minLength: {
+                    value: 6,
+                    message: "Mật khẩu phải có ít nhất 6 ký tự",
+                  },
+                  pattern: {
+                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+                    message: "Mật khẩu phải có chữ hoa, chữ thường và số",
+                  },
+                })}
+                className={`w-full px-4 py-3 pl-12 border rounded-xl focus:outline-none focus:ring-3 focus:ring-pink-300 focus:border-pink-400 transition-all duration-200 bg-white/70 backdrop-blur-sm ${
+                  errors.password
+                    ? "border-red-400 focus:border-red-500 focus:ring-red-200"
+                    : "border-pink-200 hover:border-pink-300"
+                }`}
+                placeholder="Nhập mật khẩu"
+                disabled={isLoading}
+              />
+              <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-pink-400" />
             </div>
-
-            {/* Confirm Password Field */}
-            <div>
-              <label className=" mb-2 font-medium text-gray-700  items-center gap-2">
-                <Lock className="w-4 h-4 text-pink-500" />
-                Xác nhận mật khẩu
-              </label>
-              <div className="relative">
-                <input
-                  type="password"
-                  {...register("confirmPassword", {
-                    required: "Vui lòng xác nhận mật khẩu",
-                    validate: (value) =>
-                      value === watch("password") ||
-                      "Mật khẩu xác nhận không khớp",
-                  })}
-                  className={`w-full px-4 py-3 pl-12 border rounded-xl focus:outline-none focus:ring-3 focus:ring-pink-300 focus:border-pink-400 transition-all duration-200 bg-white/70 backdrop-blur-sm ${
-                    errors.confirmPassword
-                      ? "border-red-400 focus:border-red-500 focus:ring-red-200"
-                      : "border-pink-200 hover:border-pink-300"
-                  }`}
-                  placeholder="Nhập lại mật khẩu"
-                  disabled={isLoading}
-                />
-                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-pink-400" />
-              </div>
-              {errors.confirmPassword && (
-                <p className="text-red-500 text-sm mt-2 flex items-center gap-1">
-                  <span className="w-1 h-1 bg-red-500 rounded-full"></span>
-                  {errors.confirmPassword.message as string}
-                </p>
-              )}
-            </div>
+            {errors.password && (
+              <p className="text-red-500 text-sm mt-2 flex items-center gap-1">
+                <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+                {errors.password.message as string}
+              </p>
+            )}
           </div>
 
           {/* Terms Agreement */}
