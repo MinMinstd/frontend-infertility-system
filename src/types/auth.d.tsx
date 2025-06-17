@@ -1,3 +1,11 @@
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string;
+  role: "Admin" | "Doctor" | "Customer" | "Manager";
+}
+
 export interface LoginItem {
   Username: string;
   Password: string;
