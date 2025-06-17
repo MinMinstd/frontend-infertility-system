@@ -294,7 +294,7 @@ const RegisterPage = () => {
                   <option value="">Chọn giới tính</option>
                   <option value="Nam">Nam</option>
                   <option value="Nữ">Nữ</option>
-                  <option value="Khác">Khác</option>
+                  {/* <option value="Khác">Khác</option> */}
                 </select>
                 <Users className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-pink-400" />
               </div>
