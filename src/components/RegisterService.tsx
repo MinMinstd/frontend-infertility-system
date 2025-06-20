@@ -22,11 +22,6 @@ interface DoctorSchedule {
 export const RegisterService = () => {
   const { user } = useAuth();
 
-  // Nếu chưa có user (đang fetch hoặc chưa đăng nhập), hiển thị loading
-  if (!user) {
-    return <div className="text-center py-10">Đang tải thông tin người dùng...</div>;
-  }
-
   const [services, setServices] = useState<Service[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [doctorSchedules, setDoctorSchedules] = useState<DoctorSchedule[]>([]);
@@ -161,11 +156,19 @@ export const RegisterService = () => {
       setSubmitMessage("Đăng ký thành công!");
       setSubmitted(true);
     } catch (err) {
+      console.log("Error : ", err);
       setSubmitMessage("Đăng ký thất bại. Vui lòng thử lại!");
     } finally {
       setSubmitting(false);
     }
   };
+
+  // Nếu chưa có user (đang fetch hoặc chưa đăng nhập), hiển thị loading
+  if (!user) {
+    return (
+      <div className="text-center py-10">Đang tải thông tin người dùng...</div>
+    );
+  }
 
   // Tính toán ngày tối thiểu (ngày hiện tại)
   const today = new Date().toISOString().split("T")[0];
@@ -189,7 +192,7 @@ export const RegisterService = () => {
                 required
                 className="mt-1 block w-full h-8 rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
                 value={husbandName}
-                onChange={e => setHusbandName(e.target.value)}
+                onChange={(e) => setHusbandName(e.target.value)}
               />
             </div>
 
@@ -202,7 +205,7 @@ export const RegisterService = () => {
                 required
                 className="mt-1 block w-full h-8 rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
                 value={husbandJob}
-                onChange={e => setHusbandJob(e.target.value)}
+                onChange={(e) => setHusbandJob(e.target.value)}
               />
             </div>
 
@@ -215,7 +218,7 @@ export const RegisterService = () => {
                 required
                 className="mt-1 block w-full h-8 rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
                 value={phone}
-                onChange={e => setPhone(e.target.value)}
+                onChange={(e) => setPhone(e.target.value)}
               />
             </div>
 
@@ -228,7 +231,7 @@ export const RegisterService = () => {
                 required
                 className="mt-1 block w-full h-8 rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
                 value={wifeName}
-                onChange={e => setWifeName(e.target.value)}
+                onChange={(e) => setWifeName(e.target.value)}
               />
             </div>
 
@@ -241,7 +244,7 @@ export const RegisterService = () => {
                 required
                 className="mt-1 block w-full h-8 rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
                 value={wifeJob}
-                onChange={e => setWifeJob(e.target.value)}
+                onChange={(e) => setWifeJob(e.target.value)}
               />
             </div>
 
@@ -254,7 +257,7 @@ export const RegisterService = () => {
                 required
                 className="mt-1 block w-full h-8 rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
                 value={address}
-                onChange={e => setAddress(e.target.value)}
+                onChange={(e) => setAddress(e.target.value)}
               />
             </div>
           </div>
@@ -278,7 +281,10 @@ export const RegisterService = () => {
                   {loadingServices ? "Đang tải..." : "Chọn dịch vụ"}
                 </option>
                 {services.map((service) => (
-                  <option key={service.serviceDBId} value={service.serviceDBId.toString()}>
+                  <option
+                    key={service.serviceDBId}
+                    value={service.serviceDBId.toString()}
+                  >
                     {service.name}
                   </option>
                 ))}
@@ -308,7 +314,10 @@ export const RegisterService = () => {
                 </option>
                 {selectedService &&
                   doctors.map((doctor) => (
-                    <option key={doctor.doctorId} value={doctor.doctorId.toString()}>
+                    <option
+                      key={doctor.doctorId}
+                      value={doctor.doctorId.toString()}
+                    >
                       {doctor.fullName}
                       {doctor.specialty ? ` - ${doctor.specialty}` : ""}
                     </option>
@@ -345,9 +354,16 @@ export const RegisterService = () => {
                 value={selectedTime}
                 onChange={(e) => {
                   setSelectedTime(e.target.value);
-                  const slot = doctorSchedules.find(s => s.doctorScheduleId.toString() === e.target.value);
+                  const slot = doctorSchedules.find(
+                    (s) => s.doctorScheduleId.toString() === e.target.value
+                  );
                   if (slot) {
-                    setSelectedTimeString(`${slot.startTime.substring(0, 5)} - ${slot.endTime.substring(0, 5)}`);
+                    setSelectedTimeString(
+                      `${slot.startTime.substring(
+                        0,
+                        5
+                      )} - ${slot.endTime.substring(0, 5)}`
+                    );
                   } else {
                     setSelectedTimeString("");
                   }
@@ -403,14 +419,26 @@ export const RegisterService = () => {
 
           <div className="mt-6">
             {submitMessage && (
-              <div className={`text-center text-sm mb-2 ${submitMessage.includes('thành công') ? 'text-green-600' : 'text-red-600'}`}>{submitMessage}</div>
+              <div
+                className={`text-center text-sm mb-2 ${
+                  submitMessage.includes("thành công")
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
+                {submitMessage}
+              </div>
             )}
             <button
               type="submit"
               className="w-1/3 mx-auto flex justify-center py-2.5 px-6 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-pink-600 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 transition duration-150 ease-in-out"
               disabled={submitting || submitted}
             >
-              {submitting ? "Đang gửi..." : submitted ? "Đã đăng ký" : "Đăng ký ngay"}
+              {submitting
+                ? "Đang gửi..."
+                : submitted
+                ? "Đã đăng ký"
+                : "Đăng ký ngay"}
             </button>
           </div>
         </form>

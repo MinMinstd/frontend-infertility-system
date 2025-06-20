@@ -104,6 +104,9 @@ export default function PatientsPage() {
           <Menu.Item key="history" icon={<ClockCircleOutlined />}>
             <Link to="/treatment-history">Treatment History</Link>
           </Menu.Item>
+          <Menu.Item key="schedule" icon={<ClockCircleOutlined />}>
+            <Link to="/schedule">Schedule</Link>
+          </Menu.Item>
         </Menu>
       </Sider>
 
