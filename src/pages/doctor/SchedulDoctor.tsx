@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import {
+  Layout,
+  Menu,
   Card,
   Button,
   Tag,
@@ -11,26 +13,18 @@ import {
   Space,
   Divider,
   notification,
-  Badge,
-  Dropdown,
-  List,
-  Avatar,
-  Layout,
-  Menu,
 } from "antd";
 import {
   ClockCircleOutlined,
   CalendarOutlined,
   UserOutlined,
-  BellOutlined,
-  SettingOutlined,
   LineChartOutlined,
   DashboardOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 
 const { Title, Text } = Typography;
-const { Content, Sider, Header } = Layout;
+const { Content, Sider } = Layout;
 
 interface TimeSlot {
   time: string;
@@ -47,19 +41,7 @@ interface DaySchedule {
   afternoon: TimeSlot[];
 }
 
-interface NotificationItem {
-  id: string;
-  patientName: string;
-  time: string;
-  day: string;
-  date: string;
-  isRead: boolean;
-  timestamp: Date;
-  treatmentType?: string;
-}
-
 export default function SchedulePage() {
-  // Tạo khung thời gian buổi sáng (7:30 - 11:30)
   const createMorningSlots = (): TimeSlot[] => {
     const slots: TimeSlot[] = [];
     for (let hour = 7; hour <= 11; hour++) {
@@ -75,7 +57,6 @@ export default function SchedulePage() {
     return slots;
   };
 
-  // Tạo khung thời gian buổi chiều (13:30 - 17:00)
   const createAfternoonSlots = (): TimeSlot[] => {
     const slots: TimeSlot[] = [];
     for (let hour = 13; hour <= 16; hour++) {
@@ -131,14 +112,13 @@ export default function SchedulePage() {
     },
   ]);
 
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [api, contextHolder] = notification.useNotification();
 
   const menuItems = [
     {
       key: "/",
       icon: <DashboardOutlined />,
-      label: <Link to="/">Dashboard</Link>,
+      label: <Link to="/doctor">Dashboard</Link>,
     },
     {
       key: "/patients",
@@ -173,26 +153,10 @@ export default function SchedulePage() {
       const day = newSchedule[dayIndex];
 
       if (!slot.isBooked) {
-        // Đặt lịch mới
         slot.isBooked = true;
         slot.patientName = "New Patient";
         slot.treatmentType = "IVF Consultation";
 
-        // Tạo thông báo mới
-        const newNotification: NotificationItem = {
-          id: `${dayIndex}-${period}-${slotIndex}-${Date.now()}`,
-          patientName: slot.patientName,
-          time: slot.time,
-          day: day.day,
-          date: day.date,
-          isRead: false,
-          timestamp: new Date(),
-          treatmentType: slot.treatmentType,
-        };
-
-        setNotifications((prev) => [newNotification, ...prev]);
-
-        // Hiển thị notification popup
         api.success({
           message: "New Appointment Booked!",
           description: `${slot.patientName} scheduled for ${slot.time}, ${day.day} (${day.date})`,
@@ -200,7 +164,6 @@ export default function SchedulePage() {
           duration: 4,
         });
       } else {
-        // Hủy lịch
         slot.isBooked = false;
         slot.patientName = undefined;
         slot.treatmentType = undefined;
@@ -208,20 +171,6 @@ export default function SchedulePage() {
 
       return newSchedule;
     });
-  };
-
-  const markAsRead = (notificationId: string) => {
-    setNotifications((prev) =>
-      prev.map((notif) =>
-        notif.id === notificationId ? { ...notif, isRead: true } : notif
-      )
-    );
-  };
-
-  const markAllAsRead = () => {
-    setNotifications((prev) =>
-      prev.map((notif) => ({ ...notif, isRead: true }))
-    );
   };
 
   const TimeSlotButton = ({
@@ -255,92 +204,6 @@ export default function SchedulePage() {
     </Button>
   );
 
-  const NotificationDropdown = () => {
-    const unreadCount = notifications.filter((n) => !n.isRead).length;
-
-    const dropdownContent = (
-      <div className="w-80 max-h-96 overflow-y-auto">
-        <div className="flex justify-between items-center p-3 border-b">
-          <Text strong>Notifications ({unreadCount} unread)</Text>
-          {unreadCount > 0 && (
-            <Button type="link" size="small" onClick={markAllAsRead}>
-              Mark all read
-            </Button>
-          )}
-        </div>
-
-        {notifications.length === 0 ? (
-          <div className="p-4 text-center text-gray-500">
-            No notifications yet
-          </div>
-        ) : (
-          <List
-            dataSource={notifications}
-            renderItem={(item) => (
-              <List.Item
-                className={`cursor-pointer hover:bg-gray-50 transition-colors ${
-                  !item.isRead ? "bg-blue-50" : ""
-                }`}
-                onClick={() => markAsRead(item.id)}
-              >
-                <List.Item.Meta
-                  avatar={
-                    <Avatar
-                      icon={<UserOutlined />}
-                      className={!item.isRead ? "bg-blue-500" : "bg-gray-400"}
-                    />
-                  }
-                  title={
-                    <div className="flex items-center gap-2">
-                      <span>New Appointment</span>
-                      {!item.isRead && (
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      )}
-                    </div>
-                  }
-                  description={
-                    <div>
-                      <div>
-                        {item.patientName} - {item.time}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {item.day} ({item.date}) •{" "}
-                        {item.timestamp.toLocaleTimeString("en-US")}
-                      </div>
-                      {item.treatmentType && (
-                        <Tag color="blue" className="mt-1">
-                          {item.treatmentType}
-                        </Tag>
-                      )}
-                    </div>
-                  }
-                />
-              </List.Item>
-            )}
-          />
-        )}
-      </div>
-    );
-
-    return (
-      <Dropdown
-        overlay={dropdownContent}
-        trigger={["click"]}
-        placement="bottomRight"
-      >
-        <Button
-          type="text"
-          icon={
-            <Badge count={unreadCount} size="small">
-              <BellOutlined className="text-xl" />
-            </Badge>
-          }
-          className="flex items-center"
-        />
-      </Dropdown>
-    );
-  };
-
   return (
     <Layout className="min-h-screen">
       {contextHolder}
@@ -362,29 +225,8 @@ export default function SchedulePage() {
       </Sider>
 
       <Layout>
-        <Header className="bg-white shadow-sm px-8 flex items-center justify-between">
-          <div>
-            <Title level={3} className="!mb-0">
-              Doctor Schedule
-            </Title>
-            <Text type="secondary">
-              Manage weekly appointments and availability
-            </Text>
-          </div>
-          <Space size={16}>
-            <NotificationDropdown />
-            <Button
-              type="text"
-              icon={<SettingOutlined />}
-              className="flex items-center"
-            />
-            <Avatar className="bg-blue-500">DS</Avatar>
-          </Space>
-        </Header>
-
         <Content className="p-8 bg-gray-50">
           <div className="max-w-7xl mx-auto">
-            {/* Schedule Grid */}
             <Row gutter={[24, 24]}>
               {schedule.map((day, dayIndex) => (
                 <Col key={dayIndex} xs={24} lg={12} xl={8}>
@@ -402,7 +244,6 @@ export default function SchedulePage() {
                     }
                   >
                     <Space direction="vertical" className="w-full" size="large">
-                      {/* Buổi sáng */}
                       <div>
                         <Space align="center" className="mb-3">
                           <ClockCircleOutlined className="text-orange-500" />
@@ -425,18 +266,14 @@ export default function SchedulePage() {
                         </Row>
                       </div>
 
-                      {/* Nghỉ trưa */}
-                      <div>
-                        <Divider />
-                        <div className="text-center">
-                          <Tag color="gold" className="px-4 py-1">
-                            Lunch Break: 11:30 - 13:30
-                          </Tag>
-                        </div>
-                        <Divider />
+                      <Divider />
+                      <div className="text-center">
+                        <Tag color="gold" className="px-4 py-1">
+                          Lunch Break: 11:30 - 13:30
+                        </Tag>
                       </div>
+                      <Divider />
 
-                      {/* Buổi chiều */}
                       <div>
                         <Space align="center" className="mb-3">
                           <ClockCircleOutlined className="text-blue-500" />
@@ -459,25 +296,22 @@ export default function SchedulePage() {
                         </Row>
                       </div>
 
-                      {/* Thống kê ngày */}
-                      <div>
-                        <Divider />
-                        <div className="flex justify-between">
-                          <Text type="secondary">
-                            Booked:{" "}
-                            <Text strong className="text-blue-600">
-                              {day.morning.filter((s) => s.isBooked).length +
-                                day.afternoon.filter((s) => s.isBooked).length}
-                            </Text>
+                      <Divider />
+                      <div className="flex justify-between">
+                        <Text type="secondary">
+                          Booked:{" "}
+                          <Text strong className="text-blue-600">
+                            {day.morning.filter((s) => s.isBooked).length +
+                              day.afternoon.filter((s) => s.isBooked).length}
                           </Text>
-                          <Text type="secondary">
-                            Available:{" "}
-                            <Text strong className="text-green-600">
-                              {day.morning.filter((s) => !s.isBooked).length +
-                                day.afternoon.filter((s) => !s.isBooked).length}
-                            </Text>
+                        </Text>
+                        <Text type="secondary">
+                          Available:{" "}
+                          <Text strong className="text-green-600">
+                            {day.morning.filter((s) => !s.isBooked).length +
+                              day.afternoon.filter((s) => !s.isBooked).length}
                           </Text>
-                        </div>
+                        </Text>
                       </div>
                     </Space>
                   </Card>
@@ -485,7 +319,6 @@ export default function SchedulePage() {
               ))}
             </Row>
 
-            {/* Chú thích */}
             <Card className="mt-6 border-0 shadow-md">
               <Title level={4}>Legend:</Title>
               <Space wrap size="large">
