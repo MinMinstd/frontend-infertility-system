@@ -1,4 +1,10 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import type { ReactNode } from "react";
 import type { User } from "../types/auth.d";
 import AuthApi from "../servers/auth.api";
@@ -18,6 +24,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
+  const fetchUser = useCallback(async () => {
+    try {
+      const res = await AuthApi.Me(); //API trả về user (id, role, name)
+      setUser(res.data);
+    } catch {
+      logout(); // token không hoạt động sẽ tự động logout
+    }
+  }, []);
+
   useEffect(() => {
     const token = localStorage.getItem("accesstoken");
     if (token) {
@@ -25,16 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAccessToken(token);
       fetchUser();
     }
-  }, []);
-
-  const fetchUser = async () => {
-    try {
-      const res = await AuthApi.Me(); //API trả về user (id, role, name)
-      setUser(res.data);
-    } catch {
-      logout(); // token không hoạt động sẽ tự động logout
-    }
-  };
+  }, [fetchUser]); // Add fetchUser to dependency array
 
   const login = async (token: string) => {
     localStorage.setItem("accesstoken", token);
