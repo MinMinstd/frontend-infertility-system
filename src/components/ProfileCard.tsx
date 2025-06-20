@@ -1,32 +1,95 @@
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { message } from "antd";
 import { Heart, Stethoscope } from "lucide-react";
-
-interface ProfileFormInputs {
-  fullName: string;
-  email: string;
-  phone: string;
-  dateOfBirth: string;
-  address: string;
-  password: string;
-  confirmPassword: string;
-}
+import type {
+  ChangePassword,
+  ProfileChangeForm,
+  ProfileFormInputs,
+} from "../types/user.d";
+import UserApi from "../servers/user.api";
 
 const ProfileCard = () => {
   const {
     register,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
-  } = useForm<ProfileFormInputs>();
+  } = useForm<ProfileFormInputs & ProfileChangeForm & ChangePassword>({
+    defaultValues: {
+      fullName: "",
+      email: "",
+      phone: "",
+      birthday: "",
+      gender: "",
+      address: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const onSubmit = async (data: ProfileFormInputs) => {
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await UserApi.GetProfile();
+        console.log("Thông tin được GET nè: ", res.data);
+
+        const customer = res.data;
+
+        reset({
+          fullName: customer.fullName ?? "",
+          email: customer.email ?? "",
+          phone: customer.phone ?? "",
+          birthday: customer.birthday,
+          gender:
+            customer.gender === "Nam"
+              ? "M"
+              : customer.gender === "Nữ"
+              ? "F"
+              : "",
+          address: customer.address ?? "",
+
+          password: "", // Để trống vì API không trả về mật khẩu
+          confirmPassword: "", // Để trống
+        });
+
+        //Kiểm tra thông tin reset trả ra
+        setTimeout(() => {
+          console.log("📤 Dữ liệu sau khi reset:", watch());
+        }, 0);
+      } catch (err) {
+        console.error("Không thể lấy thông tin", err);
+      }
+    };
+    fetchProfile();
+  }, [reset, watch]);
+
+  const onSubmit = async (data: ChangePassword & ProfileChangeForm) => {
     setIsLoading(true);
+
+    const dataChangeInfor: ProfileChangeForm = {
+      fullName: data.fullName,
+      email: data.email,
+      phone: data.phone,
+      birthday: data.birthday,
+      gender: data.gender,
+      // gender: data.gender === "M" ? "Nam" : data.gender === "F",
+      address: data.address,
+    };
+
+    const dataChangePassword: ChangePassword = {
+      currentPassword: data.currentPassword,
+      newPassword: data.newPassword,
+      confirmPassword: data.confirmPassword,
+    };
+
     try {
-      console.log("Profile data:", data);
+      // console.log("Data trả về nè:", data);
+      console.log("Password trả về nè:", dataChangeInfor);
+      console.log("Profile trả về nè:", dataChangePassword);
 
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -192,7 +255,7 @@ const ProfileCard = () => {
             <div className="relative z-0 w-full mb-8 group">
               <input
                 type="date"
-                {...register("dateOfBirth", {
+                {...register("birthday", {
                   required: "Vui lòng nhập ngày sinh",
                   validate: (value) => {
                     const today = new Date();
@@ -205,7 +268,7 @@ const ProfileCard = () => {
                   },
                 })}
                 className={`block py-3 px-0 w-full text-sm bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 peer transition-all duration-300 ${
-                  errors.dateOfBirth
+                  errors.birthday
                     ? "text-red-600 border-red-500 focus:border-red-600"
                     : "text-gray-900 border-pink-300 focus:border-pink-500"
                 }`}
@@ -214,72 +277,104 @@ const ProfileCard = () => {
               />
               <label
                 className={`peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 ${
-                  errors.dateOfBirth
+                  errors.birthday
                     ? "text-red-500 peer-focus:text-red-600"
                     : "text-pink-600 peer-focus:text-pink-500"
                 }`}
               >
                 Ngày sinh *
               </label>
-              {errors.dateOfBirth && (
+              {errors.birthday && (
                 <p className="text-red-500 text-xs mt-2 flex items-center gap-1">
                   <span className="w-1 h-1 bg-red-500 rounded-full"></span>
-                  {errors.dateOfBirth.message as string}
+                  {errors.birthday.message as string}
                 </p>
               )}
             </div>
           </div>
 
-          {/* Address */}
-          <div className="relative z-0 w-full mb-8 group">
-            <input
-              type="text"
-              {...register("address", {
-                required: "Vui lòng nhập địa chỉ",
-                minLength: {
-                  value: 5,
-                  message: "Địa chỉ phải có ít nhất 5 ký tự",
-                },
-              })}
-              className={`block py-3 px-0 w-full text-sm bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 peer transition-all duration-300 ${
-                errors.address
-                  ? "text-red-600 border-red-500 focus:border-red-600"
-                  : "text-gray-900 border-pink-300 focus:border-pink-500"
-              }`}
-              placeholder=" "
-              disabled={isLoading}
-            />
-            <label
-              className={`peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 ${
-                errors.address
-                  ? "text-red-500 peer-focus:text-red-600"
-                  : "text-pink-600 peer-focus:text-pink-500"
-              }`}
-            >
-              Địa chỉ *
-            </label>
-            {errors.address && (
-              <p className="text-red-500 text-xs mt-2 flex items-center gap-1">
-                <span className="w-1 h-1 bg-red-500 rounded-full"></span>
-                {errors.address.message as string}
-              </p>
-            )}
+          {/* Address and Gender */}
+          <div className="grid md:grid-cols-2 md:gap-6">
+            <div className="relative z-0 w-full mb-8 group">
+              <input
+                type="text"
+                {...register("address", {
+                  required: "Vui lòng nhập địa chỉ",
+                  minLength: {
+                    value: 5,
+                    message: "Địa chỉ phải có ít nhất 5 ký tự",
+                  },
+                })}
+                className={`block py-3 px-0 w-full text-sm bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 peer transition-all duration-300 ${
+                  errors.address
+                    ? "text-red-600 border-red-500 focus:border-red-600"
+                    : "text-gray-900 border-pink-300 focus:border-pink-500"
+                }`}
+                placeholder=" "
+                disabled={isLoading}
+              />
+              <label
+                className={`peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 ${
+                  errors.address
+                    ? "text-red-500 peer-focus:text-red-600"
+                    : "text-pink-600 peer-focus:text-pink-500"
+                }`}
+              >
+                Địa chỉ *
+              </label>
+              {errors.address && (
+                <p className="text-red-500 text-xs mt-2 flex items-center gap-1">
+                  <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+                  {errors.address.message as string}
+                </p>
+              )}
+            </div>
+
+            <div className="relative z-0 w-full mb-8 group">
+              <select
+                {...register("gender", { required: "Vui lòng chọn giới tính" })}
+                className={`block py-3 px-0 w-full text-sm bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 peer transition-all duration-300 ${
+                  errors.gender
+                    ? "text-red-600 border-red-500 focus:border-red-600"
+                    : "text-gray-900 border-pink-300 focus:border-pink-500"
+                }`}
+                disabled={isLoading}
+                defaultValue=""
+              >
+                <option value="" disabled>
+                  Chọn giới tính
+                </option>
+                <option value="M">Nam</option>
+                <option value="F">Nữ</option>
+              </select>
+              <label
+                className={`peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 ${
+                  errors.gender
+                    ? "text-red-500 peer-focus:text-red-600"
+                    : "text-pink-600 peer-focus:text-pink-500"
+                }`}
+              >
+                Giới tính *
+              </label>
+              {errors.gender && (
+                <p className="text-red-500 text-xs mt-2 flex items-center gap-1">
+                  <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+                  {errors.gender.message as string}
+                </p>
+              )}
+            </div>
           </div>
 
-          {/* Password and Confirm Password */}
+          {/* Current Password and New Password */}
           <div className="grid md:grid-cols-2 md:gap-6">
             <div className="relative z-0 w-full mb-8 group">
               <input
                 type="password"
                 {...register("password", {
-                  required: "Vui lòng nhập mật khẩu",
+                  required: "Vui lòng nhập mật khẩu hiện tại",
                   minLength: {
                     value: 6,
                     message: "Mật khẩu phải có ít nhất 6 ký tự",
-                  },
-                  pattern: {
-                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-                    message: "Mật khẩu phải có chữ hoa, chữ thường và số",
                   },
                 })}
                 className={`block py-3 px-0 w-full text-sm bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 peer transition-all duration-300 ${
@@ -297,7 +392,7 @@ const ProfileCard = () => {
                     : "text-pink-600 peer-focus:text-pink-500"
                 }`}
               >
-                Mật khẩu *
+                Mật khẩu hiện tại *
               </label>
               {errors.password && (
                 <p className="text-red-500 text-xs mt-2 flex items-center gap-1">
@@ -310,14 +405,22 @@ const ProfileCard = () => {
             <div className="relative z-0 w-full mb-8 group">
               <input
                 type="password"
-                {...register("confirmPassword", {
-                  required: "Vui lòng xác nhận mật khẩu",
+                {...register("newPassword", {
+                  required: "Vui lòng nhập mật khẩu mới",
+                  minLength: {
+                    value: 6,
+                    message: "Mật khẩu mới phải có ít nhất 6 ký tự",
+                  },
+                  pattern: {
+                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+                    message: "Mật khẩu mới phải có chữ hoa, chữ thường và số",
+                  },
                   validate: (value) =>
-                    value === watch("password") ||
-                    "Mật khẩu xác nhận không khớp",
+                    value !== watch("password") ||
+                    "Mật khẩu mới phải khác mật khẩu hiện tại",
                 })}
                 className={`block py-3 px-0 w-full text-sm bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 peer transition-all duration-300 ${
-                  errors.confirmPassword
+                  errors.newPassword
                     ? "text-red-600 border-red-500 focus:border-red-600"
                     : "text-gray-900 border-pink-300 focus:border-pink-500"
                 }`}
@@ -326,20 +429,55 @@ const ProfileCard = () => {
               />
               <label
                 className={`peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 ${
-                  errors.confirmPassword
+                  errors.newPassword
                     ? "text-red-500 peer-focus:text-red-600"
                     : "text-pink-600 peer-focus:text-pink-500"
                 }`}
               >
-                Xác nhận mật khẩu *
+                Mật khẩu mới *
               </label>
-              {errors.confirmPassword && (
+              {errors.newPassword && (
                 <p className="text-red-500 text-xs mt-2 flex items-center gap-1">
                   <span className="w-1 h-1 bg-red-500 rounded-full"></span>
-                  {errors.confirmPassword.message as string}
+                  {errors.newPassword.message as string}
                 </p>
               )}
             </div>
+          </div>
+
+          {/* Confirm New Password */}
+          <div className="relative z-0 w-full mb-8 group">
+            <input
+              type="password"
+              {...register("confirmPassword", {
+                required: "Vui lòng xác nhận mật khẩu mới",
+                validate: (value) =>
+                  value === watch("newPassword") ||
+                  "Mật khẩu xác nhận không khớp với mật khẩu mới",
+              })}
+              className={`block py-3 px-0 w-full text-sm bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 peer transition-all duration-300 ${
+                errors.confirmPassword
+                  ? "text-red-600 border-red-500 focus:border-red-600"
+                  : "text-gray-900 border-pink-300 focus:border-pink-500"
+              }`}
+              placeholder=" "
+              disabled={isLoading}
+            />
+            <label
+              className={`peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 ${
+                errors.confirmPassword
+                  ? "text-red-500 peer-focus:text-red-600"
+                  : "text-pink-600 peer-focus:text-pink-500"
+              }`}
+            >
+              Xác nhận mật khẩu mới *
+            </label>
+            {errors.confirmPassword && (
+              <p className="text-red-500 text-xs mt-2 flex items-center gap-1">
+                <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+                {errors.confirmPassword.message as string}
+              </p>
+            )}
           </div>
 
           {/* Submit Button */}

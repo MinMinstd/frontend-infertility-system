@@ -1,5 +1,3 @@
-"use client";
-
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -17,17 +15,8 @@ import {
   Calendar,
   Users,
 } from "lucide-react";
-
-interface RegisterItem {
-  fullName: string;
-  email: string;
-  phone: string;
-  password: string;
-  gender: string;
-  birthday: string;
-  address: string;
-  agreeTerms: boolean;
-}
+import AuthApi from "../../servers/auth.api";
+import type { RegisterItem } from "../../types/auth.d";
 
 const RegisterPage = () => {
   const {
@@ -38,8 +27,14 @@ const RegisterPage = () => {
     setValue,
   } = useForm<RegisterItem>({
     defaultValues: {
-      agreeTerms: false,
+      fullName: "",
+      email: "",
+      phone: "",
+      address: "",
       gender: "",
+      password: "",
+      confirmPassword: "",
+      agreeTerms: false,
     },
   });
 
@@ -51,14 +46,18 @@ const RegisterPage = () => {
   const onSubmit = async (data: RegisterItem) => {
     setIsLoading(true);
     try {
-      // Convert birthday string to DateTime format for backend
-      const formattedData = {
-        ...data,
-        birthday: new Date(data.birthday).toISOString(),
-      };
+      console.log("Dữ liệu được gửi đi nè: ", data);
+
+      const res = await AuthApi.Register(data);
+
+      console.log("Phản hồi từ server nè : ", res);
+
+      // const formattedData = {
+      //   ...data,
+      //   // birthday: new Date(data.birthday).toISOString(),
+      // };
 
       // await AuthApi.Register(formattedData);
-      console.log("Registration data:", formattedData);
 
       setIsRegistered(true);
       message.success("Đăng ký tài khoản thành công!");

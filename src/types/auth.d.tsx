@@ -16,11 +16,18 @@ export interface LoginResponse {
   refreshToken?: string;
 }
 
+export interface RegisterResponse {
+  message: string;
+  userId: string;
+}
+
 export interface RegisterItem {
-  username: string;
+  fullName: string;
   email: string;
   phone: string;
   address: string;
+  gender: string;
+  birthday: string;
   password: string;
   confirmPassword: string;
   agreeTerms: boolean;
