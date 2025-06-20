@@ -1,5 +1,6 @@
 import type {
   ChangePassword,
+  ChangePasswordRespone,
   ProfileChangeForm,
   ProfileFormInputs,
 } from "../types/user.d";
@@ -10,11 +11,12 @@ const UserApi = {
   GetProfile: () => axiosClient.get<ProfileFormInputs>("/customer"),
 
   //Cập nhật thông tin customer chưa bao gồm mật khẩu
-  UpdateProfile: () =>
-    axiosClient.put<ProfileChangeForm>("/customer/updateCustomerProfile"),
+  UpdateProfile: (data: ProfileChangeForm) =>
+    axiosClient.put<ProfileChangeForm>("/customer/updateCustomerProfile", data),
 
   //Cập nhật mật khẩu customer
-  ChangePassword: () => axiosClient.post<ChangePassword>("/customer"),
+  ChangePassword: (data: ChangePassword) =>
+    axiosClient.put<ChangePasswordRespone>("/customer", data),
 };
 
 export default UserApi;
