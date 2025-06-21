@@ -1,3 +1,4 @@
+import type { BookingConsulant } from "../types/booking.d";
 import axiosClient from "./axiosClient";
 
 export const bookingApi = {
@@ -5,7 +6,7 @@ export const bookingApi = {
     return axiosClient.get("/Service/GetAllServicesToBooking");
   },
   getDoctorsByServiceId: (serviceId: string) => {
-    return axiosClient.get(`/Doctor/GetDoctorsByServiceId/${serviceId}`);
+    return axiosClient.get(`/Doctor/GetDoctorsByServiceIdForBookingService/${serviceId}`);
   },
   getDoctorSchedule: (doctorId: string, date: string) => {
     return axiosClient.get(
@@ -14,5 +15,8 @@ export const bookingApi = {
   },
   bookingService: (data: any) => {
     return axiosClient.post("/Booking/booking_service", data);
+  },
+  bookingConsulant: (data: BookingConsulant) => {
+    return axiosClient.post("/Booking/booking_consulant", data);
   },
 }; 

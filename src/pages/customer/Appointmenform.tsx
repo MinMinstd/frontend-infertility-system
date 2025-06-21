@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Form,
   Input,
@@ -24,6 +24,13 @@ import {
   EditOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
+import ServiceApi from "../../servers/service.api";
+import DoctorApi from "../../servers/doctor.api";
+import type { Service } from "../../types/service.d";
+import type { Doctor } from "../../types/doctor.d";
+import type { DoctorSchedule } from "../../types/doctorSchedule.d";
+import { bookingApi } from "../../servers/booking.api";
+import type { BookingConsulant } from "../../types/booking.d";
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -33,140 +40,175 @@ interface AppointmentFormData {
   name: string;
   dob: dayjs.Dayjs;
   gender: string;
-  service: string;
-  doctor: string; // Add this line
+  service: number;
+  doctor: number;
   date: dayjs.Dayjs;
-  timeSlot: string;
+  timeSlot: number;
   note?: string;
 }
 
 export default function AppointmentForm() {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [services, setServices] = useState<Service[]>([]);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [loadingServices, setLoadingServices] = useState(false);
+  const [loadingDoctors, setLoadingDoctors] = useState(false);
+  const [selectedService, setSelectedService] = useState<number | null>(null);
+  const [selectedDoctor, setSelectedDoctor] = useState<number | null>(null);
+  const [selectedDate, setSelectedDate] = useState<dayjs.Dayjs | null>(null);
+  const [timeSlots, setTimeSlots] = useState<DoctorSchedule[]>([]);
+  const [loadingTimeSlots, setLoadingTimeSlots] = useState(false);
+  const [availabilityMessage, setAvailabilityMessage] = useState<string | null>(
+    null
+  );
 
-  // Tạo các khung giờ từ 8:00 đến 17:00 (mỗi khung 30 phút)
-  const generateTimeSlots = () => {
-    const slots: string[] = [];
-    for (let hour = 7; hour < 17; hour++) {
-      // Khung giờ đầu: 8:00-8:30, 9:00-9:30, etc.
-      const startTime = `${hour.toString().padStart(2, "0")}:00`;
-      const endTime = `${hour.toString().padStart(2, "0")}:30`;
-      slots.push(`${startTime} - ${endTime}`);
-
-      // Khung giờ sau: 8:30-9:00, 9:30-10:00, etc.
-      if (hour < 16) {
-        // Không tạo khung 16:30-17:00 vì kết thúc lúc 17:00
-        const startTime2 = `${hour.toString().padStart(2, "0")}:30`;
-        const endTime2 = `${(hour + 1).toString().padStart(2, "0")}:00`;
-        slots.push(`${startTime2} - ${endTime2}`);
+  useEffect(() => {
+    const fetchServices = async () => {
+      setLoadingServices(true);
+      try {
+        const response = await ServiceApi.getAllServicesToBooking();
+        setServices(response.data);
+      } catch (error) {
+        message.error("Lỗi khi tải danh sách dịch vụ!");
+      } finally {
+        setLoadingServices(false);
       }
-    }
-    return slots;
-  };
+    };
+    fetchServices();
+  }, []);
 
-  const timeSlots = generateTimeSlots();
+  useEffect(() => {
+    if (selectedService) {
+      const fetchDoctors = async () => {
+        setLoadingDoctors(true);
+        setDoctors([]);
+        form.setFieldsValue({ doctor: null, date: null, timeSlot: null });
+        setSelectedDoctor(null);
+        setSelectedDate(null);
+        setTimeSlots([]);
+        setAvailabilityMessage(null);
+        try {
+          const response =
+            await DoctorApi.getDoctorsByServiceIdForBookingConsulation(
+              String(selectedService)
+            );
+          setDoctors(response.data);
+        } catch (error) {
+          message.error("Lỗi khi tải danh sách bác sĩ!");
+        } finally {
+          setLoadingDoctors(false);
+        }
+      };
+      fetchDoctors();
+    }
+  }, [selectedService, form]);
+
+  useEffect(() => {
+    if (selectedDoctor && selectedDate) {
+      const fetchSchedule = async () => {
+        setLoadingTimeSlots(true);
+        setTimeSlots([]);
+        setAvailabilityMessage(null);
+        form.setFieldsValue({ timeSlot: null });
+        try {
+          const dateString = selectedDate.format("YYYY-MM-DD");
+          const response = await DoctorApi.getDoctorSchedule(
+            selectedDoctor,
+            dateString
+          );
+          if (response.data && response.data.length > 0) {
+            setTimeSlots(response.data);
+          } else {
+            setAvailabilityMessage("Bác sĩ không làm việc vào ngày này!");
+          }
+        } catch (error) {
+          message.error("Lỗi khi tải lịch làm việc của bác sĩ!");
+          setAvailabilityMessage(
+            "Không thể tải lịch làm việc. Vui lòng thử lại."
+          );
+        } finally {
+          setLoadingTimeSlots(false);
+        }
+      };
+      fetchSchedule();
+    }
+  }, [selectedDoctor, selectedDate, form]);
 
   const onFinish = async (values: AppointmentFormData) => {
+    setLoading(true);
     try {
-      setLoading(true);
       // Validate dates before submitting
       if (!values.date.isValid() || !values.dob.isValid()) {
         message.error("Ngày không hợp lệ!");
+        setLoading(false);
         return;
       }
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Find the selected time slot to get startTime
+      const selectedSlot = timeSlots.find(
+        (slot) => slot.doctorScheduleId === values.timeSlot
+      );
+
+      if (!selectedSlot) {
+        message.error("Khung giờ đã chọn không hợp lệ. Vui lòng chọn lại.");
+        setLoading(false);
+        return;
+      }
+
+      const bookingData: BookingConsulant = {
+        date: values.date.format("YYYY-MM-DD"),
+        time: `${selectedSlot.startTime.substring(
+          0,
+          5
+        )} - ${selectedSlot.endTime.substring(0, 5)}`,
+        note: values.note,
+        doctorId: values.doctor,
+        doctorScheduleId: values.timeSlot,
+        serviceId: values.service,
+      };
+
+      await bookingApi.bookingConsulant(bookingData);
+
       message.success(
         "Đặt lịch hẹn thành công! Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất."
       );
       form.resetFields();
-      console.log("Form data:", values);
+      // Reset states after successful booking
+      setSelectedService(null);
+      setSelectedDoctor(null);
+      setSelectedDate(null);
+      setTimeSlots([]);
+      setAvailabilityMessage(null);
     } catch (error) {
-      console.error("Error details:", error); // Ghi log thông tin lỗi
+      console.error("Error details:", error);
       message.error("Có lỗi xảy ra khi đặt lịch!");
     } finally {
       setLoading(false);
     }
   };
 
-  const services = [
-    "Khám tổng quát",
-    "Khám chuyên khoa tim mạch",
-    "Khám chuyên khoa thần kinh",
-    "Khám chuyên khoa nội tiết",
-    "Khám chuyên khoa tiêu hóa",
-    "Khám phụ khoa",
-    "Khám nhi khoa",
-    "Khám mắt",
-    "Khám tai mũi họng",
-    "Khám da liễu",
-    "Tư vấn dinh dưỡng",
-    "Vật lý trị liệu",
-  ];
+  const handleServiceChange = (value: number) => {
+    setSelectedService(value);
+  };
 
-  const doctors = [
-    {
-      id: "dr001",
-      name: "BS. Nguyễn Văn An",
-      specialty: "Tim mạch",
-      experience: "15 năm kinh nghiệm",
-    },
-    {
-      id: "dr002",
-      name: "BS. Trần Thị Bình",
-      specialty: "Thần kinh",
-      experience: "12 năm kinh nghiệm",
-    },
-    {
-      id: "dr003",
-      name: "BS. Lê Minh Cường",
-      specialty: "Nội tiết",
-      experience: "18 năm kinh nghiệm",
-    },
-    {
-      id: "dr004",
-      name: "BS. Phạm Thị Dung",
-      specialty: "Tiêu hóa",
-      experience: "10 năm kinh nghiệm",
-    },
-    {
-      id: "dr005",
-      name: "BS. Hoàng Văn Em",
-      specialty: "Phụ khoa",
-      experience: "14 năm kinh nghiệm",
-    },
-    {
-      id: "dr006",
-      name: "BS. Vũ Thị Phương",
-      specialty: "Nhi khoa",
-      experience: "16 năm kinh nghiệm",
-    },
-    {
-      id: "dr007",
-      name: "BS. Đặng Minh Giang",
-      specialty: "Mắt",
-      experience: "11 năm kinh nghiệm",
-    },
-    {
-      id: "dr008",
-      name: "BS. Bùi Thị Hoa",
-      specialty: "Tai mũi họng",
-      experience: "13 năm kinh nghiệm",
-    },
-    {
-      id: "dr009",
-      name: "BS. Ngô Văn Inh",
-      specialty: "Da liễu",
-      experience: "9 năm kinh nghiệm",
-    },
-    {
-      id: "dr010",
-      name: "BS. Lý Thị Kim",
-      specialty: "Tổng quát",
-      experience: "20 năm kinh nghiệm",
-    },
-  ];
+  const handleDoctorChange = (value: number) => {
+    setSelectedDoctor(value);
+    // Reset date and time when doctor changes
+    form.setFieldsValue({ date: null, timeSlot: null });
+    setSelectedDate(null);
+    setTimeSlots([]);
+    setAvailabilityMessage(null);
+  };
+
+  const handleDateChange = (date: dayjs.Dayjs | null) => {
+    setSelectedDate(date);
+    if (!date) {
+      setTimeSlots([]);
+      setAvailabilityMessage(null);
+      form.setFieldsValue({ timeSlot: null });
+    }
+  };
 
   return (
     <section
@@ -290,14 +332,21 @@ export default function AppointmentForm() {
                       className="rounded-lg"
                       showSearch
                       filterOption={(input, option) =>
-                        (option?.children as unknown as string)
+                        String(option?.label ?? "")
                           .toLowerCase()
                           .includes(input.toLowerCase())
                       }
+                      onChange={handleServiceChange}
+                      loading={loadingServices}
+                      optionLabelProp="label"
                     >
                       {services.map((service) => (
-                        <Option key={service} value={service}>
-                          {service}
+                        <Option
+                          key={service.serviceDBId}
+                          value={service.serviceDBId}
+                          label={service.name}
+                        >
+                          {service.name}
                         </Option>
                       ))}
                     </Select>
@@ -324,19 +373,27 @@ export default function AppointmentForm() {
                       className="rounded-lg"
                       showSearch
                       filterOption={(input, option) =>
-                        (option?.children as unknown as string)
+                        String(option?.label ?? "")
                           .toLowerCase()
                           .includes(input.toLowerCase())
                       }
+                      loading={loadingDoctors}
+                      disabled={!selectedService || loadingDoctors}
+                      optionLabelProp="label"
+                      onChange={handleDoctorChange}
                     >
                       {doctors.map((doctor) => (
-                        <Option key={doctor.id} value={doctor.name}>
+                        <Option
+                          key={doctor.doctorId}
+                          value={doctor.doctorId}
+                          label={doctor.fullName}
+                        >
                           <div className="py-1">
                             <div className="font-semibold text-gray-800">
-                              {doctor.name}
+                              {doctor.fullName}
                             </div>
                             <div className="text-sm text-gray-500">
-                              {doctor.specialty} • {doctor.experience}
+                              {doctor.experience} năm kinh nghiệm
                             </div>
                           </div>
                         </Option>
@@ -367,8 +424,15 @@ export default function AppointmentForm() {
                       disabledDate={(current) =>
                         current && current < dayjs().startOf("day")
                       }
+                      onChange={handleDateChange}
+                      disabled={!selectedDoctor}
                     />
                   </Form.Item>
+                  {availabilityMessage && (
+                    <p className="text-red-500 -mt-4 mb-4">
+                      {availabilityMessage}
+                    </p>
+                  )}
                 </Col>
 
                 <Col xs={24} md={12}>
@@ -388,32 +452,20 @@ export default function AppointmentForm() {
                       placeholder="Chọn khung giờ"
                       className="rounded-lg"
                       showSearch
-                      filterOption={(input, option) =>
-                        (option?.children as unknown as string)
-                          .toLowerCase()
-                          .includes(input.toLowerCase())
+                      disabled={
+                        !selectedDate || timeSlots.length === 0 || loadingTimeSlots
                       }
+                      loading={loadingTimeSlots}
                     >
-                      {timeSlots.map((slot, index) => (
-                        <Option key={slot} value={slot}>
-                          <div className="flex items-center justify-between">
-                            <span>{slot}</span>
-                            {index < 6 && (
-                              <Tag color="green" className="text-sm">
-                                Sáng
-                              </Tag>
-                            )}
-                            {index >= 6 && index < 12 && (
-                              <Tag color="orange" className="text-sm">
-                                Trưa
-                              </Tag>
-                            )}
-                            {index >= 12 && (
-                              <Tag color="blue" className="text-sm">
-                                Chiều
-                              </Tag>
-                            )}
-                          </div>
+                      {timeSlots.map((slot) => (
+                        <Option
+                          key={slot.doctorScheduleId}
+                          value={slot.doctorScheduleId}
+                        >
+                          {`${slot.startTime.substring(
+                            0,
+                            5
+                          )} - ${slot.endTime.substring(0, 5)}`}
                         </Option>
                       ))}
                     </Select>

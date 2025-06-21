@@ -48,6 +48,25 @@ export const RegisterService = () => {
   const [wifeJob, setWifeJob] = useState("");
   const [address, setAddress] = useState("");
 
+  // Hàm reset toàn bộ form về trạng thái ban đầu
+  const resetForm = () => {
+    setSelectedService("");
+    setSelectedDoctor("");
+    setSelectedDate("");
+    setSelectedTime("");
+    setSelectedTimeString("");
+    setHusbandName("");
+    setHusbandJob("");
+    setPhone("");
+    setWifeName("");
+    setWifeJob("");
+    setAddress("");
+    setDoctorSchedules([]);
+    setDoctors([]);
+    setError("");
+    setSubmitted(false);
+  };
+
   useEffect(() => {
     const fetchServices = async () => {
       setLoadingServices(true);
@@ -150,11 +169,12 @@ export const RegisterService = () => {
         date: selectedDate,
         time: selectedTimeString,
         doctorScheduleId: selectedTime,
-        userId: user.id,
+        userId: user?.id,
       };
       await bookingApi.bookingService(data);
       setSubmitMessage("Đăng ký thành công!");
       setSubmitted(true);
+      resetForm();
     } catch (err) {
       console.log("Error : ", err);
       setSubmitMessage("Đăng ký thất bại. Vui lòng thử lại!");
