@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import {
   Layout,
@@ -11,27 +13,25 @@ import {
   Space,
   Divider,
   notification,
-  Badge,
-  Dropdown,
-  List,
-  Avatar,
 } from "antd";
 import {
   ClockCircleOutlined,
   CalendarOutlined,
   UserOutlined,
-  BellOutlined,
+  LineChartOutlined,
   DashboardOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 
 const { Title, Text } = Typography;
-const { Sider, Content } = Layout;
+const { Content, Sider } = Layout;
 
 interface TimeSlot {
   time: string;
   isBooked: boolean;
   patientName?: string;
+  patientId?: number;
+  treatmentType?: string;
 }
 
 interface DaySchedule {
@@ -41,17 +41,7 @@ interface DaySchedule {
   afternoon: TimeSlot[];
 }
 
-interface NotificationItem {
-  id: string;
-  patientName: string;
-  time: string;
-  day: string;
-  date: string;
-  isRead: boolean;
-  timestamp: Date;
-}
-
-export default function DoctorSchedule() {
+export default function SchedulePage() {
   const createMorningSlots = (): TimeSlot[] => {
     const slots: TimeSlot[] = [];
     for (let hour = 7; hour <= 11; hour++) {
@@ -85,71 +75,70 @@ export default function DoctorSchedule() {
 
   const [schedule, setSchedule] = useState<DaySchedule[]>([
     {
-      day: "Thứ 2",
+      day: "Monday",
       date: "20/01/2025",
       morning: createMorningSlots(),
       afternoon: createAfternoonSlots(),
     },
     {
-      day: "Thứ 3",
+      day: "Tuesday",
       date: "21/01/2025",
       morning: createMorningSlots(),
       afternoon: createAfternoonSlots(),
     },
     {
-      day: "Thứ 4",
+      day: "Wednesday",
       date: "22/01/2025",
       morning: createMorningSlots(),
       afternoon: createAfternoonSlots(),
     },
     {
-      day: "Thứ 5",
+      day: "Thursday",
       date: "23/01/2025",
       morning: createMorningSlots(),
       afternoon: createAfternoonSlots(),
     },
     {
-      day: "Thứ 6",
+      day: "Friday",
       date: "24/01/2025",
       morning: createMorningSlots(),
       afternoon: createAfternoonSlots(),
     },
     {
-      day: "Thứ 7",
+      day: "Saturday",
       date: "25/01/2025",
       morning: createMorningSlots(),
       afternoon: createAfternoonSlots(),
     },
   ]);
 
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [api, contextHolder] = notification.useNotification();
 
   const menuItems = [
     {
-      key: "/doctor",
+      key: "/",
       icon: <DashboardOutlined />,
       label: <Link to="/doctor">Dashboard</Link>,
     },
     {
-      key: "/doctor/patients",
+      key: "/patients",
       icon: <UserOutlined />,
-      label: <Link to="/doctor/patients">Patients</Link>,
+      label: <Link to="/patients">Patients</Link>,
     },
     {
-      key: "/doctor/appointments",
+      key: "/appointments",
       icon: <CalendarOutlined />,
-      label: <Link to="/doctor/appointments">Appointments</Link>,
+      label: <Link to="/appointments">Appointments</Link>,
     },
     {
-      key: "/doctor/treatment_history",
+      key: "/schedule",
       icon: <ClockCircleOutlined />,
-      label: <Link to="/doctor/treatment_history">Treatment History</Link>,
+      label: <Link to="/schedule">Schedule</Link>,
     },
     {
-      key: "/doctor/schedule",
-      icon: <ClockCircleOutlined />,
-      label: <Link to="/doctor/schedule">Schedule</Link>,
+      key: "/treatment-history",
+      icon: <LineChartOutlined />,
+      label: <Link to="/treatment-history">Treatment History</Link>,
     },
   ];
 
@@ -165,49 +154,24 @@ export default function DoctorSchedule() {
 
       if (!slot.isBooked) {
         slot.isBooked = true;
-        slot.patientName = "Bệnh nhân";
-
-        const newNotification: NotificationItem = {
-          id: `${dayIndex}-${period}-${slotIndex}-${Date.now()}`,
-          patientName: slot.patientName,
-          time: slot.time,
-          day: day.day,
-          date: day.date,
-          isRead: false,
-          timestamp: new Date(),
-        };
-
-        setNotifications((prev) => [newNotification, ...prev]);
+        slot.patientName = "New Patient";
+        slot.treatmentType = "IVF Consultation";
 
         api.success({
-          message: "Có lịch hẹn mới!",
-          description: `${slot.patientName} đã đặt lịch khám vào ${slot.time}, ${day.day} (${day.date})`,
+          message: "New Appointment Booked!",
+          description: `${slot.patientName} scheduled for ${slot.time}, ${day.day} (${day.date})`,
           placement: "topRight",
           duration: 4,
         });
-
-        try {
-          const audio = new Audio("/notification-sound.mp3");
-          audio.play().catch(() => {});
-        } catch (error) {
-          console.log("Err: ", error);
-        }
       } else {
         slot.isBooked = false;
         slot.patientName = undefined;
+        slot.treatmentType = undefined;
       }
 
       return newSchedule;
     });
   };
-
-  const markAsRead = (id: string) =>
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
-    );
-
-  const markAllAsRead = () =>
-    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
 
   const TimeSlotButton = ({
     slot,
@@ -218,10 +182,10 @@ export default function DoctorSchedule() {
   }) => (
     <Button
       type={slot.isBooked ? "primary" : "default"}
-      className={`w-full h-12 flex flex-col justify-center items-center ${
+      className={`w-full h-16 flex flex-col justify-center items-center transition-all duration-200 ${
         slot.isBooked
-          ? "bg-blue-600 border-blue-600"
-          : "bg-white border-gray-300"
+          ? "bg-gradient-to-r from-blue-500 to-blue-600 border-blue-500 shadow-md"
+          : "bg-white border-gray-300 hover:border-blue-400 hover:shadow-sm"
       }`}
       onClick={onClick}
     >
@@ -229,96 +193,21 @@ export default function DoctorSchedule() {
       {slot.isBooked && slot.patientName && (
         <div className="text-xs flex items-center gap-1 mt-1">
           <UserOutlined className="text-xs" />
-          <span>{slot.patientName}</span>
+          <span className="truncate max-w-20">{slot.patientName}</span>
+        </div>
+      )}
+      {slot.isBooked && slot.treatmentType && (
+        <div className="text-xs opacity-80 truncate max-w-24">
+          {slot.treatmentType}
         </div>
       )}
     </Button>
   );
 
-  const NotificationDropdown = () => {
-    const unreadCount = notifications.filter((n) => !n.isRead).length;
-
-    const dropdownContent = (
-      <div className="w-80 max-h-96 overflow-y-auto">
-        <div className="flex justify-between items-center p-3 border-b">
-          <Text strong>Thông báo ({unreadCount} chưa đọc)</Text>
-          {unreadCount > 0 && (
-            <Button type="link" size="small" onClick={markAllAsRead}>
-              Đánh dấu tất cả đã đọc
-            </Button>
-          )}
-        </div>
-
-        {notifications.length === 0 ? (
-          <div className="p-4 text-center text-gray-500">
-            Chưa có thông báo nào
-          </div>
-        ) : (
-          <List
-            dataSource={notifications}
-            renderItem={(item) => (
-              <List.Item
-                className={`cursor-pointer hover:bg-gray-50 ${
-                  !item.isRead ? "bg-blue-50" : ""
-                }`}
-                onClick={() => markAsRead(item.id)}
-              >
-                <List.Item.Meta
-                  avatar={
-                    <Avatar
-                      icon={<UserOutlined />}
-                      className={!item.isRead ? "bg-blue-500" : "bg-gray-400"}
-                    />
-                  }
-                  title={
-                    <div className="flex items-center gap-2">
-                      <span>Lịch hẹn mới</span>
-                      {!item.isRead && (
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      )}
-                    </div>
-                  }
-                  description={
-                    <div>
-                      <div>
-                        {item.patientName} - {item.time}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {item.day} ({item.date}) •{" "}
-                        {item.timestamp.toLocaleTimeString("vi-VN")}
-                      </div>
-                    </div>
-                  }
-                />
-              </List.Item>
-            )}
-          />
-        )}
-      </div>
-    );
-
-    return (
-      <Dropdown
-        overlay={dropdownContent}
-        trigger={["click"]}
-        placement="bottomRight"
-      >
-        <Button
-          type="text"
-          icon={
-            <Badge count={unreadCount} size="small">
-              <BellOutlined className="text-xl" />
-            </Badge>
-          }
-          className="flex items-center"
-        />
-      </Dropdown>
-    );
-  };
-
   return (
     <Layout className="min-h-screen">
-      <Sider width={256} className="bg-white shadow-md">
+      {contextHolder}
+      <Sider width={256} className="bg-white shadow-lg">
         <div className="p-6 border-b border-gray-100">
           <Title level={4} className="!mb-0 text-gray-800">
             Fertility Clinic
@@ -329,40 +218,28 @@ export default function DoctorSchedule() {
         </div>
         <Menu
           mode="inline"
-          selectedKeys={["/doctor/schedule"]}
+          selectedKeys={["/schedule"]}
           items={menuItems}
           className="border-none pt-4 px-2"
         />
       </Sider>
 
       <Layout>
-        <Content className="p-6 bg-gray-50">
-          {contextHolder}
+        <Content className="p-8 bg-gray-50">
           <div className="max-w-7xl mx-auto">
-            <div className="mb-6 flex justify-between items-center">
-              <div>
-                <Space align="center" className="mb-2">
-                  <CalendarOutlined className="text-2xl text-blue-600" />
-                  <Title level={2} className="!mb-0 text-gray-900">
-                    Lịch Làm Việc Bác Sĩ
-                  </Title>
-                </Space>
-                <Text className="text-gray-600">
-                  Quản lý lịch khám từ thứ 2 đến thứ 7
-                </Text>
-              </div>
-              <NotificationDropdown />
-            </div>
-
             <Row gutter={[24, 24]}>
               {schedule.map((day, dayIndex) => (
                 <Col key={dayIndex} xs={24} lg={12} xl={8}>
                   <Card
-                    className="shadow-lg h-full"
+                    className="shadow-lg h-full border-0 hover:shadow-xl transition-shadow duration-300"
                     title={
-                      <div className="flex justify-between">
-                        <span className="text-lg font-semibold">{day.day}</span>
-                        <Tag color="blue">{day.date}</Tag>
+                      <div className="flex items-center justify-between">
+                        <span className="text-lg font-semibold text-gray-800">
+                          {day.day}
+                        </span>
+                        <Tag color="blue" className="font-medium">
+                          {day.date}
+                        </Tag>
                       </div>
                     }
                   >
@@ -370,7 +247,9 @@ export default function DoctorSchedule() {
                       <div>
                         <Space align="center" className="mb-3">
                           <ClockCircleOutlined className="text-orange-500" />
-                          <Text strong>Buổi Sáng</Text>
+                          <Text strong className="text-gray-700">
+                            Morning
+                          </Text>
                           <Tag color="orange">7:30 - 11:30</Tag>
                         </Space>
                         <Row gutter={[8, 8]}>
@@ -387,14 +266,20 @@ export default function DoctorSchedule() {
                         </Row>
                       </div>
 
-                      <Divider>
-                        <Tag color="gold">Nghỉ trưa: 11:30 - 13:30</Tag>
-                      </Divider>
+                      <Divider />
+                      <div className="text-center">
+                        <Tag color="gold" className="px-4 py-1">
+                          Lunch Break: 11:30 - 13:30
+                        </Tag>
+                      </div>
+                      <Divider />
 
                       <div>
                         <Space align="center" className="mb-3">
                           <ClockCircleOutlined className="text-blue-500" />
-                          <Text strong>Buổi Chiều</Text>
+                          <Text strong className="text-gray-700">
+                            Afternoon
+                          </Text>
                           <Tag color="blue">13:30 - 17:00</Tag>
                         </Space>
                         <Row gutter={[8, 8]}>
@@ -414,15 +299,15 @@ export default function DoctorSchedule() {
                       <Divider />
                       <div className="flex justify-between">
                         <Text type="secondary">
-                          Đã đặt:{" "}
-                          <Text strong>
+                          Booked:{" "}
+                          <Text strong className="text-blue-600">
                             {day.morning.filter((s) => s.isBooked).length +
                               day.afternoon.filter((s) => s.isBooked).length}
                           </Text>
                         </Text>
                         <Text type="secondary">
-                          Còn trống:{" "}
-                          <Text strong>
+                          Available:{" "}
+                          <Text strong className="text-green-600">
                             {day.morning.filter((s) => !s.isBooked).length +
                               day.afternoon.filter((s) => !s.isBooked).length}
                           </Text>
@@ -434,20 +319,24 @@ export default function DoctorSchedule() {
               ))}
             </Row>
 
-            <Card className="mt-6">
-              <Title level={4}>Chú thích:</Title>
+            <Card className="mt-6 border-0 shadow-md">
+              <Title level={4}>Legend:</Title>
               <Space wrap size="large">
                 <Space align="center">
                   <div className="w-4 h-4 bg-white border border-gray-300 rounded"></div>
-                  <Text>Khung thời gian trống</Text>
+                  <Text>Available time slot</Text>
                 </Space>
                 <Space align="center">
-                  <div className="w-4 h-4 bg-blue-600 rounded"></div>
-                  <Text>Đã có lịch hẹn</Text>
+                  <div className="w-4 h-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded"></div>
+                  <Text>Booked appointment</Text>
                 </Space>
                 <Space align="center">
                   <ClockCircleOutlined className="text-gray-500" />
-                  <Text>Mỗi khung: 30 phút</Text>
+                  <Text>Each slot: 30 minutes</Text>
+                </Space>
+                <Space align="center">
+                  <UserOutlined className="text-blue-500" />
+                  <Text>Click to book/cancel appointments</Text>
                 </Space>
               </Space>
             </Card>

@@ -31,9 +31,10 @@ const { Option } = Select;
 
 interface AppointmentFormData {
   name: string;
-  dob: dayjs.Dayjs; // Fix: incorrect type dayjs.Day.Dayjs
+  dob: dayjs.Dayjs;
   gender: string;
   service: string;
+  doctor: string; // Add this line
   date: dayjs.Dayjs;
   timeSlot: string;
   note?: string;
@@ -102,6 +103,69 @@ export default function AppointmentForm() {
     "Khám da liễu",
     "Tư vấn dinh dưỡng",
     "Vật lý trị liệu",
+  ];
+
+  const doctors = [
+    {
+      id: "dr001",
+      name: "BS. Nguyễn Văn An",
+      specialty: "Tim mạch",
+      experience: "15 năm kinh nghiệm",
+    },
+    {
+      id: "dr002",
+      name: "BS. Trần Thị Bình",
+      specialty: "Thần kinh",
+      experience: "12 năm kinh nghiệm",
+    },
+    {
+      id: "dr003",
+      name: "BS. Lê Minh Cường",
+      specialty: "Nội tiết",
+      experience: "18 năm kinh nghiệm",
+    },
+    {
+      id: "dr004",
+      name: "BS. Phạm Thị Dung",
+      specialty: "Tiêu hóa",
+      experience: "10 năm kinh nghiệm",
+    },
+    {
+      id: "dr005",
+      name: "BS. Hoàng Văn Em",
+      specialty: "Phụ khoa",
+      experience: "14 năm kinh nghiệm",
+    },
+    {
+      id: "dr006",
+      name: "BS. Vũ Thị Phương",
+      specialty: "Nhi khoa",
+      experience: "16 năm kinh nghiệm",
+    },
+    {
+      id: "dr007",
+      name: "BS. Đặng Minh Giang",
+      specialty: "Mắt",
+      experience: "11 năm kinh nghiệm",
+    },
+    {
+      id: "dr008",
+      name: "BS. Bùi Thị Hoa",
+      specialty: "Tai mũi họng",
+      experience: "13 năm kinh nghiệm",
+    },
+    {
+      id: "dr009",
+      name: "BS. Ngô Văn Inh",
+      specialty: "Da liễu",
+      experience: "9 năm kinh nghiệm",
+    },
+    {
+      id: "dr010",
+      name: "BS. Lý Thị Kim",
+      specialty: "Tổng quát",
+      experience: "20 năm kinh nghiệm",
+    },
   ];
 
   return (
@@ -234,6 +298,47 @@ export default function AppointmentForm() {
                       {services.map((service) => (
                         <Option key={service} value={service}>
                           {service}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Row gutter={[24, 0]}>
+                <Col xs={24}>
+                  <Form.Item
+                    name="doctor"
+                    label={
+                      <span className="text-gray-700 font-semibold flex items-center">
+                        <UserOutlined className="mr-2 text-pink-500" />
+                        Chọn bác sĩ
+                      </span>
+                    }
+                    rules={[
+                      { required: true, message: "Vui lòng chọn bác sĩ!" },
+                    ]}
+                  >
+                    <Select
+                      placeholder="Chọn bác sĩ khám"
+                      className="rounded-lg"
+                      showSearch
+                      filterOption={(input, option) =>
+                        (option?.children as unknown as string)
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                    >
+                      {doctors.map((doctor) => (
+                        <Option key={doctor.id} value={doctor.name}>
+                          <div className="py-1">
+                            <div className="font-semibold text-gray-800">
+                              {doctor.name}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {doctor.specialty} • {doctor.experience}
+                            </div>
+                          </div>
                         </Option>
                       ))}
                     </Select>

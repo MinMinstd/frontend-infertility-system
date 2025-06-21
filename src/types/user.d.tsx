@@ -24,7 +24,3 @@ export interface ChangePassword {
   newPassword: string;
   confirmPassword: string;
 }
-
-export interface ChangePasswordRespone {
-  message: string;
-}

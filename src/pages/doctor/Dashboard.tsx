@@ -114,6 +114,9 @@ export default function Dashboard() {
           <Menu.Item key="history" icon={<ClockCircleOutlined />}>
             <Link to="/doctor/treatment_history">Treatment History</Link>
           </Menu.Item>
+          <Menu.Item key="schedule" icon={<ClockCircleOutlined />}>
+            <Link to="/doctor/schedule">Schedule</Link>
+          </Menu.Item>
         </Menu>
       </Sider>
 

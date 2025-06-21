@@ -131,6 +131,9 @@ export default function TreatmentHistoryPage() {
           <Menu.Item key="history" icon={<HistoryOutlined />}>
             <Link to="/doctor/treatment_history">Treatment History</Link>
           </Menu.Item>
+          <Menu.Item key="schedule" icon={<HistoryOutlined />}>
+            <Link to="/doctor/schedule">Schedule</Link>
+          </Menu.Item>
         </Menu>
       </Sider>
 
