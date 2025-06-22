@@ -1,6 +1,4 @@
 import {
-  Layout,
-  Menu,
   Card,
   Input,
   Select,
@@ -9,26 +7,21 @@ import {
   Button,
   Typography,
   Progress,
+  Row,
+  Col,
+  Space,
+  Statistic,
 } from "antd";
 import {
-  DashboardOutlined,
-  UserOutlined,
-  CalendarOutlined,
-  HistoryOutlined,
   SearchOutlined,
   FileTextOutlined,
   HeartOutlined,
   RiseOutlined,
   CheckCircleOutlined,
-  CloseCircleOutlined,
 } from "@ant-design/icons";
+import { DoctorSidebar } from "./DoctorSidebar";
 
-import { Activity } from "lucide-react";
-import { Link } from "react-router-dom";
-
-const { Sider, Content } = Layout;
 const { Title, Text } = Typography;
-const { TabPane } = Tabs;
 
 export default function TreatmentHistoryPage() {
   const completedTreatments = [
@@ -111,226 +104,261 @@ export default function TreatmentHistoryPage() {
     ),
   };
 
-  return (
-    <Layout className="min-h-screen">
-      <Sider theme="light" width={256} className="border-r">
-        <div className="p-6">
-          <Title level={4}>Fertility Clinic</Title>
-          <Text type="secondary">Dr. Management Portal</Text>
-        </div>
-        <Menu mode="inline" defaultSelectedKeys={["history"]}>
-          <Menu.Item key="dashboard" icon={<DashboardOutlined />}>
-            <Link to="/doctor">Dashboard</Link>
-          </Menu.Item>
-          <Menu.Item key="patients" icon={<UserOutlined />}>
-            <Link to="/doctor/patients">Patients</Link>
-          </Menu.Item>
-          <Menu.Item key="appointments" icon={<CalendarOutlined />}>
-            <Link to="/doctor/appointments">Appointments</Link>
-          </Menu.Item>
-          <Menu.Item key="history" icon={<HistoryOutlined />}>
-            <Link to="/doctor/treatment_history">Treatment History</Link>
-          </Menu.Item>
-        </Menu>
-      </Sider>
+  const TreatmentHistoryContent = () => (
+    <div>
+      <div style={{ marginBottom: 32 }}>
+        <Title level={2} style={{ color: "#ff69b4" }}>Treatment History</Title>
+        <Text style={{ color: "#666" }}>Complete overview of all patient treatments and outcomes</Text>
+      </div>
 
-      <Content className="bg-gray-50 p-8">
-        <div className="mb-8">
-          <Title level={2}>Treatment History</Title>
-          <Text>Complete overview of all patient treatments and outcomes</Text>
-        </div>
+      {/* Stats Cards */}
+      <Row gutter={[16, 16]} style={{ marginBottom: 32 }}>
+        <Col xs={24} sm={12} lg={6}>
+          <Card style={{ borderColor: "#ff69b4", boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)" }}>
+            <Statistic
+              title={<span style={{ color: "#ff69b4" }}>Total Completed</span>}
+              value={treatmentStats.totalCompleted}
+              prefix={<FileTextOutlined style={{ color: "#ff69b4" }} />}
+              valueStyle={{ color: "#ff69b4" }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <Card style={{ borderColor: "#ff1493", boxShadow: "0 2px 8px rgba(255, 20, 147, 0.1)" }}>
+            <Statistic
+              title={<span style={{ color: "#ff1493" }}>Successful Pregnancies</span>}
+              value={treatmentStats.successfulPregnancies}
+              prefix={<HeartOutlined style={{ color: "#ff1493" }} />}
+              valueStyle={{ color: "#ff1493" }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <Card style={{ borderColor: "#ff69b4", boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)" }}>
+            <Statistic
+              title={<span style={{ color: "#ff69b4" }}>Success Rate</span>}
+              value={treatmentStats.successRate}
+              suffix="%"
+              prefix={<RiseOutlined style={{ color: "#ff69b4" }} />}
+              valueStyle={{ color: "#ff69b4" }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <Card style={{ borderColor: "#ff1493", boxShadow: "0 2px 8px rgba(255, 20, 147, 0.1)" }}>
+            <Statistic
+              title={<span style={{ color: "#ff1493" }}>Avg. Cycles</span>}
+              value={treatmentStats.averageCycles}
+              prefix={<CheckCircleOutlined style={{ color: "#ff1493" }} />}
+              valueStyle={{ color: "#ff1493" }}
+            />
+          </Card>
+        </Col>
+      </Row>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <div className="flex justify-between items-center">
-              <div>
-                <Text type="secondary">Total Completed</Text>
-                <Title level={3} className="mb-0">
-                  {treatmentStats.totalCompleted}
-                </Title>
-              </div>
-              <FileTextOutlined className="text-2xl text-blue-600" />
-            </div>
-          </Card>
-          <Card>
-            <div className="flex justify-between items-center">
-              <div>
-                <Text type="secondary">Successful Pregnancies</Text>
-                <Title level={3} className="mb-0" type="success">
-                  {treatmentStats.successfulPregnancies}
-                </Title>
-              </div>
-              <HeartOutlined className="text-2xl text-green-600" />
-            </div>
-          </Card>
-          <Card>
-            <div className="flex justify-between items-center">
-              <div>
-                <Text type="secondary">Success Rate</Text>
-                <Title level={3} className="mb-0" type="success">
-                  {treatmentStats.successRate}%
-                </Title>
-              </div>
-              <RiseOutlined className="text-2xl text-emerald-600" />
-            </div>
-          </Card>
-          <Card>
-            <div className="flex justify-between items-center">
-              <div>
-                <Text type="secondary">Avg. Cycles</Text>
-                <Title level={3} className="mb-0">
-                  {treatmentStats.averageCycles}
-                </Title>
-              </div>
-              <CheckCircleOutlined className="text-2xl text-purple-600" />
-            </div>
-          </Card>
-        </div>
-
-        {/* Search and Filters */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+      {/* Search and Filters */}
+      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+        <Col xs={24} md={8}>
           <Input
-            prefix={<SearchOutlined />}
+            prefix={<SearchOutlined style={{ color: "#ff69b4" }} />}
             placeholder="Search treatment history..."
-            className="flex-1"
+            style={{ borderColor: "#ff69b4" }}
           />
+        </Col>
+        <Col xs={24} md={6}>
           <Select
             placeholder="Filter by treatment"
-            style={{ width: 200 }}
-            className="mr-4"
-          >
-            <Select.Option value="all">All Treatments</Select.Option>
-            <Select.Option value="ivf">IVF</Select.Option>
-            <Select.Option value="iui">IUI</Select.Option>
-            <Select.Option value="icsi">ICSI</Select.Option>
-          </Select>
-          <Select placeholder="Filter by outcome" style={{ width: 200 }}>
-            <Select.Option value="all">All Outcomes</Select.Option>
-            <Select.Option value="success">Successful</Select.Option>
-            <Select.Option value="ongoing">Ongoing</Select.Option>
-            <Select.Option value="discontinued">Discontinued</Select.Option>
-          </Select>
-        </div>
+            style={{ width: "100%", borderColor: "#ff69b4" }}
+            options={[
+              { value: "all", label: "All Treatments" },
+              { value: "IVF", label: "IVF" },
+              { value: "IUI", label: "IUI" },
+            ]}
+          />
+        </Col>
+        <Col xs={24} md={6}>
+          <Select
+            placeholder="Filter by status"
+            style={{ width: "100%", borderColor: "#ff69b4" }}
+            options={[
+              { value: "all", label: "All Status" },
+              { value: "success", label: "Successful" },
+              { value: "discontinued", label: "Discontinued" },
+            ]}
+          />
+        </Col>
+      </Row>
 
-        {/* Treatment Tabs */}
-        <Tabs defaultActiveKey="completed">
-          <TabPane
-            tab={`Completed (${completedTreatments.length})`}
-            key="completed"
-          >
-            {completedTreatments.map((treatment) => (
-              <Card
-                key={treatment.id}
-                className="mb-4 hover:shadow-md transition-all"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-                      {treatment.status === "success" ? (
-                        <CheckCircleOutlined className="text-xl text-green-600" />
-                      ) : (
-                        <CloseCircleOutlined className="text-xl text-red-600" />
-                      )}
-                    </div>
-                    <div>
-                      <Title level={5} className="mb-0">
-                        {treatment.patient}
-                      </Title>
-                      <Text type="secondary">
-                        {treatment.treatment} Treatment
-                      </Text>
-                      <div className="mt-2 space-x-2">
-                        <Badge
-                          status={
-                            treatment.status === "success" ? "success" : "error"
-                          }
-                          text={treatment.outcome}
-                        />
-                      </div>
-                    </div>
-                  </div>
+      <Tabs
+        defaultActiveKey="completed"
+        items={[
+          {
+            key: "completed",
+            label: `Completed Treatments (${completedTreatments.length})`,
+            children: (
+              <div>
+                {completedTreatments.map((treatment) => (
+                  <Card
+                    key={treatment.id}
+                    style={{
+                      marginBottom: 16,
+                      borderColor: "#ffb6c1",
+                      boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
+                      backgroundColor: "#fff5f7",
+                    }}
+                  >
+                    <Row align="middle" justify="space-between">
+                      <Col xs={24} md={6}>
+                        <div>
+                          <Text strong style={{ fontSize: 16, color: "#ff69b4" }}>
+                            {treatment.patient}
+                          </Text>
+                          <div>
+                            <Text type="secondary">{treatment.treatment} Treatment</Text>
+                          </div>
+                        </div>
+                      </Col>
+                      <Col xs={24} md={4}>
+                        <div style={{ textAlign: "center" }}>
+                          <Text type="secondary">Duration</Text>
+                          <div>
+                            <Text>{treatment.startDate} - {treatment.endDate}</Text>
+                          </div>
+                        </div>
+                      </Col>
+                      <Col xs={24} md={4}>
+                        <div style={{ textAlign: "center" }}>
+                          <Text type="secondary">Cycles</Text>
+                          <div>
+                            <Text strong style={{ color: "#ff69b4" }}>{treatment.cycles}</Text>
+                          </div>
+                        </div>
+                      </Col>
+                      <Col xs={24} md={6}>
+                        <div style={{ textAlign: "center" }}>
+                          <Text type="secondary">Outcome</Text>
+                          <div>
+                            <Badge
+                              color={treatment.status === "success" ? "#ff1493" : "#ff69b4"}
+                              text={treatment.outcome}
+                            />
+                          </div>
+                        </div>
+                      </Col>
+                      <Col xs={24} md={4}>
+                        <Space direction="vertical">
+                          <Button
+                            type="primary"
+                            style={{
+                              backgroundColor: "#ff69b4",
+                              borderColor: "#ff69b4",
+                            }}
+                          >
+                            View Details
+                          </Button>
+                          <Button
+                            style={{
+                              borderColor: "#ff69b4",
+                              color: "#ff69b4",
+                            }}
+                          >
+                            Download Report
+                          </Button>
+                        </Space>
+                      </Col>
+                    </Row>
+                  </Card>
+                ))}
+              </div>
+            ),
+          },
+          {
+            key: "ongoing",
+            label: `Ongoing Treatments (${ongoingTreatments.length})`,
+            children: (
+              <div>
+                {ongoingTreatments.map((treatment) => (
+                  <Card
+                    key={treatment.id}
+                    style={{
+                      marginBottom: 16,
+                      borderColor: "#ffb6c1",
+                      boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
+                      backgroundColor: "#fff5f7",
+                    }}
+                  >
+                    <Row align="middle" justify="space-between">
+                      <Col xs={24} md={6}>
+                        <div>
+                          <Text strong style={{ fontSize: 16, color: "#ff69b4" }}>
+                            {treatment.patient}
+                          </Text>
+                          <div>
+                            <Text type="secondary">{treatment.treatment} Treatment</Text>
+                          </div>
+                        </div>
+                      </Col>
+                      <Col xs={24} md={4}>
+                        <div style={{ textAlign: "center" }}>
+                          <Text type="secondary">Start Date</Text>
+                          <div>
+                            <Text>{treatment.startDate}</Text>
+                          </div>
+                        </div>
+                      </Col>
+                      <Col xs={24} md={4}>
+                        <div style={{ textAlign: "center" }}>
+                          <Text type="secondary">Current Stage</Text>
+                          <div>
+                            <Text strong style={{ color: "#ff69b4" }}>{treatment.currentStage}</Text>
+                          </div>
+                        </div>
+                      </Col>
+                      <Col xs={24} md={6}>
+                        <div style={{ textAlign: "center" }}>
+                          <Text type="secondary">Progress</Text>
+                          <Progress 
+                            percent={treatment.progress} 
+                            size="small"
+                            strokeColor="#ff69b4"
+                          />
+                        </div>
+                      </Col>
+                      <Col xs={24} md={4}>
+                        <Space direction="vertical">
+                          <Button
+                            type="primary"
+                            style={{
+                              backgroundColor: "#ff69b4",
+                              borderColor: "#ff69b4",
+                            }}
+                          >
+                            View Details
+                          </Button>
+                          <Button
+                            style={{
+                              borderColor: "#ff69b4",
+                              color: "#ff69b4",
+                            }}
+                          >
+                            Update Progress
+                          </Button>
+                        </Space>
+                      </Col>
+                    </Row>
+                  </Card>
+                ))}
+              </div>
+            ),
+          },
+        ]}
+      />
+    </div>
+  );
 
-                  <div className="text-right">
-                    <Text type="secondary">Duration</Text>
-                    <div>
-                      {treatment.startDate} - {treatment.endDate}
-                    </div>
-                    <Text type="secondary">Cycles: {treatment.cycles}</Text>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Button icon={<FileTextOutlined />}>View Details</Button>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </TabPane>
-
-          <TabPane tab={`Ongoing (${ongoingTreatments.length})`} key="ongoing">
-            {ongoingTreatments.map((treatment) => (
-              <Card key={treatment.id} className="mb-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                      <Activity className="w-6 h-6 text-blue-600" />
-                    </div>
-                    <div>
-                      <Title level={5} className="mb-0">
-                        {treatment.patient}
-                      </Title>
-                      <Text type="secondary">
-                        {treatment.treatment} Treatment - Cycle{" "}
-                        {treatment.cycle}
-                      </Text>
-                      <div className="mt-2 space-x-2">
-                        <Badge
-                          color={
-                            treatment.treatment === "IVF" ? "blue" : "cyan"
-                          }
-                          text={treatment.treatment}
-                        />
-                        <Badge status="processing" text="In Progress" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="text-right space-y-2">
-                    <div>
-                      <p className="text-sm text-gray-600">Current Stage</p>
-                      <p className="font-medium">{treatment.currentStage}</p>
-                    </div>
-                    <Progress
-                      percent={treatment.progress}
-                      strokeColor="#3b82f6"
-                      className="w-32"
-                    />
-                    <p className="text-xs text-gray-500">
-                      {treatment.progress}% Complete
-                    </p>
-                  </div>
-
-                  <div className="text-right space-y-2">
-                    <div>
-                      <p className="text-sm text-gray-600">Started</p>
-                      <p className="font-medium">{treatment.startDate}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col space-y-2">
-                    <Link to={`/patients/${treatment.id}`}>
-                      <Button className="w-full sm">Manage Treatment</Button>
-                    </Link>
-                    <Button className="sm" variant="outlined">
-                      View Progress
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </TabPane>
-        </Tabs>
-      </Content>
-    </Layout>
+  return (
+    <DoctorSidebar>
+      <TreatmentHistoryContent />
+    </DoctorSidebar>
   );
 }

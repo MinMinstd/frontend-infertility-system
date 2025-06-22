@@ -1,6 +1,4 @@
 import {
-  Layout,
-  Menu,
   Card,
   Input,
   Select,
@@ -9,18 +7,21 @@ import {
   Badge,
   Progress,
   Typography,
+  Avatar,
+  Space,
+  Row,
+  Col,
 } from "antd";
 import {
   SearchOutlined,
   FilterOutlined,
   EyeOutlined,
   EditOutlined,
-  ClockCircleOutlined,
 } from "@ant-design/icons";
 
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { DoctorSidebar } from "./DoctorSidebar";
 
-const { Sider, Content } = Layout;
 const { Title, Text } = Typography;
 
 export default function PatientsPage() {
@@ -84,254 +85,401 @@ export default function PatientsPage() {
     navigate(`/doctor/patients/${id}`);
   };
 
+  const PatientContent = () => (
+    <div>
+      <div style={{ marginBottom: 32 }}>
+        <Title level={2} style={{ color: "#ff69b4" }}>Patient Management</Title>
+        <Text style={{ color: "#666" }}>
+          Manage and monitor all patients undergoing fertility treatments
+        </Text>
+      </div>
+
+      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+        <Col xs={24} md={8}>
+          <Input
+            prefix={<SearchOutlined style={{ color: "#ff69b4" }} />}
+            placeholder="Search patients..."
+            style={{ borderColor: "#ff69b4" }}
+          />
+        </Col>
+        <Col xs={24} md={6}>
+          <Select 
+            placeholder="Filter by status" 
+            style={{ width: "100%", borderColor: "#ff69b4" }}
+            options={[
+              { value: "all", label: "All Patients" },
+              { value: "active", label: "Active" },
+              { value: "critical", label: "Critical" },
+              { value: "completed", label: "Completed" },
+            ]}
+          />
+        </Col>
+        <Col xs={24} md={6}>
+          <Button 
+            icon={<FilterOutlined />}
+            style={{
+              borderColor: "#ff69b4",
+              color: "#ff69b4",
+            }}
+          >
+            More Filters
+          </Button>
+        </Col>
+      </Row>
+
+      <Tabs 
+        defaultActiveKey="all"
+        items={[
+          {
+            key: "all",
+            label: `All (${treatmentCounts.all})`,
+            children: (
+              <div>
+                {patients.map((patient) => (
+                  <Card
+                    key={patient.id}
+                    style={{
+                      marginBottom: 16,
+                      borderColor: "#ffb6c1",
+                      boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
+                      backgroundColor: "#fff5f7",
+                    }}
+                  >
+                    <Row align="middle" justify="space-between">
+                      <Col xs={24} md={8}>
+                        <Space>
+                          <Avatar
+                            size={48}
+                            style={{
+                              backgroundColor: "#ff69b4",
+                              color: "white",
+                            }}
+                          >
+                            {patient.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
+                          </Avatar>
+                          <div>
+                            <Text strong style={{ fontSize: 16, color: "#ff69b4" }}>
+                              {patient.name}
+                            </Text>
+                            <div>
+                              <Text type="secondary">
+                                Age: {patient.age} • {patient.treatment} Treatment
+                              </Text>
+                            </div>
+                            <Space style={{ marginTop: 8 }}>
+                              <Badge
+                                color="#ff69b4"
+                                text={patient.treatment}
+                              />
+                              <Badge
+                                color={patient.status === "active" ? "#ff1493" : "#ff69b4"}
+                                text={patient.status}
+                              />
+                            </Space>
+                          </div>
+                        </Space>
+                      </Col>
+
+                      <Col xs={24} md={6}>
+                        <div style={{ textAlign: "center" }}>
+                          <Text type="secondary">Current Stage</Text>
+                          <div>
+                            <Text strong style={{ color: "#ff69b4" }}>{patient.stage}</Text>
+                          </div>
+                          <Progress 
+                            percent={patient.progress} 
+                            size="small"
+                            strokeColor="#ff69b4"
+                          />
+                        </div>
+                      </Col>
+
+                      <Col xs={24} md={6}>
+                        <div style={{ textAlign: "center" }}>
+                          <div style={{ marginBottom: 8 }}>
+                            <Text type="secondary">Last Visit</Text>
+                            <div>
+                              <Text>{patient.lastVisit}</Text>
+                            </div>
+                          </div>
+                          <div>
+                            <Text type="secondary">Next Appointment</Text>
+                            <div>
+                              <Text style={{ color: "#ff1493" }}>{patient.nextAppointment}</Text>
+                            </div>
+                          </div>
+                        </div>
+                      </Col>
+
+                      <Col xs={24} md={4}>
+                        <Space direction="vertical">
+                          <Button
+                            type="primary"
+                            icon={<EyeOutlined />}
+                            onClick={() => detailLink(patient.id)}
+                            style={{
+                              backgroundColor: "#ff69b4",
+                              borderColor: "#ff69b4",
+                            }}
+                          >
+                            View Details
+                          </Button>
+                          <Button
+                            icon={<EditOutlined />}
+                            style={{
+                              borderColor: "#ff69b4",
+                              color: "#ff69b4",
+                            }}
+                          >
+                            Edit
+                          </Button>
+                        </Space>
+                      </Col>
+                    </Row>
+                  </Card>
+                ))}
+              </div>
+            ),
+          },
+          {
+            key: "ivf",
+            label: `IVF (${treatmentCounts.ivf})`,
+            children: (
+              <div>
+                {patients.filter(p => p.treatment === "IVF").map((patient) => (
+                  <Card
+                    key={patient.id}
+                    style={{
+                      marginBottom: 16,
+                      borderColor: "#ffb6c1",
+                      boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
+                      backgroundColor: "#fff5f7",
+                    }}
+                  >
+                    <Row align="middle" justify="space-between">
+                      <Col xs={24} md={8}>
+                        <Space>
+                          <Avatar
+                            size={48}
+                            style={{
+                              backgroundColor: "#ff69b4",
+                              color: "white",
+                            }}
+                          >
+                            {patient.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
+                          </Avatar>
+                          <div>
+                            <Text strong style={{ fontSize: 16, color: "#ff69b4" }}>
+                              {patient.name}
+                            </Text>
+                            <div>
+                              <Text type="secondary">
+                                Age: {patient.age} • {patient.treatment} Treatment
+                              </Text>
+                            </div>
+                            <Space style={{ marginTop: 8 }}>
+                              <Badge
+                                color="#ff69b4"
+                                text={patient.treatment}
+                              />
+                              <Badge
+                                color={patient.status === "active" ? "#ff1493" : "#ff69b4"}
+                                text={patient.status}
+                              />
+                            </Space>
+                          </div>
+                        </Space>
+                      </Col>
+
+                      <Col xs={24} md={6}>
+                        <div style={{ textAlign: "center" }}>
+                          <Text type="secondary">Current Stage</Text>
+                          <div>
+                            <Text strong style={{ color: "#ff69b4" }}>{patient.stage}</Text>
+                          </div>
+                          <Progress 
+                            percent={patient.progress} 
+                            size="small"
+                            strokeColor="#ff69b4"
+                          />
+                        </div>
+                      </Col>
+
+                      <Col xs={24} md={6}>
+                        <div style={{ textAlign: "center" }}>
+                          <div style={{ marginBottom: 8 }}>
+                            <Text type="secondary">Last Visit</Text>
+                            <div>
+                              <Text>{patient.lastVisit}</Text>
+                            </div>
+                          </div>
+                          <div>
+                            <Text type="secondary">Next Appointment</Text>
+                            <div>
+                              <Text style={{ color: "#ff1493" }}>{patient.nextAppointment}</Text>
+                            </div>
+                          </div>
+                        </div>
+                      </Col>
+
+                      <Col xs={24} md={4}>
+                        <Space direction="vertical">
+                          <Button
+                            type="primary"
+                            icon={<EyeOutlined />}
+                            onClick={() => detailLink(patient.id)}
+                            style={{
+                              backgroundColor: "#ff69b4",
+                              borderColor: "#ff69b4",
+                            }}
+                          >
+                            View Details
+                          </Button>
+                          <Button
+                            icon={<EditOutlined />}
+                            style={{
+                              borderColor: "#ff69b4",
+                              color: "#ff69b4",
+                            }}
+                          >
+                            Edit
+                          </Button>
+                        </Space>
+                      </Col>
+                    </Row>
+                  </Card>
+                ))}
+              </div>
+            ),
+          },
+          {
+            key: "iui",
+            label: `IUI (${treatmentCounts.iui})`,
+            children: (
+              <div>
+                {patients.filter(p => p.treatment === "IUI").map((patient) => (
+                  <Card
+                    key={patient.id}
+                    style={{
+                      marginBottom: 16,
+                      borderColor: "#ffb6c1",
+                      boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
+                      backgroundColor: "#fff5f7",
+                    }}
+                  >
+                    <Row align="middle" justify="space-between">
+                      <Col xs={24} md={8}>
+                        <Space>
+                          <Avatar
+                            size={48}
+                            style={{
+                              backgroundColor: "#ff69b4",
+                              color: "white",
+                            }}
+                          >
+                            {patient.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
+                          </Avatar>
+                          <div>
+                            <Text strong style={{ fontSize: 16, color: "#ff69b4" }}>
+                              {patient.name}
+                            </Text>
+                            <div>
+                              <Text type="secondary">
+                                Age: {patient.age} • {patient.treatment} Treatment
+                              </Text>
+                            </div>
+                            <Space style={{ marginTop: 8 }}>
+                              <Badge
+                                color="#ff69b4"
+                                text={patient.treatment}
+                              />
+                              <Badge
+                                color={patient.status === "active" ? "#ff1493" : "#ff69b4"}
+                                text={patient.status}
+                              />
+                            </Space>
+                          </div>
+                        </Space>
+                      </Col>
+
+                      <Col xs={24} md={6}>
+                        <div style={{ textAlign: "center" }}>
+                          <Text type="secondary">Current Stage</Text>
+                          <div>
+                            <Text strong style={{ color: "#ff69b4" }}>{patient.stage}</Text>
+                          </div>
+                          <Progress 
+                            percent={patient.progress} 
+                            size="small"
+                            strokeColor="#ff69b4"
+                          />
+                        </div>
+                      </Col>
+
+                      <Col xs={24} md={6}>
+                        <div style={{ textAlign: "center" }}>
+                          <div style={{ marginBottom: 8 }}>
+                            <Text type="secondary">Last Visit</Text>
+                            <div>
+                              <Text>{patient.lastVisit}</Text>
+                            </div>
+                          </div>
+                          <div>
+                            <Text type="secondary">Next Appointment</Text>
+                            <div>
+                              <Text style={{ color: "#ff1493" }}>{patient.nextAppointment}</Text>
+                            </div>
+                          </div>
+                        </div>
+                      </Col>
+
+                      <Col xs={24} md={4}>
+                        <Space direction="vertical">
+                          <Button
+                            type="primary"
+                            icon={<EyeOutlined />}
+                            onClick={() => detailLink(patient.id)}
+                            style={{
+                              backgroundColor: "#ff69b4",
+                              borderColor: "#ff69b4",
+                            }}
+                          >
+                            View Details
+                          </Button>
+                          <Button
+                            icon={<EditOutlined />}
+                            style={{
+                              borderColor: "#ff69b4",
+                              color: "#ff69b4",
+                            }}
+                          >
+                            Edit
+                          </Button>
+                        </Space>
+                      </Col>
+                    </Row>
+                  </Card>
+                ))}
+              </div>
+            ),
+          },
+        ]}
+      />
+    </div>
+  );
+
   return (
-    <Layout className="min-h-screen">
-      <Sider theme="light" width={256} className="shadow-sm">
-        <div className="p-6">
-          <Title level={4}>Fertility Clinic</Title>
-          <Text type="secondary">Dr. Management Portal</Text>
-        </div>
-        <Menu mode="inline" defaultSelectedKeys={["patients"]}>
-          <Menu.Item key="dashboard">
-            <Link to="/doctor">Dashboard</Link>
-          </Menu.Item>
-          <Menu.Item key="patients">
-            <Link to="/doctor/patients">Patients</Link>
-          </Menu.Item>
-          <Menu.Item key="appointments">
-            <Link to="/doctor/appointments">Appointments</Link>
-          </Menu.Item>
-          <Menu.Item key="history" icon={<ClockCircleOutlined />}>
-            <Link to="/treatment-history">Treatment History</Link>
-          </Menu.Item>
-        </Menu>
-      </Sider>
-
-      <Layout className="bg-gray-50">
-        <Content className="p-8">
-          <div className="mb-8">
-            <Title level={2}>Patient Management</Title>
-            <Text>
-              Manage and monitor all patients undergoing fertility treatments
-            </Text>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <Input
-              prefix={<SearchOutlined />}
-              placeholder="Search patients..."
-              className="flex-1"
-            />
-            <Select placeholder="Filter by status" style={{ width: 200 }}>
-              <Select.Option value="all">All Patients</Select.Option>
-              <Select.Option value="active">Active</Select.Option>
-              <Select.Option value="critical">Critical</Select.Option>
-              <Select.Option value="completed">Completed</Select.Option>
-            </Select>
-            <Button icon={<FilterOutlined />}>More Filters</Button>
-          </div>
-
-          <Tabs defaultActiveKey="all">
-            <Tabs.TabPane tab={`All (${treatmentCounts.all})`} key="all">
-              {patients.map((patient) => (
-                <Card
-                  key={patient.id}
-                  className="mb-4 hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <span className="text-blue-600 font-semibold">
-                          {patient.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </span>
-                      </div>
-                      <div>
-                        <Text strong className="text-lg">
-                          {patient.name}
-                        </Text>
-                        <div>
-                          <Text type="secondary">
-                            Age: {patient.age} • {patient.treatment} Treatment
-                          </Text>
-                        </div>
-                        <div className="flex gap-2 mt-2">
-                          <Badge
-                            color={
-                              patient.treatment === "IVF" ? "blue" : "cyan"
-                            }
-                            text={patient.treatment}
-                          />
-                          <Badge
-                            status={
-                              patient.status === "active" ? "success" : "error"
-                            }
-                            text={patient.status}
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="text-right">
-                      <div>
-                        <Text type="secondary">Current Stage</Text>
-                        <div>
-                          <Text strong>{patient.stage}</Text>
-                        </div>
-                      </div>
-                      <Progress percent={patient.progress} size="small" />
-                    </div>
-
-                    <div className="text-right">
-                      <div>
-                        <Text type="secondary">Last Visit</Text>
-                        <div>
-                          <Text>{patient.lastVisit}</Text>
-                        </div>
-                      </div>
-                      <div>
-                        <Text type="secondary">Next Appointment</Text>
-                        <div>
-                          <Text type="success">{patient.nextAppointment}</Text>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Button
-                        type="primary"
-                        icon={<EyeOutlined />}
-                        onClick={() => detailLink(patient.id)}
-                      >
-                        View Details
-                      </Button>
-                      <Button icon={<EditOutlined />}>Update</Button>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </Tabs.TabPane>
-
-            <Tabs.TabPane tab={`IVF (${treatmentCounts.ivf})`} key="ivf">
-              <div className="grid gap-4">
-                {patients
-                  .filter((p) => p.treatment === "IVF")
-                  .map((patient) => (
-                    <Card
-                      key={patient.id}
-                      className="mb-4 hover:shadow-md transition-shadow"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                            <span className="text-purple-600 font-semibold">
-                              {patient.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
-                            </span>
-                          </div>
-                          <div>
-                            <Text strong className="text-lg">
-                              {patient.name}
-                            </Text>
-                            <div>
-                              <Text type="secondary">
-                                Age: {patient.age} • IVF Treatment
-                              </Text>
-                            </div>
-                            <Badge className="mt-2 bg-purple-100 text-purple-800">
-                              IVF
-                            </Badge>
-                          </div>
-                        </div>
-
-                        <div className="text-right space-y-2">
-                          <div>
-                            <Text type="secondary">Current Stage</Text>
-                            <div>
-                              <Text strong>{patient.stage}</Text>
-                            </div>
-                          </div>
-                          <Progress percent={patient.progress} size="small" />
-                        </div>
-
-                        <div className="flex flex-col space-y-2">
-                          <Link to={`/patients/${patient.id}`}>
-                            <Button className="w-full sm:w-auto">
-                              <EyeOutlined />
-                              View Details
-                            </Button>
-                          </Link>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-              </div>
-            </Tabs.TabPane>
-
-            <Tabs.TabPane tab={`IUI (${treatmentCounts.iui})`} key="iui">
-              <div className="grid gap-4">
-                {patients
-                  .filter((p) => p.treatment === "IUI")
-                  .map((patient) => (
-                    <Card
-                      key={patient.id}
-                      className="mb-4 hover:shadow-md transition-shadow"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                            <span className="text-green-600 font-semibold">
-                              {patient.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
-                            </span>
-                          </div>
-                          <div>
-                            <Text strong className="text-lg">
-                              {patient.name}
-                            </Text>
-                            <div>
-                              <Text type="secondary">
-                                Age: {patient.age} • IUI Treatment
-                              </Text>
-                            </div>
-                            <Badge className="mt-2 bg-green-100 text-green-800">
-                              IUI
-                            </Badge>
-                          </div>
-                        </div>
-
-                        <div className="text-right space-y-2">
-                          <div>
-                            <Text type="secondary">Current Stage</Text>
-                            <div>
-                              <Text strong>{patient.stage}</Text>
-                            </div>
-                          </div>
-                          <Progress percent={patient.progress} size="small" />
-                        </div>
-
-                        <div className="flex flex-col space-y-2">
-                          <Link to={`/patients/${patient.id}`}>
-                            <Button className="w-full sm:w-auto">
-                              <EyeOutlined />
-                              View Details
-                            </Button>
-                          </Link>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-              </div>
-            </Tabs.TabPane>
-          </Tabs>
-        </Content>
-      </Layout>
-    </Layout>
+    <DoctorSidebar>
+      <PatientContent />
+    </DoctorSidebar>
   );
 }

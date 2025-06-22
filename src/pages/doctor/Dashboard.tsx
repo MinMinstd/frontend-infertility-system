@@ -1,6 +1,4 @@
 import {
-  Layout,
-  Menu,
   Card,
   Typography,
   Space,
@@ -12,15 +10,12 @@ import {
 import {
   CalendarOutlined,
   UserOutlined,
-  DashboardOutlined,
-  ClockCircleOutlined,
   RiseOutlined,
   ExperimentOutlined,
   WarningOutlined,
 } from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { DoctorSidebar } from "./DoctorSidebar";
 
-const { Sider, Content } = Layout;
 const { Title, Text, Paragraph } = Typography;
 
 export default function Dashboard() {
@@ -30,28 +25,28 @@ export default function Dashboard() {
       value: "127",
       change: "+12%",
       icon: UserOutlined,
-      color: "text-blue-600",
+      color: "#ff69b4",
     },
     {
       title: "Today's Appointments",
       value: "8",
       change: "2 pending",
       icon: CalendarOutlined,
-      color: "text-green-600",
+      color: "#ff1493",
     },
     {
       title: "IVF Cycles",
       value: "23",
       change: "5 in progress",
       icon: ExperimentOutlined,
-      color: "text-purple-600",
+      color: "#ff69b4",
     },
     {
       title: "Success Rate",
       value: "68%",
       change: "+5%",
       icon: RiseOutlined,
-      color: "text-emerald-600",
+      color: "#ff1493",
     },
   ];
 
@@ -94,147 +89,157 @@ export default function Dashboard() {
     },
   ];
 
-  return (
-    <Layout className="min-h-screen">
-      <Sider theme="light" width={250}>
-        <div className="p-4">
-          <Title level={4}>Fertility Clinic</Title>
-          <Text type="secondary">Dr. Management Portal</Text>
+  const DashboardContent = () => (
+    <div>
+      <Space direction="vertical" size="large" className="w-full">
+        <div>
+          <Title level={2} style={{ color: "#ff69b4" }}>Dashboard</Title>
+          <Paragraph style={{ color: "#666" }}>
+            Welcome back, Dr. Smith. Here's your overview for today.
+          </Paragraph>
         </div>
-        <Menu defaultSelectedKeys={["dashboard"]}>
-          <Menu.Item key="dashboard" icon={<DashboardOutlined />}>
-            <Link to="/doctor">Dashboard</Link>
-          </Menu.Item>
-          <Menu.Item key="patients" icon={<UserOutlined />}>
-            <Link to="/doctor/patients">Patients</Link>
-          </Menu.Item>
-          <Menu.Item key="appointments" icon={<CalendarOutlined />}>
-            <Link to="/doctor/appointments">Appointments</Link>
-          </Menu.Item>
-          <Menu.Item key="history" icon={<ClockCircleOutlined />}>
-            <Link to="/doctor/treatment_history">Treatment History</Link>
-          </Menu.Item>
-        </Menu>
-      </Sider>
 
-      <Layout>
-        <Content className="p-6">
-          <Space direction="vertical" size="large" className="w-full">
-            <div>
-              <Title level={2}>Dashboard</Title>
-              <Paragraph>
-                Welcome back, Dr. Smith. Here's your overview for today.
-              </Paragraph>
-            </div>
+        <Row gutter={[16, 16]}>
+          {stats.map((stat, index) => (
+            <Col xs={24} sm={12} lg={6} key={index}>
+              <Card
+                style={{
+                  borderColor: stat.color,
+                  boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
+                }}
+              >
+                <Statistic
+                  title={<span style={{ color: stat.color }}>{stat.title}</span>}
+                  value={stat.value}
+                  valueStyle={{ color: stat.color }}
+                  prefix={getIconForStat(stat.title)}
+                  suffix={<Text type="secondary">{stat.change}</Text>}
+                />
+              </Card>
+            </Col>
+          ))}
+        </Row>
 
-            <Row gutter={[16, 16]}>
-              {stats.map((stat, index) => (
-                <Col xs={24} sm={12} lg={6} key={index}>
-                  <Card>
-                    <Statistic
-                      title={stat.title}
-                      value={stat.value}
-                      prefix={getIconForStat(stat.title)}
-                      suffix={<Text type="secondary">{stat.change}</Text>}
-                    />
-                  </Card>
-                </Col>
-              ))}
-            </Row>
-
-            <Row gutter={[16, 16]}>
-              <Col xs={24} lg={12}>
-                <Card title="Recent Activities" bordered={false}>
-                  <Space direction="vertical" className="w-full">
-                    {recentActivities.map((activity, index) => (
-                      <Card key={index} size="small" className="w-full">
-                        <Space direction="vertical">
-                          <Space className="w-full justify-between">
-                            <Text strong>{activity.patient}</Text>
-                            <Space>
-                              <Badge
-                                color={
-                                  activity.type === "IVF" ? "blue" : "cyan"
-                                }
-                                text={activity.type}
-                              />
-                              <Badge
-                                status={getStatusBadge(activity.status)}
-                                text={activity.status}
-                              />
-                            </Space>
-                          </Space>
-                          <Text>{activity.action}</Text>
-                          <Text type="secondary">{activity.time}</Text>
+        <Row gutter={[16, 16]}>
+          <Col xs={24} lg={12}>
+            <Card 
+              title={<span style={{ color: "#ff69b4" }}>Recent Activities</span>} 
+              bordered={false}
+              style={{
+                borderColor: "#ff69b4",
+                boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
+              }}
+            >
+              <Space direction="vertical" className="w-full">
+                {recentActivities.map((activity, index) => (
+                  <Card 
+                    key={index} 
+                    size="small" 
+                    className="w-full"
+                    style={{
+                      borderColor: "#ffb6c1",
+                      backgroundColor: "#fff5f7",
+                    }}
+                  >
+                    <Space direction="vertical">
+                      <Space className="w-full justify-between">
+                        <Text strong style={{ color: "#ff69b4" }}>{activity.patient}</Text>
+                        <Space>
+                          <Badge
+                            color="#ff69b4"
+                            text={activity.type}
+                          />
+                          <Badge
+                            status={getStatusBadge(activity.status)}
+                            text={activity.status}
+                          />
                         </Space>
-                      </Card>
-                    ))}
-                  </Space>
-                </Card>
-              </Col>
-
-              <Col xs={24} lg={12}>
-                <Card
-                  title={
-                    <Space>
-                      <WarningOutlined style={{ color: "#ff4d4f" }} />
-                      <Text>Urgent Tasks</Text>
+                      </Space>
+                      <Text>{activity.action}</Text>
+                      <Text type="secondary">{activity.time}</Text>
                     </Space>
-                  }
-                  bordered={false}
-                >
-                  <Space direction="vertical" className="w-full">
-                    {urgentTasks.map((task, index) => (
-                      <Card key={index} size="small" className="w-full">
-                        <Space direction="vertical">
-                          <Space className="w-full justify-between">
-                            <Text strong>{task.patient}</Text>
-                            <Badge
-                              color={
-                                task.priority === "high" ? "red" : "orange"
-                              }
-                              text={task.priority}
-                            />
-                          </Space>
-                          <Text>{task.task}</Text>
-                          <Text type="danger">{task.dueTime}</Text>
-                        </Space>
-                      </Card>
-                    ))}
-                  </Space>
-                </Card>
-              </Col>
-            </Row>
-          </Space>
-        </Content>
-      </Layout>
-    </Layout>
+                  </Card>
+                ))}
+              </Space>
+            </Card>
+          </Col>
+
+          <Col xs={24} lg={12}>
+            <Card
+              title={
+                <Space>
+                  <WarningOutlined style={{ color: "#ff69b4" }} />
+                  <Text style={{ color: "#ff69b4" }}>Urgent Tasks</Text>
+                </Space>
+              }
+              bordered={false}
+              style={{
+                borderColor: "#ff69b4",
+                boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
+              }}
+            >
+              <Space direction="vertical" className="w-full">
+                {urgentTasks.map((task, index) => (
+                  <Card 
+                    key={index} 
+                    size="small" 
+                    className="w-full"
+                    style={{
+                      borderColor: "#ffb6c1",
+                      backgroundColor: "#fff5f7",
+                    }}
+                  >
+                    <Space direction="vertical">
+                      <Space className="w-full justify-between">
+                        <Text strong style={{ color: "#ff69b4" }}>{task.patient}</Text>
+                        <Badge
+                          color={task.priority === "high" ? "#ff1493" : "#ff69b4"}
+                          text={task.priority}
+                        />
+                      </Space>
+                      <Text>{task.task}</Text>
+                      <Text style={{ color: "#ff1493" }}>{task.dueTime}</Text>
+                    </Space>
+                  </Card>
+                ))}
+              </Space>
+            </Card>
+          </Col>
+        </Row>
+      </Space>
+    </div>
+  );
+
+  return (
+    <DoctorSidebar>
+      <DashboardContent />
+    </DoctorSidebar>
   );
 }
 
-// Helper function for status badges
 function getStatusBadge(status: string) {
   switch (status) {
     case "success":
       return "success";
     case "pending":
-      return "warning";
+      return "processing";
+    case "normal":
+      return "default";
     default:
       return "default";
   }
 }
 
-// Helper function for stat icons
 function getIconForStat(title: string) {
   switch (title) {
     case "Active Patients":
-      return <UserOutlined />;
+      return <UserOutlined style={{ color: "#ff69b4" }} />;
     case "Today's Appointments":
-      return <CalendarOutlined />;
+      return <CalendarOutlined style={{ color: "#ff1493" }} />;
     case "IVF Cycles":
-      return <ExperimentOutlined />;
+      return <ExperimentOutlined style={{ color: "#ff69b4" }} />;
     case "Success Rate":
-      return <RiseOutlined />;
+      return <RiseOutlined style={{ color: "#ff1493" }} />;
     default:
       return null;
   }
