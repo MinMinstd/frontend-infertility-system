@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Button, Card, Space, Typography } from "antd";
+import { Button, Card, Typography } from "antd";
 import { ArrowLeft } from "lucide-react";
 
 const { Title, Text } = Typography;
@@ -22,6 +22,7 @@ interface DaySchedule {
 
 const DoctorSchedule: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  console.log("Doctor ID:", id);
   const navigate = useNavigate();
 
   // Mock data - sẽ được thay thế bằng API call
@@ -31,7 +32,7 @@ const DoctorSchedule: React.FC = () => {
       dayOfWeek: "Thứ Hai",
       morning: false,
       afternoon: false,
-      timeSlots: []
+      timeSlots: [],
     },
     {
       date: "2024-03-19",
@@ -48,7 +49,7 @@ const DoctorSchedule: React.FC = () => {
         { start: "10:00", end: "10:30", isAvailable: true },
         { start: "10:30", end: "11:00", isAvailable: false },
         { start: "11:00", end: "11:30", isAvailable: true },
-      ]
+      ],
     },
     {
       date: "2024-03-20",
@@ -65,7 +66,7 @@ const DoctorSchedule: React.FC = () => {
         { start: "10:00", end: "10:30", isAvailable: true },
         { start: "10:30", end: "11:00", isAvailable: false },
         { start: "11:00", end: "11:30", isAvailable: true },
-      ]
+      ],
     },
     {
       date: "2024-03-21",
@@ -81,7 +82,7 @@ const DoctorSchedule: React.FC = () => {
         { start: "15:30", end: "16:00", isAvailable: true },
         { start: "16:00", end: "16:30", isAvailable: true },
         { start: "16:30", end: "17:00", isAvailable: false },
-      ]
+      ],
     },
     {
       date: "2024-03-22",
@@ -106,7 +107,7 @@ const DoctorSchedule: React.FC = () => {
         { start: "15:30", end: "16:00", isAvailable: true },
         { start: "16:00", end: "16:30", isAvailable: true },
         { start: "16:30", end: "17:00", isAvailable: false },
-      ]
+      ],
     },
   ];
 
@@ -122,7 +123,9 @@ const DoctorSchedule: React.FC = () => {
           >
             Quay lại
           </Button>
-          <Title level={2} className="mb-0">Lịch làm việc của bác sĩ</Title>
+          <Title level={2} className="mb-0">
+            Lịch làm việc của bác sĩ
+          </Title>
         </div>
 
         {/* Schedule Grid */}
@@ -131,25 +134,35 @@ const DoctorSchedule: React.FC = () => {
             <Card key={index} className="shadow-md">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <Title level={4} className="mb-0">{day.dayOfWeek}</Title>
+                  <Title level={4} className="mb-0">
+                    {day.dayOfWeek}
+                  </Title>
                   <Text type="secondary">
-                    {new Date(day.date).toLocaleDateString('vi-VN', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
+                    {new Date(day.date).toLocaleDateString("vi-VN", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
                     })}
                   </Text>
                 </div>
                 <div className="flex gap-4">
-                  <div className={`px-3 py-1 rounded-full ${
-                    day.morning ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500'
-                  }`}>
-                    Buổi sáng: {day.morning ? 'Có lịch' : 'Nghỉ'}
+                  <div
+                    className={`px-3 py-1 rounded-full ${
+                      day.morning
+                        ? "bg-green-100 text-green-800"
+                        : "bg-gray-100 text-gray-500"
+                    }`}
+                  >
+                    Buổi sáng: {day.morning ? "Có lịch" : "Nghỉ"}
                   </div>
-                  <div className={`px-3 py-1 rounded-full ${
-                    day.afternoon ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500'
-                  }`}>
-                    Buổi chiều: {day.afternoon ? 'Có lịch' : 'Nghỉ'}
+                  <div
+                    className={`px-3 py-1 rounded-full ${
+                      day.afternoon
+                        ? "bg-green-100 text-green-800"
+                        : "bg-gray-100 text-gray-500"
+                    }`}
+                  >
+                    Buổi chiều: {day.afternoon ? "Có lịch" : "Nghỉ"}
                   </div>
                 </div>
               </div>
@@ -157,24 +170,30 @@ const DoctorSchedule: React.FC = () => {
               {/* Time Slots */}
               {day.timeSlots.length > 0 && (
                 <div className="mt-4">
-                  <Title level={5} className="mb-3">Chi tiết khung giờ:</Title>
+                  <Title level={5} className="mb-3">
+                    Chi tiết khung giờ:
+                  </Title>
                   <div className="grid grid-cols-4 gap-3">
                     {day.timeSlots.map((slot, slotIndex) => (
                       <div
                         key={slotIndex}
                         className={`p-3 rounded-lg ${
                           slot.isAvailable
-                            ? 'bg-green-50 border border-green-200'
-                            : 'bg-gray-50 border border-gray-200'
+                            ? "bg-green-50 border border-green-200"
+                            : "bg-gray-50 border border-gray-200"
                         }`}
                       >
                         <div className="font-medium text-sm">
                           {slot.start} - {slot.end}
                         </div>
-                        <div className={`text-xs mt-1 ${
-                          slot.isAvailable ? 'text-green-600' : 'text-gray-500'
-                        }`}>
-                          {slot.isAvailable ? 'Có lịch' : 'Chưa có lịch'}
+                        <div
+                          className={`text-xs mt-1 ${
+                            slot.isAvailable
+                              ? "text-green-600"
+                              : "text-gray-500"
+                          }`}
+                        >
+                          {slot.isAvailable ? "Có lịch" : "Chưa có lịch"}
                         </div>
                       </div>
                     ))}
@@ -195,4 +214,4 @@ const DoctorSchedule: React.FC = () => {
   );
 };
 
-export default DoctorSchedule; 
+export default DoctorSchedule;

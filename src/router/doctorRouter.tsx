@@ -5,6 +5,7 @@ import Dashboard from "../pages/doctor/Dashboard";
 import PatientsPage from "../pages/doctor/Patient";
 import TreatmentHistoryPage from "../pages/doctor/TreatmentHistory";
 import PatientDetailPage from "../pages/doctor/PatientDetail";
+import DoctorSchedule from "../pages/doctor/SchedulDoctor";
 
 export const doctorRoutes: RouteObject[] = [
   {
@@ -30,6 +31,10 @@ export const doctorRoutes: RouteObject[] = [
       {
         path: "treatment_history",
         element: <TreatmentHistoryPage />,
+      },
+      {
+        path: "schedule",
+        element: <DoctorSchedule />,
       },
     ],
   },

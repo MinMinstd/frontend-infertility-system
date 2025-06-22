@@ -1,18 +1,19 @@
+import { useState } from "react";
 import {
   Card,
   Typography,
   Row,
   Col,
-  Input,
-  Select,
-  Button,
-  Tag,
-  Avatar,
   Space,
+  Divider,
+  notification,
+  Badge,
+  Dropdown,
   List,
-  Statistic,
+  Avatar,
 } from "antd";
 import {
+  ClockCircleOutlined,
   CalendarOutlined,
   PlusOutlined,
   SearchOutlined,
@@ -22,75 +23,104 @@ import {
 import { DoctorSidebar } from "./DoctorSidebar";
 
 const { Title, Text } = Typography;
+const { Sider, Content } = Layout;
 
-export default function AppointmentsPage() {
-  const appointments = [
-    {
-      id: 1,
-      patient: "Sarah Johnson",
-      time: "09:00 AM",
-      date: "2024-01-20",
-      type: "Ultrasound Monitoring",
-      treatment: "IVF",
-      status: "confirmed",
-      duration: "30 min",
-      room: "Room 101",
-      avatar: "SJ",
-    },
-    {
-      id: 2,
-      patient: "Maria Garcia",
-      time: "10:30 AM",
-      date: "2024-01-20",
-      type: "IUI Procedure",
-      treatment: "IUI",
-      status: "confirmed",
-      duration: "45 min",
-      room: "Room 102",
-      avatar: "MG",
-    },
-    {
-      id: 3,
-      patient: "Lisa Chen",
-      time: "02:00 PM",
-      date: "2024-01-20",
-      type: "Consultation",
-      treatment: "IVF",
-      status: "pending",
-      duration: "60 min",
-      room: "Office 201",
-      avatar: "LC",
-    },
-    {
-      id: 4,
-      patient: "Emma Wilson",
-      time: "03:30 PM",
-      date: "2024-01-20",
-      type: "Egg Retrieval",
-      treatment: "IVF",
-      status: "confirmed",
-      duration: "90 min",
-      room: "OR 1",
-      avatar: "EW",
-    },
-  ];
+interface TimeSlot {
+  time: string;
+  isBooked: boolean;
+  patientName?: string;
+}
 
-  const upcomingAppointments = [
+interface DaySchedule {
+  day: string;
+  date: string;
+  morning: TimeSlot[];
+  afternoon: TimeSlot[];
+}
+
+interface NotificationItem {
+  id: string;
+  patientName: string;
+  time: string;
+  day: string;
+  date: string;
+  isRead: boolean;
+  timestamp: Date;
+}
+
+export default function DoctorSchedule() {
+  const createMorningSlots = (): TimeSlot[] => {
+    const slots: TimeSlot[] = [];
+    for (let hour = 7; hour <= 11; hour++) {
+      if (hour === 7) {
+        slots.push({ time: "7:30 - 8:00", isBooked: false });
+      } else if (hour === 11) {
+        slots.push({ time: "11:00 - 11:30", isBooked: false });
+      } else {
+        slots.push({ time: `${hour}:00 - ${hour}:30`, isBooked: false });
+        slots.push({ time: `${hour}:30 - ${hour + 1}:00`, isBooked: false });
+      }
+    }
+    return slots;
+  };
+
+  const createAfternoonSlots = (): TimeSlot[] => {
+    const slots: TimeSlot[] = [];
+    for (let hour = 13; hour <= 16; hour++) {
+      if (hour === 13) {
+        slots.push({ time: "13:30 - 14:00", isBooked: false });
+      }
+      if (hour >= 14) {
+        slots.push({ time: `${hour}:00 - ${hour}:30`, isBooked: false });
+      }
+      if (hour <= 16) {
+        slots.push({ time: `${hour}:30 - ${hour + 1}:00`, isBooked: false });
+      }
+    }
+    return slots;
+  };
+
+  const [schedule, setSchedule] = useState<DaySchedule[]>([
     {
-      patient: "Anna Brown",
-      date: "2024-01-21",
-      time: "09:00 AM",
-      type: "Embryo Transfer",
-      avatar: "AB",
+      day: "Thứ 2",
+      date: "20/01/2025",
+      morning: createMorningSlots(),
+      afternoon: createAfternoonSlots(),
     },
     {
-      patient: "Jennifer Davis",
-      date: "2024-01-21",
-      time: "11:00 AM",
-      type: "Follow-up",
-      avatar: "JD",
+      day: "Thứ 3",
+      date: "21/01/2025",
+      morning: createMorningSlots(),
+      afternoon: createAfternoonSlots(),
     },
-  ];
+    {
+      day: "Thứ 4",
+      date: "22/01/2025",
+      morning: createMorningSlots(),
+      afternoon: createAfternoonSlots(),
+    },
+    {
+      day: "Thứ 5",
+      date: "23/01/2025",
+      morning: createMorningSlots(),
+      afternoon: createAfternoonSlots(),
+    },
+    {
+      day: "Thứ 6",
+      date: "24/01/2025",
+      morning: createMorningSlots(),
+      afternoon: createAfternoonSlots(),
+    },
+    {
+      day: "Thứ 7",
+      date: "25/01/2025",
+      morning: createMorningSlots(),
+      afternoon: createAfternoonSlots(),
+    },
+  ]);
+
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [api, contextHolder] = notification.useNotification();
 
   const AppointmentContent = () => (
     <div>

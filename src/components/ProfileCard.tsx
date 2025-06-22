@@ -31,16 +31,6 @@ const ProfileCard = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const watchPassword = watch("password");
-  const watchNewPassword = watch("newPassword");
-  const watchConfirmPassword = watch("confirmPassword");
-
-  const isChangingPassword = !!(
-    watchPassword ||
-    watchNewPassword ||
-    watchConfirmPassword
-  );
-
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -54,13 +44,12 @@ const ProfileCard = () => {
           email: customer.email ?? "",
           phone: customer.phone ?? "",
           birthday: customer.birthday,
-          gender: customer.gender,
-          // gender:
-          //   customer.gender === "Nam"
-          //     ? "M"
-          //     : customer.gender === "Nữ"
-          //     ? "F"
-          //     : "",
+          gender:
+            customer.gender === "Nam"
+              ? "M"
+              : customer.gender === "Nữ"
+              ? "F"
+              : "",
           address: customer.address ?? "",
 
           password: "", // Để trống vì API không trả về mật khẩu
@@ -102,28 +91,8 @@ const ProfileCard = () => {
       console.log("Password trả về nè:", dataChangeInfor);
       console.log("Profile trả về nè:", dataChangePassword);
 
-      //Thay đổi mật khẩu
-      if (
-        data.currentPassword ||
-        data.currentPassword ||
-        data.confirmPassword
-      ) {
-        await UserApi.ChangePassword({
-          currentPassword: data.currentPassword,
-          newPassword: data.newPassword,
-          confirmPassword: data.confirmPassword,
-        });
-      }
-
-      //Thay đổi thông tin người dùng
-      await UserApi.UpdateProfile({
-        fullName: data.fullName,
-        email: data.email,
-        phone: data.phone,
-        gender: data.gender,
-        address: data.address,
-        birthday: data.birthday,
-      });
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       message.success("Cập nhật thông tin thành công!");
     } catch (err) {
@@ -375,8 +344,8 @@ const ProfileCard = () => {
                 <option value="" disabled>
                   Chọn giới tính
                 </option>
-                <option value="Nam">Nam</option>
-                <option value="Nữ">Nữ</option>
+                <option value="M">Nam</option>
+                <option value="F">Nữ</option>
               </select>
               <label
                 className={`peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 ${
@@ -402,12 +371,10 @@ const ProfileCard = () => {
               <input
                 type="password"
                 {...register("password", {
-                  validate: (value) => {
-                    if (isChangingPassword && !value)
-                      return "Vui lòng nhập mật khẩu hiện tại";
-                    if (value && value.length < 6)
-                      return "Mật khẩu phải có ít nhất 6 ký tự";
-                    return true;
+                  required: "Vui lòng nhập mật khẩu hiện tại",
+                  minLength: {
+                    value: 6,
+                    message: "Mật khẩu phải có ít nhất 6 ký tự",
                   },
                 })}
                 className={`block py-3 px-0 w-full text-sm bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 peer transition-all duration-300 ${
@@ -439,17 +406,18 @@ const ProfileCard = () => {
               <input
                 type="password"
                 {...register("newPassword", {
-                  validate: (value) => {
-                    if (isChangingPassword && !value)
-                      return "Vui lòng nhập mật khẩu mới";
-                    if (value && value.length < 6)
-                      return "Mật khẩu mới phải có ít nhất 6 ký tự";
-                    if (value && !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(value))
-                      return "Mật khẩu mới phải có chữ hoa, chữ thường và số";
-                    if (value === watchPassword)
-                      return "Mật khẩu mới phải khác mật khẩu hiện tại";
-                    return true;
+                  required: "Vui lòng nhập mật khẩu mới",
+                  minLength: {
+                    value: 6,
+                    message: "Mật khẩu mới phải có ít nhất 6 ký tự",
                   },
+                  pattern: {
+                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+                    message: "Mật khẩu mới phải có chữ hoa, chữ thường và số",
+                  },
+                  validate: (value) =>
+                    value !== watch("password") ||
+                    "Mật khẩu mới phải khác mật khẩu hiện tại",
                 })}
                 className={`block py-3 px-0 w-full text-sm bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 peer transition-all duration-300 ${
                   errors.newPassword
@@ -482,13 +450,10 @@ const ProfileCard = () => {
             <input
               type="password"
               {...register("confirmPassword", {
-                validate: (value) => {
-                  if (isChangingPassword && !value)
-                    return "Vui lòng xác nhận mật khẩu mới";
-                  if (isChangingPassword && value !== watchNewPassword)
-                    return "Mật khẩu xác nhận không khớp với mật khẩu mới";
-                  return true;
-                },
+                required: "Vui lòng xác nhận mật khẩu mới",
+                validate: (value) =>
+                  value === watch("newPassword") ||
+                  "Mật khẩu xác nhận không khớp với mật khẩu mới",
               })}
               className={`block py-3 px-0 w-full text-sm bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 peer transition-all duration-300 ${
                 errors.confirmPassword
