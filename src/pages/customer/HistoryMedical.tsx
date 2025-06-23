@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Table, Tag, Button, Modal, message } from "antd";
+import { Table, Tag, Button, Modal } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { Calendar, Clock, User, FileText } from "lucide-react";
 
@@ -15,7 +15,8 @@ interface AppointmentHistory {
 
 const HistoryMedical = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [selectedAppointment, setSelectedAppointment] = useState<AppointmentHistory | null>(null);
+  const [selectedAppointment, setSelectedAppointment] =
+    useState<AppointmentHistory | null>(null);
 
   // Mock data - replace with actual API call
   const appointmentHistory: AppointmentHistory[] = [
@@ -127,7 +128,9 @@ const HistoryMedical = () => {
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-red-50 p-6">
       <div className="max-w-7xl mx-auto">
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-          <h1 className="text-2xl font-bold text-gray-800 mb-6">Lịch sử khám bệnh</h1>
+          <h1 className="text-2xl font-bold text-gray-800 mb-6">
+            Lịch sử khám bệnh
+          </h1>
           <Table
             columns={columns}
             dataSource={appointmentHistory}
@@ -151,7 +154,9 @@ const HistoryMedical = () => {
               <div>
                 <p className="text-gray-600">Ngày:</p>
                 <p className="font-medium">
-                  {new Date(selectedAppointment.date).toLocaleDateString("vi-VN")}
+                  {new Date(selectedAppointment.date).toLocaleDateString(
+                    "vi-VN"
+                  )}
                 </p>
               </div>
               <div>

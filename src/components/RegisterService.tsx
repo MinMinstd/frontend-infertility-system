@@ -150,7 +150,7 @@ export const RegisterService = () => {
         date: selectedDate,
         time: selectedTimeString,
         doctorScheduleId: selectedTime,
-        userId: user.id,
+        userId: user?.id,
       };
       await bookingApi.bookingService(data);
       setSubmitMessage("Đăng ký thành công!");
