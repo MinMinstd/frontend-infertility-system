@@ -5,12 +5,13 @@ import {
   Row,
   Col,
   Space,
-  Divider,
-  notification,
-  Badge,
-  Dropdown,
   List,
   Avatar,
+  Button,
+  Input,
+  Select,
+  Statistic,
+  Tag,
 } from "antd";
 import {
   ClockCircleOutlined,
@@ -18,109 +19,70 @@ import {
   PlusOutlined,
   SearchOutlined,
   EnvironmentOutlined,
-  ClockCircleOutlined,
 } from "@ant-design/icons";
 import { DoctorSidebar } from "./DoctorSidebar";
 
 const { Title, Text } = Typography;
-const { Sider, Content } = Layout;
 
-interface TimeSlot {
-  time: string;
-  isBooked: boolean;
-  patientName?: string;
-}
-
-interface DaySchedule {
-  day: string;
+interface Appointment {
+  key: string;
+  patient: string;
+  avatar: string;
+  status: "confirmed" | "pending";
+  type: string;
   date: string;
-  morning: TimeSlot[];
-  afternoon: TimeSlot[];
+  time: string;
+  duration: string;
+  room: string;
+  treatment: string;
 }
 
-interface NotificationItem {
-  id: string;
-  patientName: string;
-  time: string;
-  day: string;
-  date: string;
-  isRead: boolean;
-  timestamp: Date;
-}
+// Mock data for appointments
+const mockAppointments: Appointment[] = [
+  {
+    key: "1",
+    patient: "Nguyen Van A",
+    avatar: "A",
+    status: "confirmed",
+    type: "Consultation",
+    date: "20/01/2025",
+    time: "08:00",
+    duration: "30m",
+    room: "101",
+    treatment: "IVF",
+  },
+  {
+    key: "2",
+    patient: "Tran Thi B",
+    avatar: "B",
+    status: "pending",
+    type: "Follow-up",
+    date: "20/01/2025",
+    time: "09:00",
+    duration: "30m",
+    room: "102",
+    treatment: "IUI",
+  },
+];
+
+const mockUpcomingAppointments: Appointment[] = [
+  {
+    key: "3",
+    patient: "Le Van C",
+    avatar: "C",
+    status: "confirmed",
+    type: "Consultation",
+    date: "21/01/2025",
+    time: "10:00",
+    duration: "30m",
+    room: "103",
+    treatment: "IVF",
+  },
+];
 
 export default function DoctorSchedule() {
-  const createMorningSlots = (): TimeSlot[] => {
-    const slots: TimeSlot[] = [];
-    for (let hour = 7; hour <= 11; hour++) {
-      if (hour === 7) {
-        slots.push({ time: "7:30 - 8:00", isBooked: false });
-      } else if (hour === 11) {
-        slots.push({ time: "11:00 - 11:30", isBooked: false });
-      } else {
-        slots.push({ time: `${hour}:00 - ${hour}:30`, isBooked: false });
-        slots.push({ time: `${hour}:30 - ${hour + 1}:00`, isBooked: false });
-      }
-    }
-    return slots;
-  };
-
-  const createAfternoonSlots = (): TimeSlot[] => {
-    const slots: TimeSlot[] = [];
-    for (let hour = 13; hour <= 16; hour++) {
-      if (hour === 13) {
-        slots.push({ time: "13:30 - 14:00", isBooked: false });
-      }
-      if (hour >= 14) {
-        slots.push({ time: `${hour}:00 - ${hour}:30`, isBooked: false });
-      }
-      if (hour <= 16) {
-        slots.push({ time: `${hour}:30 - ${hour + 1}:00`, isBooked: false });
-      }
-    }
-    return slots;
-  };
-
-  const [schedule, setSchedule] = useState<DaySchedule[]>([
-    {
-      day: "Thứ 2",
-      date: "20/01/2025",
-      morning: createMorningSlots(),
-      afternoon: createAfternoonSlots(),
-    },
-    {
-      day: "Thứ 3",
-      date: "21/01/2025",
-      morning: createMorningSlots(),
-      afternoon: createAfternoonSlots(),
-    },
-    {
-      day: "Thứ 4",
-      date: "22/01/2025",
-      morning: createMorningSlots(),
-      afternoon: createAfternoonSlots(),
-    },
-    {
-      day: "Thứ 5",
-      date: "23/01/2025",
-      morning: createMorningSlots(),
-      afternoon: createAfternoonSlots(),
-    },
-    {
-      day: "Thứ 6",
-      date: "24/01/2025",
-      morning: createMorningSlots(),
-      afternoon: createAfternoonSlots(),
-    },
-    {
-      day: "Thứ 7",
-      date: "25/01/2025",
-      morning: createMorningSlots(),
-      afternoon: createAfternoonSlots(),
-    },
-  ]);
-
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  const [api, contextHolder] = notification.useNotification();
+  const [appointments] = useState<Appointment[]>(mockAppointments);
+  const [upcomingAppointments] = useState<Appointment[]>(mockUpcomingAppointments);
 
   const AppointmentContent = () => (
     <div>
@@ -163,9 +125,7 @@ export default function DoctorSchedule() {
           <Card style={{ borderColor: "#ff1493", boxShadow: "0 2px 8px rgba(255, 20, 147, 0.1)" }}>
             <Statistic
               title={<span style={{ color: "#ff1493" }}>Confirmed</span>}
-              value={
-                appointments.filter((a) => a.status === "confirmed").length
-              }
+              value={appointments.filter((a) => a.status === "confirmed").length}
               valueStyle={{ color: "#ff1493" }}
             />
           </Card>
@@ -174,9 +134,7 @@ export default function DoctorSchedule() {
           <Card style={{ borderColor: "#ffb6c1", boxShadow: "0 2px 8px rgba(255, 182, 193, 0.1)" }}>
             <Statistic
               title={<span style={{ color: "#ffb6c1" }}>Pending</span>}
-              value={
-                appointments.filter((a) => a.status === "pending").length
-              }
+              value={appointments.filter((a) => a.status === "pending").length}
               valueStyle={{ color: "#ffb6c1" }}
             />
           </Card>
@@ -246,7 +204,7 @@ export default function DoctorSchedule() {
           >
             <List
               dataSource={appointments}
-              renderItem={(appointment) => (
+              renderItem={(appointment: Appointment) => (
                 <List.Item
                   style={{
                     border: "1px solid #ffb6c1",
@@ -330,7 +288,7 @@ export default function DoctorSchedule() {
           >
             <List
               dataSource={upcomingAppointments}
-              renderItem={(appointment) => (
+              renderItem={(appointment: Appointment) => (
                 <List.Item
                   style={{
                     border: "1px solid #ffb6c1",
