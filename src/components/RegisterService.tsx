@@ -67,6 +67,7 @@ export const RegisterService = () => {
     setSubmitted(false);
   };
 
+  //Lấy danh sách dịch vụ
   useEffect(() => {
     const fetchServices = async () => {
       setLoadingServices(true);
@@ -87,6 +88,7 @@ export const RegisterService = () => {
     fetchServices();
   }, []);
 
+  //Lấy danh sách bác sĩ theo mã dịch vụ
   useEffect(() => {
     if (selectedService) {
       const fetchDoctors = async () => {
@@ -115,6 +117,7 @@ export const RegisterService = () => {
     }
   }, [selectedService]);
 
+  //Lấy lịch làm việc bác sĩ
   useEffect(() => {
     if (selectedDoctor && selectedDate) {
       const fetchSchedule = async () => {
@@ -161,6 +164,22 @@ export const RegisterService = () => {
     setHusbandName(husbandName);
     setWifeName(wifeName);
     try {
+      // Log all form data before submission
+      console.log("Form Data:", {
+        husbandName,
+        husbandJob,
+        wifeName,
+        wifeJob,
+        phone,
+        address,
+        selectedService,
+        selectedDoctor,
+        selectedDate,
+        selectedTimeString,
+        selectedTime,
+        userId: user?.id,
+      });
+
       const data = {
         husband: husbandName,
         wife: wifeName,
@@ -171,12 +190,34 @@ export const RegisterService = () => {
         doctorScheduleId: selectedTime,
         userId: user?.id,
       };
-      await bookingApi.bookingService(data);
+
+      // Log the final data object being sent
+      console.log("Data being sent to API:", data);
+
+      const response = await bookingApi.bookingService(data);
+      console.log("Booking response:", response);
+
+      // Log successful submission details
+      console.log("Submission successful with details:", {
+        bookingId: response.data?.id,
+        timestamp: new Date().toISOString(),
+        status: response.status,
+      });
+
       setSubmitMessage("Đăng ký thành công!");
       setSubmitted(true);
       resetForm();
     } catch (err) {
-      console.log("Error : ", err);
+      // Log detailed error information
+      console.error("Submission Error Details:", {
+        error: err,
+        formState: {
+          service: selectedService,
+          doctor: selectedDoctor,
+          date: selectedDate,
+          time: selectedTimeString,
+        },
+      });
       setSubmitMessage("Đăng ký thất bại. Vui lòng thử lại!");
     } finally {
       setSubmitting(false);

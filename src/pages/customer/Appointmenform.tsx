@@ -13,7 +13,6 @@ import {
   message,
   Row,
   Col,
-  Tag,
 } from "antd";
 import {
   UserOutlined,
@@ -63,6 +62,7 @@ export default function AppointmentForm() {
     null
   );
 
+  //Thực hiện lấy danh sách dịch vụ
   useEffect(() => {
     const fetchServices = async () => {
       setLoadingServices(true);
@@ -70,6 +70,7 @@ export default function AppointmentForm() {
         const response = await ServiceApi.getAllServicesToBooking();
         setServices(response.data);
       } catch (error) {
+        console.error("Error fetching services:", error);
         message.error("Lỗi khi tải danh sách dịch vụ!");
       } finally {
         setLoadingServices(false);
@@ -78,6 +79,7 @@ export default function AppointmentForm() {
     fetchServices();
   }, []);
 
+  //Thực hiện lấy danh sách bác sĩ theo dịch vụ
   useEffect(() => {
     if (selectedService) {
       const fetchDoctors = async () => {
@@ -95,6 +97,7 @@ export default function AppointmentForm() {
             );
           setDoctors(response.data);
         } catch (error) {
+          console.error("Error fetching doctors:", error);
           message.error("Lỗi khi tải danh sách bác sĩ!");
         } finally {
           setLoadingDoctors(false);
@@ -104,6 +107,7 @@ export default function AppointmentForm() {
     }
   }, [selectedService, form]);
 
+  //Thực hiện lấy lịch làm việc của bác sĩ
   useEffect(() => {
     if (selectedDoctor && selectedDate) {
       const fetchSchedule = async () => {
@@ -123,6 +127,7 @@ export default function AppointmentForm() {
             setAvailabilityMessage("Bác sĩ không làm việc vào ngày này!");
           }
         } catch (error) {
+          console.error("Error fetching schedule:", error);
           message.error("Lỗi khi tải lịch làm việc của bác sĩ!");
           setAvailabilityMessage(
             "Không thể tải lịch làm việc. Vui lòng thử lại."
@@ -453,7 +458,9 @@ export default function AppointmentForm() {
                       className="rounded-lg"
                       showSearch
                       disabled={
-                        !selectedDate || timeSlots.length === 0 || loadingTimeSlots
+                        !selectedDate ||
+                        timeSlots.length === 0 ||
+                        loadingTimeSlots
                       }
                       loading={loadingTimeSlots}
                     >
