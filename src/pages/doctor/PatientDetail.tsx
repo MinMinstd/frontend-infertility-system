@@ -16,8 +16,6 @@ import {
   Statistic,
 } from "antd";
 import {
-  CalendarOutlined,
-  UserOutlined,
   EditOutlined,
   SaveOutlined,
   MedicineBoxOutlined,
@@ -30,7 +28,6 @@ import {
 import { DoctorSidebar } from "./DoctorSidebar";
 
 const { Title, Text } = Typography;
-const { TextArea } = Input;
 
 export default function PatientDetailPage() {
   const patient = {
@@ -134,7 +131,9 @@ export default function PatientDetailPage() {
       <div style={{ marginBottom: 32 }}>
         <Row justify="space-between" align="middle">
           <Col>
-            <Title level={2} style={{ color: "#ff69b4" }}>Patient Details</Title>
+            <Title level={2} style={{ color: "#ff69b4" }}>
+              Patient Details
+            </Title>
             <Text style={{ color: "#666" }}>
               Comprehensive view of patient information and treatment progress
             </Text>
@@ -168,9 +167,16 @@ export default function PatientDetailPage() {
       {/* Patient Overview Cards */}
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} sm={6}>
-          <Card style={{ borderColor: "#ff69b4", boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)" }}>
+          <Card
+            style={{
+              borderColor: "#ff69b4",
+              boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
+            }}
+          >
             <Statistic
-              title={<span style={{ color: "#ff69b4" }}>Treatment Progress</span>}
+              title={
+                <span style={{ color: "#ff69b4" }}>Treatment Progress</span>
+              }
               value={patient.progress}
               suffix="%"
               prefix={<ExperimentOutlined style={{ color: "#ff69b4" }} />}
@@ -180,7 +186,12 @@ export default function PatientDetailPage() {
           </Card>
         </Col>
         <Col xs={24} sm={6}>
-          <Card style={{ borderColor: "#ff1493", boxShadow: "0 2px 8px rgba(255, 20, 147, 0.1)" }}>
+          <Card
+            style={{
+              borderColor: "#ff1493",
+              boxShadow: "0 2px 8px rgba(255, 20, 147, 0.1)",
+            }}
+          >
             <Statistic
               title={<span style={{ color: "#ff1493" }}>Current Stage</span>}
               value={patient.stage}
@@ -190,7 +201,12 @@ export default function PatientDetailPage() {
           </Card>
         </Col>
         <Col xs={24} sm={6}>
-          <Card style={{ borderColor: "#ff69b4", boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)" }}>
+          <Card
+            style={{
+              borderColor: "#ff69b4",
+              boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
+            }}
+          >
             <Statistic
               title={<span style={{ color: "#ff69b4" }}>Treatment Type</span>}
               value={patient.treatment}
@@ -200,7 +216,12 @@ export default function PatientDetailPage() {
           </Card>
         </Col>
         <Col xs={24} sm={6}>
-          <Card style={{ borderColor: "#ff1493", boxShadow: "0 2px 8px rgba(255, 20, 147, 0.1)" }}>
+          <Card
+            style={{
+              borderColor: "#ff1493",
+              boxShadow: "0 2px 8px rgba(255, 20, 147, 0.1)",
+            }}
+          >
             <Statistic
               title={<span style={{ color: "#ff1493" }}>Status</span>}
               value={patient.status}
@@ -220,12 +241,25 @@ export default function PatientDetailPage() {
             children: (
               <Row gutter={[24, 24]}>
                 <Col xs={24} lg={12}>
-                  <Card 
-                    title={<span style={{ color: "#ff69b4" }}>Patient Information</span>}
-                    style={{ borderColor: "#ff69b4", boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)" }}
+                  <Card
+                    title={
+                      <span style={{ color: "#ff69b4" }}>
+                        Patient Information
+                      </span>
+                    }
+                    style={{
+                      borderColor: "#ff69b4",
+                      boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
+                    }}
                   >
                     <Space direction="vertical" style={{ width: "100%" }}>
-                      <div style={{ display: "flex", alignItems: "center", marginBottom: 16 }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          marginBottom: 16,
+                        }}
+                      >
                         <Avatar
                           size={64}
                           style={{
@@ -234,71 +268,129 @@ export default function PatientDetailPage() {
                             marginRight: 16,
                           }}
                         >
-                          {patient.name.split(" ").map((n) => n[0]).join("")}
+                          {patient.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")}
                         </Avatar>
                         <div>
-                          <Title level={3} style={{ margin: 0, color: "#ff69b4" }}>
+                          <Title
+                            level={3}
+                            style={{ margin: 0, color: "#ff69b4" }}
+                          >
                             {patient.name}
                           </Title>
                           <Text type="secondary">Patient ID: {patient.id}</Text>
                         </div>
                       </div>
-                      
+
                       <Form layout="vertical">
                         <Row gutter={16}>
                           <Col span={12}>
-                            <Form.Item label={<span style={{ color: "#ff69b4" }}>Full Name</span>}>
+                            <Form.Item
+                              label={
+                                <span style={{ color: "#ff69b4" }}>
+                                  Full Name
+                                </span>
+                              }
+                            >
                               <Input
                                 value={patient.name}
                                 readOnly
-                                style={{ backgroundColor: "#fff5f7", borderColor: "#ffb6c1" }}
+                                style={{
+                                  backgroundColor: "#fff5f7",
+                                  borderColor: "#ffb6c1",
+                                }}
                               />
                             </Form.Item>
                           </Col>
                           <Col span={12}>
-                            <Form.Item label={<span style={{ color: "#ff69b4" }}>Age</span>}>
+                            <Form.Item
+                              label={
+                                <span style={{ color: "#ff69b4" }}>Age</span>
+                              }
+                            >
                               <Input
                                 value={patient.age}
                                 readOnly
-                                style={{ backgroundColor: "#fff5f7", borderColor: "#ffb6c1" }}
+                                style={{
+                                  backgroundColor: "#fff5f7",
+                                  borderColor: "#ffb6c1",
+                                }}
                               />
                             </Form.Item>
                           </Col>
                           <Col span={12}>
-                            <Form.Item label={<span style={{ color: "#ff69b4" }}>Phone</span>}>
+                            <Form.Item
+                              label={
+                                <span style={{ color: "#ff69b4" }}>Phone</span>
+                              }
+                            >
                               <Input
                                 value={patient.phone}
-                                prefix={<PhoneOutlined style={{ color: "#ff69b4" }} />}
+                                prefix={
+                                  <PhoneOutlined style={{ color: "#ff69b4" }} />
+                                }
                                 readOnly
-                                style={{ backgroundColor: "#fff5f7", borderColor: "#ffb6c1" }}
+                                style={{
+                                  backgroundColor: "#fff5f7",
+                                  borderColor: "#ffb6c1",
+                                }}
                               />
                             </Form.Item>
                           </Col>
                           <Col span={12}>
-                            <Form.Item label={<span style={{ color: "#ff69b4" }}>Email</span>}>
+                            <Form.Item
+                              label={
+                                <span style={{ color: "#ff69b4" }}>Email</span>
+                              }
+                            >
                               <Input
                                 value={patient.email}
-                                prefix={<MailOutlined style={{ color: "#ff69b4" }} />}
+                                prefix={
+                                  <MailOutlined style={{ color: "#ff69b4" }} />
+                                }
                                 readOnly
-                                style={{ backgroundColor: "#fff5f7", borderColor: "#ffb6c1" }}
+                                style={{
+                                  backgroundColor: "#fff5f7",
+                                  borderColor: "#ffb6c1",
+                                }}
                               />
                             </Form.Item>
                           </Col>
                           <Col span={12}>
-                            <Form.Item label={<span style={{ color: "#ff69b4" }}>Partner</span>}>
+                            <Form.Item
+                              label={
+                                <span style={{ color: "#ff69b4" }}>
+                                  Partner
+                                </span>
+                              }
+                            >
                               <Input
                                 value={patient.partner}
                                 readOnly
-                                style={{ backgroundColor: "#fff5f7", borderColor: "#ffb6c1" }}
+                                style={{
+                                  backgroundColor: "#fff5f7",
+                                  borderColor: "#ffb6c1",
+                                }}
                               />
                             </Form.Item>
                           </Col>
                           <Col span={12}>
-                            <Form.Item label={<span style={{ color: "#ff69b4" }}>Start Date</span>}>
+                            <Form.Item
+                              label={
+                                <span style={{ color: "#ff69b4" }}>
+                                  Start Date
+                                </span>
+                              }
+                            >
                               <Input
                                 value={patient.startDate}
                                 readOnly
-                                style={{ backgroundColor: "#fff5f7", borderColor: "#ffb6c1" }}
+                                style={{
+                                  backgroundColor: "#fff5f7",
+                                  borderColor: "#ffb6c1",
+                                }}
                               />
                             </Form.Item>
                           </Col>
@@ -309,17 +401,28 @@ export default function PatientDetailPage() {
                 </Col>
 
                 <Col xs={24} lg={12}>
-                  <Card 
-                    title={<span style={{ color: "#ff69b4" }}>Treatment Progress</span>}
-                    style={{ borderColor: "#ff69b4", boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)" }}
+                  <Card
+                    title={
+                      <span style={{ color: "#ff69b4" }}>
+                        Treatment Progress
+                      </span>
+                    }
+                    style={{
+                      borderColor: "#ff69b4",
+                      boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
+                    }}
                   >
                     <Steps
                       direction="vertical"
                       current={currentStep}
-                      items={treatmentStages.map((stage, index) => ({
+                      items={treatmentStages.map((stage) => ({
                         title: stage.name,
                         description: stage.date,
-                        status: stage.completed ? "finish" : stage.current ? "process" : "wait",
+                        status: stage.completed
+                          ? "finish"
+                          : stage.current
+                          ? "process"
+                          : "wait",
                       }))}
                       progressDot
                       style={{ color: "#ff69b4" }}
@@ -333,13 +436,19 @@ export default function PatientDetailPage() {
             key: "medications",
             label: "Medications",
             children: (
-              <Card 
-                title={<span style={{ color: "#ff69b4" }}>Injection Schedule</span>}
-                style={{ borderColor: "#ff69b4", boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)" }}
+              <Card
+                title={
+                  <span style={{ color: "#ff69b4" }}>Injection Schedule</span>
+                }
+                style={{
+                  borderColor: "#ff69b4",
+                  boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
+                }}
               >
                 <Timeline
                   items={injectionSchedule.map((injection) => ({
-                    color: injection.status === "completed" ? "#ff1493" : "#ff69b4",
+                    color:
+                      injection.status === "completed" ? "#ff1493" : "#ff69b4",
                     children: (
                       <div style={{ padding: "8px 0" }}>
                         <Space direction="vertical" size="small">
@@ -348,7 +457,11 @@ export default function PatientDetailPage() {
                               {injection.medication} - {injection.dose}
                             </Text>
                             <Tag
-                              color={injection.status === "completed" ? "#ff1493" : "#ffb6c1"}
+                              color={
+                                injection.status === "completed"
+                                  ? "#ff1493"
+                                  : "#ffb6c1"
+                              }
                               style={{ marginLeft: 8 }}
                             >
                               {injection.status}
@@ -369,9 +482,14 @@ export default function PatientDetailPage() {
             key: "test_results",
             label: "Test Results",
             children: (
-              <Card 
-                title={<span style={{ color: "#ff69b4" }}>Laboratory Results</span>}
-                style={{ borderColor: "#ff69b4", boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)" }}
+              <Card
+                title={
+                  <span style={{ color: "#ff69b4" }}>Laboratory Results</span>
+                }
+                style={{
+                  borderColor: "#ff69b4",
+                  boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
+                }}
               >
                 <Row gutter={[16, 16]}>
                   {testResults.map((test, index) => (
@@ -384,11 +502,16 @@ export default function PatientDetailPage() {
                         }}
                       >
                         <Statistic
-                          title={<span style={{ color: "#ff69b4" }}>{test.test}</span>}
+                          title={
+                            <span style={{ color: "#ff69b4" }}>
+                              {test.test}
+                            </span>
+                          }
                           value={test.value}
-                          valueStyle={{ 
-                            color: test.status === "high" ? "#ff1493" : "#ff69b4",
-                            fontSize: "14px"
+                          valueStyle={{
+                            color:
+                              test.status === "high" ? "#ff1493" : "#ff69b4",
+                            fontSize: "14px",
                           }}
                         />
                         <Text type="secondary" style={{ fontSize: "12px" }}>
@@ -396,7 +519,9 @@ export default function PatientDetailPage() {
                         </Text>
                         <div style={{ marginTop: 8 }}>
                           <Tag
-                            color={test.status === "high" ? "#ff1493" : "#ff69b4"}
+                            color={
+                              test.status === "high" ? "#ff1493" : "#ff69b4"
+                            }
                           >
                             {test.status}
                           </Tag>
