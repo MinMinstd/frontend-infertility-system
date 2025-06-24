@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import {
-  Layout,
-  Menu,
   Card,
   Button,
   Tag,
@@ -14,17 +12,10 @@ import {
   Divider,
   notification,
 } from "antd";
-import {
-  ClockCircleOutlined,
-  CalendarOutlined,
-  UserOutlined,
-  LineChartOutlined,
-  DashboardOutlined,
-} from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { ClockCircleOutlined, UserOutlined } from "@ant-design/icons";
+import { DoctorSidebar } from "./DoctorSidebar";
 
 const { Title, Text } = Typography;
-const { Content, Sider } = Layout;
 
 interface TimeSlot {
   time: string;
@@ -114,34 +105,6 @@ export default function SchedulePage() {
 
   const [api, contextHolder] = notification.useNotification();
 
-  const menuItems = [
-    {
-      key: "/",
-      icon: <DashboardOutlined />,
-      label: <Link to="/doctor">Dashboard</Link>,
-    },
-    {
-      key: "/patients",
-      icon: <UserOutlined />,
-      label: <Link to="/patients">Patients</Link>,
-    },
-    {
-      key: "/appointments",
-      icon: <CalendarOutlined />,
-      label: <Link to="/appointments">Appointments</Link>,
-    },
-    {
-      key: "/schedule",
-      icon: <ClockCircleOutlined />,
-      label: <Link to="/schedule">Schedule</Link>,
-    },
-    {
-      key: "/treatment-history",
-      icon: <LineChartOutlined />,
-      label: <Link to="/treatment-history">Treatment History</Link>,
-    },
-  ];
-
   const toggleSlot = (
     dayIndex: number,
     period: "morning" | "afternoon",
@@ -204,145 +167,128 @@ export default function SchedulePage() {
     </Button>
   );
 
-  return (
-    <Layout className="min-h-screen">
+  const ScheduleContent = () => (
+    <div className="max-w-7xl mx-auto">
       {contextHolder}
-      <Sider width={256} className="bg-white shadow-lg">
-        <div className="p-6 border-b border-gray-100">
-          <Title level={4} className="!mb-0 text-gray-800">
-            Fertility Clinic
-          </Title>
-          <Text type="secondary" className="text-sm">
-            Dr. Management Portal
-          </Text>
-        </div>
-        <Menu
-          mode="inline"
-          selectedKeys={["/schedule"]}
-          items={menuItems}
-          className="border-none pt-4 px-2"
-        />
-      </Sider>
+      <Row gutter={[24, 24]}>
+        {schedule.map((day, dayIndex) => (
+          <Col key={dayIndex} xs={24} lg={12} xl={8}>
+            <Card
+              className="shadow-lg h-full border-0 hover:shadow-xl transition-shadow duration-300"
+              title={
+                <div className="flex items-center justify-between">
+                  <span className="text-lg font-semibold text-gray-800">
+                    {day.day}
+                  </span>
+                  <Tag color="blue" className="font-medium">
+                    {day.date}
+                  </Tag>
+                </div>
+              }
+            >
+              <Space direction="vertical" className="w-full" size="large">
+                <div>
+                  <Space align="center" className="mb-3">
+                    <ClockCircleOutlined className="text-orange-500" />
+                    <Text strong className="text-gray-700">
+                      Morning
+                    </Text>
+                    <Tag color="orange">7:30 - 11:30</Tag>
+                  </Space>
+                  <Row gutter={[8, 8]}>
+                    {day.morning.map((slot, slotIndex) => (
+                      <Col key={slotIndex} span={12}>
+                        <TimeSlotButton
+                          slot={slot}
+                          onClick={() =>
+                            toggleSlot(dayIndex, "morning", slotIndex)
+                          }
+                        />
+                      </Col>
+                    ))}
+                  </Row>
+                </div>
 
-      <Layout>
-        <Content className="p-8 bg-gray-50">
-          <div className="max-w-7xl mx-auto">
-            <Row gutter={[24, 24]}>
-              {schedule.map((day, dayIndex) => (
-                <Col key={dayIndex} xs={24} lg={12} xl={8}>
-                  <Card
-                    className="shadow-lg h-full border-0 hover:shadow-xl transition-shadow duration-300"
-                    title={
-                      <div className="flex items-center justify-between">
-                        <span className="text-lg font-semibold text-gray-800">
-                          {day.day}
-                        </span>
-                        <Tag color="blue" className="font-medium">
-                          {day.date}
-                        </Tag>
-                      </div>
-                    }
-                  >
-                    <Space direction="vertical" className="w-full" size="large">
-                      <div>
-                        <Space align="center" className="mb-3">
-                          <ClockCircleOutlined className="text-orange-500" />
-                          <Text strong className="text-gray-700">
-                            Morning
-                          </Text>
-                          <Tag color="orange">7:30 - 11:30</Tag>
-                        </Space>
-                        <Row gutter={[8, 8]}>
-                          {day.morning.map((slot, slotIndex) => (
-                            <Col key={slotIndex} span={12}>
-                              <TimeSlotButton
-                                slot={slot}
-                                onClick={() =>
-                                  toggleSlot(dayIndex, "morning", slotIndex)
-                                }
-                              />
-                            </Col>
-                          ))}
-                        </Row>
-                      </div>
+                <Divider />
+                <div className="text-center">
+                  <Tag color="gold" className="px-4 py-1">
+                    Lunch Break: 11:30 - 13:30
+                  </Tag>
+                </div>
+                <Divider />
 
-                      <Divider />
-                      <div className="text-center">
-                        <Tag color="gold" className="px-4 py-1">
-                          Lunch Break: 11:30 - 13:30
-                        </Tag>
-                      </div>
-                      <Divider />
+                <div>
+                  <Space align="center" className="mb-3">
+                    <ClockCircleOutlined className="text-blue-500" />
+                    <Text strong className="text-gray-700">
+                      Afternoon
+                    </Text>
+                    <Tag color="blue">13:30 - 17:00</Tag>
+                  </Space>
+                  <Row gutter={[8, 8]}>
+                    {day.afternoon.map((slot, slotIndex) => (
+                      <Col key={slotIndex} span={12}>
+                        <TimeSlotButton
+                          slot={slot}
+                          onClick={() =>
+                            toggleSlot(dayIndex, "afternoon", slotIndex)
+                          }
+                        />
+                      </Col>
+                    ))}
+                  </Row>
+                </div>
 
-                      <div>
-                        <Space align="center" className="mb-3">
-                          <ClockCircleOutlined className="text-blue-500" />
-                          <Text strong className="text-gray-700">
-                            Afternoon
-                          </Text>
-                          <Tag color="blue">13:30 - 17:00</Tag>
-                        </Space>
-                        <Row gutter={[8, 8]}>
-                          {day.afternoon.map((slot, slotIndex) => (
-                            <Col key={slotIndex} span={12}>
-                              <TimeSlotButton
-                                slot={slot}
-                                onClick={() =>
-                                  toggleSlot(dayIndex, "afternoon", slotIndex)
-                                }
-                              />
-                            </Col>
-                          ))}
-                        </Row>
-                      </div>
-
-                      <Divider />
-                      <div className="flex justify-between">
-                        <Text type="secondary">
-                          Booked:{" "}
-                          <Text strong className="text-blue-600">
-                            {day.morning.filter((s) => s.isBooked).length +
-                              day.afternoon.filter((s) => s.isBooked).length}
-                          </Text>
-                        </Text>
-                        <Text type="secondary">
-                          Available:{" "}
-                          <Text strong className="text-green-600">
-                            {day.morning.filter((s) => !s.isBooked).length +
-                              day.afternoon.filter((s) => !s.isBooked).length}
-                          </Text>
-                        </Text>
-                      </div>
-                    </Space>
-                  </Card>
-                </Col>
-              ))}
-            </Row>
-
-            <Card className="mt-6 border-0 shadow-md">
-              <Title level={4}>Legend:</Title>
-              <Space wrap size="large">
-                <Space align="center">
-                  <div className="w-4 h-4 bg-white border border-gray-300 rounded"></div>
-                  <Text>Available time slot</Text>
-                </Space>
-                <Space align="center">
-                  <div className="w-4 h-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded"></div>
-                  <Text>Booked appointment</Text>
-                </Space>
-                <Space align="center">
-                  <ClockCircleOutlined className="text-gray-500" />
-                  <Text>Each slot: 30 minutes</Text>
-                </Space>
-                <Space align="center">
-                  <UserOutlined className="text-blue-500" />
-                  <Text>Click to book/cancel appointments</Text>
-                </Space>
+                <Divider />
+                <div className="flex justify-between">
+                  <Text type="secondary">
+                    Booked:{" "}
+                    <Text strong className="text-blue-600">
+                      {day.morning.filter((s) => s.isBooked).length +
+                        day.afternoon.filter((s) => s.isBooked).length}
+                    </Text>
+                  </Text>
+                  <Text type="secondary">
+                    Available:{" "}
+                    <Text strong className="text-green-600">
+                      {day.morning.filter((s) => !s.isBooked).length +
+                        day.afternoon.filter((s) => !s.isBooked).length}
+                    </Text>
+                  </Text>
+                </div>
               </Space>
             </Card>
-          </div>
-        </Content>
-      </Layout>
-    </Layout>
+          </Col>
+        ))}
+      </Row>
+
+      <Card className="mt-6 border-0 shadow-md">
+        <Title level={4}>Legend:</Title>
+        <Space wrap size="large">
+          <Space align="center">
+            <div className="w-4 h-4 bg-white border border-gray-300 rounded"></div>
+            <Text>Available time slot</Text>
+          </Space>
+          <Space align="center">
+            <div className="w-4 h-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded"></div>
+            <Text>Booked appointment</Text>
+          </Space>
+          <Space align="center">
+            <ClockCircleOutlined className="text-gray-500" />
+            <Text>Each slot: 30 minutes</Text>
+          </Space>
+          <Space align="center">
+            <UserOutlined className="text-blue-500" />
+            <Text>Click to book/cancel appointments</Text>
+          </Space>
+        </Space>
+      </Card>
+    </div>
+  );
+
+  return (
+    <DoctorSidebar>
+      <ScheduleContent />
+    </DoctorSidebar>
   );
 }

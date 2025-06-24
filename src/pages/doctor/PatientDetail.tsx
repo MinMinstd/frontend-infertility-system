@@ -26,6 +26,9 @@ import {
   HeartOutlined,
 } from "@ant-design/icons";
 import { DoctorSidebar } from "./DoctorSidebar";
+import { useState } from "react";
+import dayjs from "dayjs";
+import { DatePicker } from "antd";
 
 const { Title, Text } = Typography;
 
@@ -94,36 +97,70 @@ export default function PatientDetailPage() {
 
   const testResults = [
     {
-      test: "Estradiol (E2)",
-      value: "1,250 pg/mL",
-      normal: "200-400 pg/mL",
-      status: "high",
       date: "2024-01-15",
+      result: "1,250 pg/mL",
+      note: "Estradiol (E2) - High level",
     },
     {
-      test: "LH",
-      value: "5.2 mIU/mL",
-      normal: "1-20 mIU/mL",
-      status: "normal",
       date: "2024-01-15",
+      result: "5.2 mIU/mL",
+      note: "LH - Normal range",
     },
     {
-      test: "Progesterone",
-      value: "0.8 ng/mL",
-      normal: "<1.5 ng/mL",
-      status: "normal",
       date: "2024-01-15",
+      result: "0.8 ng/mL",
+      note: "Progesterone - Normal range",
     },
     {
-      test: "Follicle Count",
-      value: "12",
-      normal: "8-15",
-      status: "normal",
       date: "2024-01-14",
+      result: "12",
+      note: "Follicle Count - Normal range",
     },
   ];
 
+  const [isFormVisible, setIsFormVisible] = useState(false);
+  const [form] = Form.useForm();
+  const [testResultsList, setTestResultsList] = useState(testResults);
+
   const currentStep = treatmentStages.findIndex((stage) => stage.current);
+
+  const showForm = () => {
+    setIsFormVisible(true);
+  };
+
+  const handleCancel = () => {
+    setIsFormVisible(false);
+    form.resetFields();
+  };
+
+  interface TestResultFormValues {
+    date: dayjs.Dayjs; // Changed from Date to moment.Moment to match DatePicker value type
+
+    result: string;
+    note: string;
+  }
+
+  interface TestResult {
+    date: string;
+    result: string;
+    note: string;
+  }
+
+  const handleSubmit = (values: TestResultFormValues) => {
+    try {
+      const newTestResult: TestResult = {
+        date: values.date.format("YYYY-MM-DD"),
+        result: values.result,
+        note: values.note,
+      };
+      setTestResultsList([...testResultsList, newTestResult]);
+      setIsFormVisible(false);
+      form.resetFields();
+    } catch (error) {
+      console.error("Error submitting test result:", error);
+      // Handle error appropriately
+    }
+  };
 
   const PatientDetailContent = () => (
     <div>
@@ -148,6 +185,15 @@ export default function PatientDetailPage() {
                 }}
               >
                 Edit Patient
+              </Button>
+              <Button
+                icon={<EditOutlined />}
+                style={{
+                  borderColor: "#ff69b4",
+                  color: "#ff69b4",
+                }}
+              >
+                Edit Medical record
               </Button>
               <Button
                 type="primary"
@@ -454,7 +500,7 @@ export default function PatientDetailPage() {
                         <Space direction="vertical" size="small">
                           <div>
                             <Text strong style={{ color: "#ff69b4" }}>
-                              {injection.medication} - {injection.dose}
+                              {injection.medication}
                             </Text>
                             <Tag
                               color={
@@ -484,48 +530,155 @@ export default function PatientDetailPage() {
             children: (
               <Card
                 title={
-                  <span style={{ color: "#ff69b4" }}>Laboratory Results</span>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <span style={{ color: "#ff69b4" }}>Laboratory Results</span>
+                    <Space>
+                      <Button
+                        size="small"
+                        icon={<EditOutlined />}
+                        onClick={showForm}
+                        style={{
+                          borderColor: "#ff69b4",
+                          color: "#ff69b4",
+                        }}
+                      >
+                        Add Test Result
+                      </Button>
+                      <Button
+                        size="small"
+                        icon={<EditOutlined />}
+                        style={{
+                          borderColor: "#ff1493",
+                          color: "#ff1493",
+                        }}
+                      >
+                        Edit All
+                      </Button>
+                    </Space>
+                  </div>
                 }
                 style={{
                   borderColor: "#ff69b4",
                   boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
                 }}
               >
+                {isFormVisible && (
+                  <Card
+                    title={<span style={{ color: "#ff69b4" }}>Add New Test Result</span>}
+                    style={{
+                      marginBottom: 16,
+                      borderColor: "#ff69b4",
+                      backgroundColor: "#fff5f7",
+                    }}
+                    extra={
+                      <Button
+                        size="small"
+                        onClick={handleCancel}
+                        style={{
+                          borderColor: "#ff69b4",
+                          color: "#ff69b4",
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    }
+                  >
+                    <Form
+                      form={form}
+                      layout="vertical"
+                      onFinish={handleSubmit}
+                    >
+                      <Row gutter={16}>
+                        <Col span={8}>
+                          <Form.Item
+                            label={<span style={{ color: "#ff69b4" }}>Date</span>}
+                            name="date"
+                            rules={[{ required: true, message: "Please select date!" }]}
+                          >
+                            <DatePicker
+                              style={{ width: "100%" }}
+                              format="YYYY-MM-DD"
+                            />
+                          </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                          <Form.Item
+                            label={<span style={{ color: "#ff69b4" }}>Result</span>}
+                            name="result"
+                            rules={[{ required: true, message: "Please enter result!" }]}
+                          >
+                            <Input placeholder="Enter test result" />
+                          </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                          <Form.Item
+                            label={<span style={{ color: "#ff69b4" }}>Note</span>}
+                            name="note"
+                            rules={[{ required: true, message: "Please enter note!" }]}
+                          >
+                            <Input placeholder="Enter note" />
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                      <Form.Item>
+                        <Space>
+                          <Button
+                            type="primary"
+                            htmlType="submit"
+                            style={{
+                              backgroundColor: "#ff69b4",
+                              borderColor: "#ff69b4",
+                            }}
+                          >
+                            Add Result
+                          </Button>
+                          <Button onClick={handleCancel}>
+                            Cancel
+                          </Button>
+                        </Space>
+                      </Form.Item>
+                    </Form>
+                  </Card>
+                )}
                 <Row gutter={[16, 16]}>
-                  {testResults.map((test, index) => (
-                    <Col xs={24} sm={12} lg={6} key={index}>
+                  {testResultsList.map((test, index) => (
+                    <Col xs={24} sm={12} lg={8} key={index}>
                       <Card
                         size="small"
                         style={{
                           borderColor: "#ffb6c1",
                           backgroundColor: "#fff5f7",
                         }}
+                        extra={
+                          <Button
+                            size="small"
+                            type="text"
+                            icon={<EditOutlined />}
+                            style={{ color: "#ff69b4" }}
+                          />
+                        }
                       >
-                        <Statistic
-                          title={
-                            <span style={{ color: "#ff69b4" }}>
-                              {test.test}
-                            </span>
-                          }
-                          value={test.value}
-                          valueStyle={{
-                            color:
-                              test.status === "high" ? "#ff1493" : "#ff69b4",
-                            fontSize: "14px",
-                          }}
-                        />
-                        <Text type="secondary" style={{ fontSize: "12px" }}>
-                          Normal: {test.normal}
-                        </Text>
-                        <div style={{ marginTop: 8 }}>
-                          <Tag
-                            color={
-                              test.status === "high" ? "#ff1493" : "#ff69b4"
-                            }
-                          >
-                            {test.status}
-                          </Tag>
-                        </div>
+                        <Space direction="vertical" style={{ width: "100%" }}>
+                          <div>
+                            <Text strong style={{ color: "#ff69b4" }}>
+                              Date: {test.date}
+                            </Text>
+                          </div>
+                          <div>
+                            <Text style={{ color: "#ff1493" }}>
+                              Result: {test.result}
+                            </Text>
+                          </div>
+                          <div>
+                            <Text type="secondary">Note: {test.note}</Text>
+                          </div>
+                        </Space>
                       </Card>
                     </Col>
                   ))}
@@ -535,6 +688,7 @@ export default function PatientDetailPage() {
           },
         ]}
       />
+
     </div>
   );
 

@@ -8,6 +8,7 @@ import {
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  ScheduleOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
 import type { MenuProps } from "antd";
@@ -44,6 +45,11 @@ export const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ children }) => {
       key: "/doctor/treatment_history",
       icon: <ClockCircleOutlined />,
       label: "Treatment History",
+    },
+    {
+      key: "/doctor/schedule",
+      icon: <ScheduleOutlined />,
+      label: "Schedule",
     },
   ];
 
@@ -100,7 +106,9 @@ export const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ children }) => {
             {collapsed ? "FC" : "Fertility Clinic"}
           </Title>
           {!collapsed && (
-            <Text style={{ color: "rgba(255, 255, 255, 0.8)", fontSize: "12px" }}>
+            <Text
+              style={{ color: "rgba(255, 255, 255, 0.8)", fontSize: "12px" }}
+            >
               Doctor Portal
             </Text>
           )}
@@ -177,4 +185,4 @@ export const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ children }) => {
       </Layout>
     </Layout>
   );
-}; 
+};
