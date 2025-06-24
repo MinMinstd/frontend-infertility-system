@@ -14,7 +14,7 @@ const AuthApi = {
   Register: (data: RegisterItem) =>
     axiosClient.post<RegisterResponse>("/Auth/register", data),
 
-  Me: () => axiosClient.get<User>("/customer"), // cần backend hỗ trợ, vậy hỗ trợ làm cgi và viết ra sao ?
+  Me: () => axiosClient.get<User>("/User/GetUserAfterLogin"), // cần backend hỗ trợ, vậy hỗ trợ làm cgi và viết ra sao ?
   // mục đích lấy thông tin đã được tạo trước đó
 };
 

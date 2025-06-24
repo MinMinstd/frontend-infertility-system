@@ -42,16 +42,41 @@ const LoginPage = () => {
         Password: data.password,
       });
 
-      if (!respone.data?.token) {
+      const token = respone.data.token;
+
+      if (!token) {
         console.log("Token không tồn tại", respone.data);
         throw new Error("Token không hợp lệ");
+      }
+
+      //Thực hiện kiểm tra token để phân role nào vào giao diện trang đấy
+      await login(token);
+      // Hàm Me ở đây chi mới được mới lấy được các thông tin cơ bản chưa lấy role của user
+      const userInfo = await AuthApi.Me();
+      console.log("Thông tin user được lấy: ", userInfo.data);
+      const role = userInfo.data?.role;
+      console.log("Role", role);
+
+      // Điều hướng theo vai trò
+      switch (role) {
+        case "Doctor":
+          navigate("/doctor");
+          break;
+        case "Admin":
+          navigate("/admin");
+          break;
+        case "Manager":
+          navigate("/manager");
+          break;
+        default:
+          navigate("/"); // Khách hàng bình thường
       }
 
       console.log("Login response:", respone.data);
 
       login(respone.data.token); // Gọi hàm login từ AuthContext
       message.success("Đăng nhập thành công!");
-      navigate("/"); // Chuyển về trang chủ sau khi đăng nhập
+      // navigate("/"); // Chuyển về trang chủ sau khi đăng nhập
     } catch (err) {
       console.error("Login error:", err);
       message.error("Đăng nhập thất bại. Vui lòng thử lại!");
