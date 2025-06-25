@@ -15,6 +15,10 @@ const UserApi = {
 
   //Cập nhật mật khẩu customer
   ChangePassword: () => axiosClient.post<ChangePassword>("/customer"),
+
+  //medical treatment record detail
+  GetMedicalRecorDetail: () =>
+    axiosClient.get("/customer/medicalRecordWithDetail"),
 };
 
 export default UserApi;
