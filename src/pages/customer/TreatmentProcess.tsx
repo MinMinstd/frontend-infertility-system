@@ -1,155 +1,118 @@
-import React, { useState, useEffect } from 'react';
-import { Modal, Button } from 'antd';
+import React, { useState, useEffect } from "react";
+import { Modal, Button } from "antd";
+
+// Định nghĩa interface cho loại xét nghiệm
+interface TypeTest {
+  name: string;
+  description: string;
+}
 
 // Định nghĩa interface cho bước điều trị
 interface Treatment {
-  id: number;
-  stepName: string;
   date: string;
-  status: 'Đã hoàn thành' | 'Đang tiến hành' | 'Chưa thực hiện';
+  testResult: string;
   note: string;
-  doctor: string;
-  location: string;
-  result?: string;
-  caution?: string;
-  failReason?: string;
-  retryDate?: string;
-  description?: string;
-  partnerUnit?: string;
-  grades?: string;
-  nextActions?: { name: string; desc: string; done: boolean }[];
+  typeName: "Consultation" | "Treatment" | "Result";
+  status: "Complete" | "In Progress" | "Pending";
+  treatmentResultId: number;
+  typeTest: TypeTest[];
 }
 
 // Dữ liệu ban đầu
 const initialTreatments: Treatment[] = [
   {
-    id: 1,
-    stepName: 'Khám sức khỏe tổng quát',
-    date: '2023-09-01',
-    status: 'Đã hoàn thành',
-    note: 'Khám tổng quát trước khi bắt đầu quy trình',
-    doctor: 'BS. Nguyễn Văn A',
-    location: 'Phòng 101, Trung tâm Hỗ trợ Sinh sản',
-    result: 'Đủ điều kiện tham gia điều trị',
-    caution: 'Nên nhịn ăn sáng trước khi khám',
-    description: 'Khám sức khỏe tổng quát, siêu âm, đo huyết áp, kiểm tra thể trạng.',
-    partnerUnit: 'Trung tâm Xét nghiệm',
-    grades: '',
-    nextActions: [
-      { name: 'Lấy mẫu máu', desc: 'Chuẩn bị cho xét nghiệm nội tiết', done: true },
-      { name: 'Tư vấn phác đồ', desc: 'Bác sĩ tư vấn phác đồ điều trị', done: true }
-    ]
+    date: "2025-06-03",
+    testResult: "Bình thường",
+    note: "Tư vấn khởi đầu IVF",
+    typeName: "Consultation",
+    status: "Complete",
+    treatmentResultId: 1,
+    typeTest: [
+      {
+        name: "Xét nghiệm máu",
+        description: "Kiểm tra nội tiết",
+      },
+    ],
   },
   {
-    id: 2,
-    stepName: 'Xét nghiệm nội tiết',
-    date: '2023-09-03',
-    status: 'Đã hoàn thành',
-    note: 'Lấy mẫu máu xét nghiệm các chỉ số nội tiết',
-    doctor: 'BS. Trần Thị B',
-    location: 'Phòng Xét nghiệm, Trung tâm Hỗ trợ Sinh sản',
-    result: 'Chỉ số nội tiết bình thường',
-    caution: '',
-    description: 'Xét nghiệm các chỉ số nội tiết tố nữ (FSH, LH, E2, AMH...)',
-    partnerUnit: 'Trung tâm Xét nghiệm',
-    grades: '',
-    nextActions: [
-      { name: 'Hẹn lịch kích thích buồng trứng', desc: 'Chuẩn bị thuốc và lịch tiêm', done: true }
-    ]
+    date: "2025-06-06",
+    testResult: "15 trứng được lấy",
+    note: "Không biến chứng",
+    typeName: "Treatment",
+    status: "Complete",
+    treatmentResultId: 2,
+    typeTest: [
+      {
+        name: "Siêu âm",
+        description: "Theo dõi nang trứng",
+      },
+    ],
   },
   {
-    id: 3,
-    stepName: 'Kích thích buồng trứng',
-    date: '2023-09-07',
-    status: 'Đang tiến hành',
-    note: 'Bắt đầu tiêm thuốc kích thích buồng trứng',
-    doctor: 'BS. Lê Văn C',
-    location: 'Phòng 202, Trung tâm Hỗ trợ Sinh sản',
-    result: '',
-    caution: 'Theo dõi sát đáp ứng thuốc, tái khám đúng hẹn',
-    description: 'Tiêm thuốc kích thích buồng trứng trong 8-12 ngày, theo dõi bằng siêu âm.',
-    partnerUnit: '',
-    grades: '',
-    nextActions: [
-      { name: 'Siêu âm kiểm tra nang noãn', desc: 'Đánh giá đáp ứng thuốc', done: false },
-      { name: 'Điều chỉnh liều thuốc', desc: 'Tùy đáp ứng', done: false }
-    ]
+    date: "2025-06-09",
+    testResult: "Tinh trùng đạt chuẩn",
+    note: "Sẵn sàng tạo phôi",
+    typeName: "Treatment",
+    status: "Complete",
+    treatmentResultId: 1,
+    typeTest: [
+      {
+        name: "Xét nghiệm máu",
+        description: "Kiểm tra nội tiết",
+      },
+    ],
   },
   {
-    id: 4,
-    stepName: 'Chọc hút trứng',
-    date: '2023-09-18',
-    status: 'Chưa thực hiện',
-    note: 'Dự kiến chọc hút trứng ngày 18/09',
-    doctor: 'BS. Nguyễn Văn D',
-    location: 'Phòng thủ thuật, Trung tâm Hỗ trợ Sinh sản',
-    result: '',
-    caution: 'Nhịn ăn sáng, có người thân đi cùng',
-    description: 'Chọc hút trứng dưới hướng dẫn siêu âm, gây mê nhẹ.',
-    partnerUnit: '',
-    grades: '',
-    nextActions: [
-      { name: 'Chuẩn bị phòng thủ thuật', desc: 'Đảm bảo vô khuẩn', done: false }
-    ]
+    date: "2025-06-12",
+    testResult: "Tạo 5 phôi tốt",
+    note: "Đánh giá phôi ok",
+    typeName: "Treatment",
+    status: "Complete",
+    treatmentResultId: 1,
+    typeTest: [
+      {
+        name: "Xét nghiệm máu",
+        description: "Kiểm tra nội tiết",
+      },
+    ],
   },
   {
-    id: 5,
-    stepName: 'Thụ tinh và nuôi cấy phôi',
-    date: '2023-09-18',
-    status: 'Chưa thực hiện',
-    note: 'Thực hiện ngay sau khi chọc hút trứng',
-    doctor: 'BS. Trần Thị E',
-    location: 'Phòng Labo, Trung tâm Hỗ trợ Sinh sản',
-    result: '',
-    caution: '',
-    description: 'Kết hợp trứng và tinh trùng, nuôi cấy phôi từ 3-5 ngày.',
-    partnerUnit: '',
-    grades: '',
-    nextActions: [
-      { name: 'Theo dõi sự phát triển của phôi', desc: 'Kiểm tra chất lượng phôi', done: false }
-    ]
+    date: "2025-06-15",
+    testResult: "Chuyển 2 phôi",
+    note: "Tiến hành thành công",
+    typeName: "Treatment",
+    status: "Complete",
+    treatmentResultId: 2,
+    typeTest: [
+      {
+        name: "Siêu âm",
+        description: "Theo dõi nang trứng",
+      },
+    ],
   },
   {
-    id: 6,
-    stepName: 'Chuyển phôi',
-    date: '2023-09-23',
-    status: 'Chưa thực hiện',
-    note: 'Chuyển phôi vào buồng tử cung',
-    doctor: 'BS. Nguyễn Văn F',
-    location: 'Phòng chuyển phôi, Trung tâm Hỗ trợ Sinh sản',
-    result: '',
-    caution: 'Nghỉ ngơi sau chuyển phôi',
-    description: 'Chuyển 1-2 phôi chất lượng tốt vào buồng tử cung.',
-    partnerUnit: '',
-    grades: '',
-    nextActions: [
-      { name: 'Theo dõi sau chuyển phôi', desc: 'Hẹn lịch thử thai', done: false }
-    ]
+    date: "2025-06-16",
+    testResult: "HCG dương tính",
+    note: "Thành công",
+    typeName: "Result",
+    status: "Complete",
+    treatmentResultId: 1,
+    typeTest: [
+      {
+        name: "Xét nghiệm máu",
+        description: "Kiểm tra nội tiết",
+      },
+    ],
   },
-  {
-    id: 7,
-    stepName: 'Theo dõi kết quả',
-    date: '2023-10-07',
-    status: 'Chưa thực hiện',
-    note: 'Thử thai sau chuyển phôi 14 ngày',
-    doctor: 'BS. Trần Thị G',
-    location: 'Phòng khám, Trung tâm Hỗ trợ Sinh sản',
-    result: '',
-    caution: '',
-    description: 'Xét nghiệm beta-hCG, siêu âm kiểm tra thai.',
-    partnerUnit: '',
-    grades: '',
-    nextActions: [
-      { name: 'Tư vấn kết quả', desc: 'Hẹn lịch tái khám hoặc tư vấn tiếp theo', done: false }
-    ]
-  }
 ];
 
 const TreatmentManagement: React.FC = () => {
   const [treatments, setTreatments] = useState<Treatment[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [selectedTreatment, setSelectedTreatment] = useState<Treatment | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [selectedTreatment, setSelectedTreatment] = useState<Treatment | null>(
+    null
+  );
   const [modalVisible, setModalVisible] = useState(false);
 
   // Giả lập tải dữ liệu
@@ -165,8 +128,9 @@ const TreatmentManagement: React.FC = () => {
   // Lọc dữ liệu theo từ khóa tìm kiếm
   const filteredTreatments = treatments.filter(
     (tr) =>
-      tr.stepName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tr.note.toLowerCase().includes(searchTerm.toLowerCase())
+      tr.typeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      tr.note.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      tr.testResult.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -201,7 +165,9 @@ const TreatmentManagement: React.FC = () => {
               </svg>
             </div>
             <div>
-              <div className="text-sm text-black dark:text-gray-200">Tổng số bước</div>
+              <div className="text-sm text-black dark:text-gray-200">
+                Tổng số bước
+              </div>
               <div className="text-2xl font-bold text-pink-500 dark:text-pink-400">
                 {treatments.length}
               </div>
@@ -217,13 +183,20 @@ const TreatmentManagement: React.FC = () => {
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
             </div>
             <div>
-              <div className="text-sm text-black dark:text-gray-200">Đã hoàn thành</div>
+              <div className="text-sm text-black dark:text-gray-200">
+                Đã hoàn thành
+              </div>
               <div className="text-2xl font-bold text-pink-500 dark:text-pink-400">
-                {treatments.filter((t) => t.status === 'Đã hoàn thành').length}
+                {treatments.filter((t) => t.status === "Complete").length}
               </div>
             </div>
           </div>
@@ -246,9 +219,11 @@ const TreatmentManagement: React.FC = () => {
               </svg>
             </div>
             <div>
-              <div className="text-sm text-black dark:text-gray-200">Đang tiến hành</div>
+              <div className="text-sm text-black dark:text-gray-200">
+                Đang tiến hành
+              </div>
               <div className="text-2xl font-bold text-yellow-500 dark:text-yellow-400">
-                {treatments.filter((t) => t.status === 'Đang tiến hành').length}
+                {treatments.filter((t) => t.status === "In Progress").length}
               </div>
             </div>
           </div>
@@ -303,11 +278,13 @@ const TreatmentManagement: React.FC = () => {
             />
           </svg>
           <p className="text-black dark:text-gray-200 text-lg">
-            {searchTerm ? 'Không tìm thấy dữ liệu phù hợp' : 'Chưa có dữ liệu điều trị'}
+            {searchTerm
+              ? "Không tìm thấy dữ liệu phù hợp"
+              : "Chưa có dữ liệu điều trị"}
           </p>
           {searchTerm && (
             <button
-              onClick={() => setSearchTerm('')}
+              onClick={() => setSearchTerm("")}
               className="mt-4 text-pink-500 dark:text-pink-400 hover:text-pink-600 dark:hover:text-pink-300 transition-colors duration-200"
             >
               Xóa bộ lọc tìm kiếm
@@ -319,32 +296,80 @@ const TreatmentManagement: React.FC = () => {
           <table className="min-w-full">
             <thead>
               <tr className="bg-pink-100 dark:bg-gray-600">
-                <th className="px-6 py-4 text-left text-base font-bold text-pink-700 dark:text-pink-300 rounded-tl-2xl">Bước điều trị</th>
-                <th className="px-6 py-4 text-left text-base font-bold text-pink-700 dark:text-pink-300">Ngày thực hiện</th>
-                <th className="px-6 py-4 text-left text-base font-bold text-pink-700 dark:text-pink-300">Trạng thái</th>
-                <th className="px-6 py-4 text-left text-base font-bold text-pink-700 dark:text-pink-300 rounded-tr-2xl">Ghi chú</th>
+                <th className="px-6 py-4 text-left text-base font-bold text-pink-700 dark:text-pink-300 rounded-tl-2xl">
+                  Loại điều trị
+                </th>
+                <th className="px-6 py-4 text-left text-base font-bold text-pink-700 dark:text-pink-300">
+                  Ngày thực hiện
+                </th>
+                <th className="px-6 py-4 text-left text-base font-bold text-pink-700 dark:text-pink-300">
+                  Kết quả
+                </th>
+                <th className="px-6 py-4 text-left text-base font-bold text-pink-700 dark:text-pink-300">
+                  Trạng thái
+                </th>
+                <th className="px-6 py-4 text-left text-base font-bold text-pink-700 dark:text-pink-300 rounded-tr-2xl">
+                  Ghi chú
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-pink-50 dark:divide-gray-600">
-              {filteredTreatments.map((tr) => (
-                <tr 
-                  key={tr.id} 
-                  className="hover:bg-pink-50 dark:hover:bg-gray-600 transition-all duration-300 cursor-pointer" 
-                  onClick={() => { setSelectedTreatment(tr); setModalVisible(true); }}
+              {filteredTreatments.map((tr, index) => (
+                <tr
+                  key={index}
+                  className="hover:bg-pink-50 dark:hover:bg-gray-600 transition-all duration-300 cursor-pointer"
+                  onClick={() => {
+                    setSelectedTreatment(tr);
+                    setModalVisible(true);
+                  }}
                 >
-                  <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-200">{tr.stepName}</td>
-                  <td className="px-6 py-4 text-gray-700 dark:text-gray-300">{new Date(tr.date).toLocaleDateString('vi-VN')}</td>
-                  <td className="px-6 py-4">
-                    <span className={
-                      `inline-block px-3 py-1 rounded-full text-xs font-semibold transition-all duration-300
-                      ${tr.status === 'Đã hoàn thành' ? 'bg-pink-500 text-white' :
-                        tr.status === 'Đang tiến hành' ? 'bg-yellow-400 text-white' :
-                        'bg-gray-300 text-gray-700 dark:bg-gray-500 dark:text-gray-200'}`
-                    }>
-                      {tr.status}
+                  <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-200">
+                    <div className="flex items-center">
+                      <span
+                        className={`inline-block w-3 h-3 rounded-full mr-3 ${
+                          tr.typeName === "Consultation"
+                            ? "bg-blue-500"
+                            : tr.typeName === "Treatment"
+                            ? "bg-green-500"
+                            : "bg-purple-500"
+                        }`}
+                      ></span>
+                      {tr.typeName === "Consultation"
+                        ? "Tư vấn"
+                        : tr.typeName === "Treatment"
+                        ? "Điều trị"
+                        : "Kết quả"}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
+                    {new Date(tr.date).toLocaleDateString("vi-VN")}
+                  </td>
+                  <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
+                    <span className="text-green-600 font-medium">
+                      {tr.testResult}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-gray-700 dark:text-gray-300">{tr.note || '—'}</td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={`inline-block px-3 py-1 rounded-full text-xs font-semibold transition-all duration-300
+                      ${
+                        tr.status === "Complete"
+                          ? "bg-green-500 text-white"
+                          : tr.status === "In Progress"
+                          ? "bg-yellow-400 text-white"
+                          : "bg-gray-300 text-gray-700 dark:bg-gray-500 dark:text-gray-200"
+                      }`}
+                    >
+                      {tr.status === "Complete"
+                        ? "Hoàn thành"
+                        : tr.status === "In Progress"
+                        ? "Đang tiến hành"
+                        : "Chờ thực hiện"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
+                    {tr.note || "—"}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -352,108 +377,149 @@ const TreatmentManagement: React.FC = () => {
         </div>
       )}
 
-      {/* Modal chi tiết bước điều trị */}
+      {/* Modal chi tiết điều trị */}
       <Modal
+        title={
+          <span className="text-xl font-bold text-pink-600">
+            Chi tiết điều trị
+          </span>
+        }
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
-        title={null}
-        footer={null}
-        width={900}
-        bodyStyle={{ padding: 0 }}
+        footer={[
+          <Button
+            key="close"
+            onClick={() => setModalVisible(false)}
+            className="bg-pink-500 text-white hover:bg-pink-600 border-pink-500"
+          >
+            Đóng
+          </Button>,
+        ]}
+        width={800}
         className="treatment-modal"
       >
         {selectedTreatment && (
-          <div className="bg-white dark:bg-gray-700 rounded-lg p-8">
-            <div className="flex flex-col md:flex-row md:space-x-8">
-              {/* Cột trái: mô tả & thông tin chi tiết */}
-              <div className="flex-1 mb-8 md:mb-0">
-                <div className="flex items-center mb-2">
-                  <span className="text-xl font-bold mr-4 text-gray-900 dark:text-gray-200">{selectedTreatment.stepName}</span>
-                  {selectedTreatment.status === 'Đã hoàn thành' && (
-                    <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm ml-2">Đã hoàn thành</span>
-                  )}
-                  {selectedTreatment.status === 'Đang tiến hành' && (
-                    <span className="bg-yellow-400 text-white px-3 py-1 rounded-full text-sm ml-2">Đang tiến hành</span>
-                  )}
-                  {selectedTreatment.status === 'Chưa thực hiện' && (
-                    <span className="bg-gray-400 text-white px-3 py-1 rounded-full text-sm ml-2">Chưa thực hiện</span>
-                  )}
-                </div>
-                <div className="text-gray-500 dark:text-gray-400 mb-2">
-                  {new Date(selectedTreatment.date).toLocaleDateString('vi-VN')}
-                </div>
-                <div className="mb-2">
-                  <span className="font-medium text-gray-600 dark:text-gray-300">Địa điểm: </span>
-                  <span className="text-gray-700 dark:text-gray-200">{selectedTreatment.location}</span>
-                </div>
-                {selectedTreatment.grades && (
-                  <div className="mb-2">
-                    <span className="font-medium text-gray-600 dark:text-gray-300">Đánh giá: </span>
-                    <span className="text-gray-700 dark:text-gray-200">{selectedTreatment.grades}</span>
+          <div className="space-y-6">
+            {/* Thông tin cơ bản */}
+            <div className="bg-gradient-to-r from-pink-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 p-6 rounded-xl">
+              <h3 className="text-lg font-semibold text-pink-700 dark:text-pink-300 mb-4">
+                Thông tin cơ bản
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    Loại điều trị:
+                  </span>
+                  <div className="flex items-center mt-1">
+                    <span
+                      className={`inline-block w-3 h-3 rounded-full mr-2 ${
+                        selectedTreatment.typeName === "Consultation"
+                          ? "bg-blue-500"
+                          : selectedTreatment.typeName === "Treatment"
+                          ? "bg-green-500"
+                          : "bg-purple-500"
+                      }`}
+                    ></span>
+                    <p className="text-gray-900 dark:text-gray-100">
+                      {selectedTreatment.typeName === "Consultation"
+                        ? "Tư vấn"
+                        : selectedTreatment.typeName === "Treatment"
+                        ? "Điều trị"
+                        : "Kết quả"}
+                    </p>
                   </div>
-                )}
-                {selectedTreatment.partnerUnit && (
-                  <div className="mb-2">
-                    <span className="font-medium text-gray-600 dark:text-gray-300">Đơn vị phối hợp: </span>
-                    <span className="text-gray-700 dark:text-gray-200">{selectedTreatment.partnerUnit}</span>
-                  </div>
-                )}
-                <div className="mb-4">
-                  <span className="font-medium text-gray-600 dark:text-gray-300">Mô tả: </span>
-                  <span className="text-gray-700 dark:text-gray-200">{selectedTreatment.description}</span>
                 </div>
-                <div className="mb-4">
-                  <span className="font-medium text-gray-600 dark:text-gray-300">Người phụ trách: </span>
-                  <span className="text-gray-700 dark:text-gray-200">{selectedTreatment.doctor}</span>
+                <div>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    Ngày thực hiện:
+                  </span>
+                  <p className="text-gray-900 dark:text-gray-100">
+                    {new Date(selectedTreatment.date).toLocaleDateString(
+                      "vi-VN"
+                    )}
+                  </p>
                 </div>
-                <div className="mb-4">
-                  <span className="font-medium text-gray-600 dark:text-gray-300">Kết quả: </span>
-                  <span className="text-gray-700 dark:text-gray-200">{selectedTreatment.result || 'Chưa có'}</span>
+                <div>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    Trạng thái:
+                  </span>
+                  <span
+                    className={`inline-block px-3 py-1 rounded-full text-xs font-semibold mt-1
+                    ${
+                      selectedTreatment.status === "Complete"
+                        ? "bg-green-500 text-white"
+                        : selectedTreatment.status === "In Progress"
+                        ? "bg-yellow-400 text-white"
+                        : "bg-gray-300 text-gray-700"
+                    }`}
+                  >
+                    {selectedTreatment.status === "Complete"
+                      ? "Hoàn thành"
+                      : selectedTreatment.status === "In Progress"
+                      ? "Đang tiến hành"
+                      : "Chờ thực hiện"}
+                  </span>
                 </div>
-                {selectedTreatment.caution && (
-                  <div className="mb-4">
-                    <span className="font-medium text-gray-600 dark:text-gray-300">Lưu ý: </span>
-                    <span className="text-gray-700 dark:text-gray-200">{selectedTreatment.caution}</span>
-                  </div>
-                )}
-                {selectedTreatment.failReason && (
-                  <div className="mb-4">
-                    <span className="font-medium text-gray-600 dark:text-gray-300">Lý do không thành công: </span>
-                    <span className="text-gray-700 dark:text-gray-200">{selectedTreatment.failReason}</span>
-                    <br />
-                    <span className="font-medium text-gray-600 dark:text-gray-300">Thời gian hẹn lại: </span>
-                    <span className="text-gray-700 dark:text-gray-200">{selectedTreatment.retryDate}</span>
-                  </div>
-                )}
+                <div>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    ID kết quả:
+                  </span>
+                  <p className="text-gray-900 dark:text-gray-100">
+                    {selectedTreatment.treatmentResultId}
+                  </p>
+                </div>
               </div>
-              {/* Cột phải: hoạt động tiếp theo */}
-              <div className="flex-1 border-l border-gray-200 dark:border-gray-600 pl-8">
-                <div className="font-semibold text-gray-700 dark:text-gray-300 mb-4">Hoạt động kế tiếp</div>
-                <ul className="space-y-4">
-                  {selectedTreatment.nextActions && selectedTreatment.nextActions.length > 0 ? (
-                    selectedTreatment.nextActions.map((action, idx) => (
-                      <li key={idx} className="flex items-start">
-                        <span className={`w-3 h-3 mt-1 rounded-full mr-3 ${action.done ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-500'}`}></span>
-                        <div>
-                          <div className={`font-semibold ${action.done ? 'text-green-700 dark:text-green-400' : 'text-gray-700 dark:text-gray-300'}`}>{action.name}</div>
-                          <div className="text-gray-500 dark:text-gray-400 text-sm">{action.desc}</div>
+            </div>
+
+            {/* Kết quả xét nghiệm */}
+            <div className="bg-green-50 dark:bg-gray-700 p-6 rounded-xl">
+              <h3 className="text-lg font-semibold text-green-700 dark:text-green-300 mb-4">
+                Kết quả & Ghi chú
+              </h3>
+              <div className="space-y-3">
+                <div>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    Kết quả xét nghiệm:
+                  </span>
+                  <p className="text-green-600 dark:text-green-400 font-medium">
+                    {selectedTreatment.testResult}
+                  </p>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    Ghi chú:
+                  </span>
+                  <p className="text-gray-900 dark:text-gray-100">
+                    {selectedTreatment.note || "—"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Các loại xét nghiệm */}
+            {selectedTreatment.typeTest &&
+              selectedTreatment.typeTest.length > 0 && (
+                <div className="bg-blue-50 dark:bg-gray-700 p-6 rounded-xl">
+                  <h3 className="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-4">
+                    Các loại xét nghiệm
+                  </h3>
+                  <div className="space-y-3">
+                    {selectedTreatment.typeTest.map((test, index) => (
+                      <div
+                        key={index}
+                        className="border-l-4 border-blue-400 pl-4"
+                      >
+                        <div className="font-medium text-gray-900 dark:text-gray-100">
+                          {test.name}
                         </div>
-                      </li>
-                    ))
-                  ) : (
-                    <li className="text-gray-400 dark:text-gray-500">Không có hoạt động kế tiếp</li>
-                  )}
-                </ul>
-              </div>
-            </div>
-            <div className="flex justify-end mt-8">
-              <Button 
-                onClick={() => setModalVisible(false)} 
-                className="border rounded-lg px-6 py-2 bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-500 transition-all duration-300"
-              >
-                Đóng
-              </Button>
-            </div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                          {test.description}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
           </div>
         )}
       </Modal>

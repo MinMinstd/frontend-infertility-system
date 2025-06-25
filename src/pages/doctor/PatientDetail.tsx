@@ -570,7 +570,11 @@ export default function PatientDetailPage() {
               >
                 {isFormVisible && (
                   <Card
-                    title={<span style={{ color: "#ff69b4" }}>Add New Test Result</span>}
+                    title={
+                      <span style={{ color: "#ff69b4" }}>
+                        Add New Test Result
+                      </span>
+                    }
                     style={{
                       marginBottom: 16,
                       borderColor: "#ff69b4",
@@ -589,17 +593,20 @@ export default function PatientDetailPage() {
                       </Button>
                     }
                   >
-                    <Form
-                      form={form}
-                      layout="vertical"
-                      onFinish={handleSubmit}
-                    >
+                    <Form form={form} layout="vertical" onFinish={handleSubmit}>
                       <Row gutter={16}>
                         <Col span={8}>
                           <Form.Item
-                            label={<span style={{ color: "#ff69b4" }}>Date</span>}
+                            label={
+                              <span style={{ color: "#ff69b4" }}>Date</span>
+                            }
                             name="date"
-                            rules={[{ required: true, message: "Please select date!" }]}
+                            rules={[
+                              {
+                                required: true,
+                                message: "Please select date!",
+                              },
+                            ]}
                           >
                             <DatePicker
                               style={{ width: "100%" }}
@@ -609,18 +616,29 @@ export default function PatientDetailPage() {
                         </Col>
                         <Col span={8}>
                           <Form.Item
-                            label={<span style={{ color: "#ff69b4" }}>Result</span>}
+                            label={
+                              <span style={{ color: "#ff69b4" }}>Result</span>
+                            }
                             name="result"
-                            rules={[{ required: true, message: "Please enter result!" }]}
+                            rules={[
+                              {
+                                required: true,
+                                message: "Please enter result!",
+                              },
+                            ]}
                           >
                             <Input placeholder="Enter test result" />
                           </Form.Item>
                         </Col>
                         <Col span={8}>
                           <Form.Item
-                            label={<span style={{ color: "#ff69b4" }}>Note</span>}
+                            label={
+                              <span style={{ color: "#ff69b4" }}>Note</span>
+                            }
                             name="note"
-                            rules={[{ required: true, message: "Please enter note!" }]}
+                            rules={[
+                              { required: true, message: "Please enter note!" },
+                            ]}
                           >
                             <Input placeholder="Enter note" />
                           </Form.Item>
@@ -638,9 +656,7 @@ export default function PatientDetailPage() {
                           >
                             Add Result
                           </Button>
-                          <Button onClick={handleCancel}>
-                            Cancel
-                          </Button>
+                          <Button onClick={handleCancel}>Cancel</Button>
                         </Space>
                       </Form.Item>
                     </Form>
@@ -688,7 +704,6 @@ export default function PatientDetailPage() {
           },
         ]}
       />
-
     </div>
   );
 
