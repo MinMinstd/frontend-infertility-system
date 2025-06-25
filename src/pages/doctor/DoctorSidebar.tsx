@@ -72,7 +72,6 @@ export const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ children }) => {
 
   const handleUserMenuClick: MenuProps["onClick"] = ({ key }) => {
     if (key === "logout") {
-      // Handle logout
       navigate("/login");
     }
   };

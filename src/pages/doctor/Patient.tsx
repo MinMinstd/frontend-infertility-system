@@ -88,7 +88,9 @@ export default function PatientsPage() {
   const PatientContent = () => (
     <div>
       <div style={{ marginBottom: 32 }}>
-        <Title level={2} style={{ color: "#ff69b4" }}>Patient Management</Title>
+        <Title level={2} style={{ color: "#ff69b4" }}>
+          Patient Management
+        </Title>
         <Text style={{ color: "#666" }}>
           Manage and monitor all patients undergoing fertility treatments
         </Text>
@@ -103,8 +105,8 @@ export default function PatientsPage() {
           />
         </Col>
         <Col xs={24} md={6}>
-          <Select 
-            placeholder="Filter by status" 
+          <Select
+            placeholder="Filter by status"
             style={{ width: "100%", borderColor: "#ff69b4" }}
             options={[
               { value: "all", label: "All Patients" },
@@ -115,7 +117,7 @@ export default function PatientsPage() {
           />
         </Col>
         <Col xs={24} md={6}>
-          <Button 
+          <Button
             icon={<FilterOutlined />}
             style={{
               borderColor: "#ff69b4",
@@ -127,7 +129,7 @@ export default function PatientsPage() {
         </Col>
       </Row>
 
-      <Tabs 
+      <Tabs
         defaultActiveKey="all"
         items={[
           {
@@ -161,21 +163,26 @@ export default function PatientsPage() {
                               .join("")}
                           </Avatar>
                           <div>
-                            <Text strong style={{ fontSize: 16, color: "#ff69b4" }}>
+                            <Text
+                              strong
+                              style={{ fontSize: 16, color: "#ff69b4" }}
+                            >
                               {patient.name}
                             </Text>
                             <div>
                               <Text type="secondary">
-                                Age: {patient.age} • {patient.treatment} Treatment
+                                Age: {patient.age} • {patient.treatment}{" "}
+                                Treatment
                               </Text>
                             </div>
                             <Space style={{ marginTop: 8 }}>
+                              <Badge color="#ff69b4" text={patient.treatment} />
                               <Badge
-                                color="#ff69b4"
-                                text={patient.treatment}
-                              />
-                              <Badge
-                                color={patient.status === "active" ? "#ff1493" : "#ff69b4"}
+                                color={
+                                  patient.status === "active"
+                                    ? "#ff1493"
+                                    : "#ff69b4"
+                                }
                                 text={patient.status}
                               />
                             </Space>
@@ -187,10 +194,12 @@ export default function PatientsPage() {
                         <div style={{ textAlign: "center" }}>
                           <Text type="secondary">Current Stage</Text>
                           <div>
-                            <Text strong style={{ color: "#ff69b4" }}>{patient.stage}</Text>
+                            <Text strong style={{ color: "#ff69b4" }}>
+                              {patient.stage}
+                            </Text>
                           </div>
-                          <Progress 
-                            percent={patient.progress} 
+                          <Progress
+                            percent={patient.progress}
                             size="small"
                             strokeColor="#ff69b4"
                           />
@@ -208,7 +217,9 @@ export default function PatientsPage() {
                           <div>
                             <Text type="secondary">Next Appointment</Text>
                             <div>
-                              <Text style={{ color: "#ff1493" }}>{patient.nextAppointment}</Text>
+                              <Text style={{ color: "#ff1493" }}>
+                                {patient.nextAppointment}
+                              </Text>
                             </div>
                           </div>
                         </div>
@@ -249,112 +260,126 @@ export default function PatientsPage() {
             label: `IVF (${treatmentCounts.ivf})`,
             children: (
               <div>
-                {patients.filter(p => p.treatment === "IVF").map((patient) => (
-                  <Card
-                    key={patient.id}
-                    style={{
-                      marginBottom: 16,
-                      borderColor: "#ffb6c1",
-                      boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
-                      backgroundColor: "#fff5f7",
-                    }}
-                  >
-                    <Row align="middle" justify="space-between">
-                      <Col xs={24} md={8}>
-                        <Space>
-                          <Avatar
-                            size={48}
-                            style={{
-                              backgroundColor: "#ff69b4",
-                              color: "white",
-                            }}
-                          >
-                            {patient.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </Avatar>
-                          <div>
-                            <Text strong style={{ fontSize: 16, color: "#ff69b4" }}>
-                              {patient.name}
-                            </Text>
+                {patients
+                  .filter((p) => p.treatment === "IVF")
+                  .map((patient) => (
+                    <Card
+                      key={patient.id}
+                      style={{
+                        marginBottom: 16,
+                        borderColor: "#ffb6c1",
+                        boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
+                        backgroundColor: "#fff5f7",
+                      }}
+                    >
+                      <Row align="middle" justify="space-between">
+                        <Col xs={24} md={8}>
+                          <Space>
+                            <Avatar
+                              size={48}
+                              style={{
+                                backgroundColor: "#ff69b4",
+                                color: "white",
+                              }}
+                            >
+                              {patient.name
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")}
+                            </Avatar>
                             <div>
-                              <Text type="secondary">
-                                Age: {patient.age} • {patient.treatment} Treatment
+                              <Text
+                                strong
+                                style={{ fontSize: 16, color: "#ff69b4" }}
+                              >
+                                {patient.name}
+                              </Text>
+                              <div>
+                                <Text type="secondary">
+                                  Age: {patient.age} • {patient.treatment}{" "}
+                                  Treatment
+                                </Text>
+                              </div>
+                              <Space style={{ marginTop: 8 }}>
+                                <Badge
+                                  color="#ff69b4"
+                                  text={patient.treatment}
+                                />
+                                <Badge
+                                  color={
+                                    patient.status === "active"
+                                      ? "#ff1493"
+                                      : "#ff69b4"
+                                  }
+                                  text={patient.status}
+                                />
+                              </Space>
+                            </div>
+                          </Space>
+                        </Col>
+
+                        <Col xs={24} md={6}>
+                          <div style={{ textAlign: "center" }}>
+                            <Text type="secondary">Current Stage</Text>
+                            <div>
+                              <Text strong style={{ color: "#ff69b4" }}>
+                                {patient.stage}
                               </Text>
                             </div>
-                            <Space style={{ marginTop: 8 }}>
-                              <Badge
-                                color="#ff69b4"
-                                text={patient.treatment}
-                              />
-                              <Badge
-                                color={patient.status === "active" ? "#ff1493" : "#ff69b4"}
-                                text={patient.status}
-                              />
-                            </Space>
+                            <Progress
+                              percent={patient.progress}
+                              size="small"
+                              strokeColor="#ff69b4"
+                            />
                           </div>
-                        </Space>
-                      </Col>
+                        </Col>
 
-                      <Col xs={24} md={6}>
-                        <div style={{ textAlign: "center" }}>
-                          <Text type="secondary">Current Stage</Text>
-                          <div>
-                            <Text strong style={{ color: "#ff69b4" }}>{patient.stage}</Text>
-                          </div>
-                          <Progress 
-                            percent={patient.progress} 
-                            size="small"
-                            strokeColor="#ff69b4"
-                          />
-                        </div>
-                      </Col>
-
-                      <Col xs={24} md={6}>
-                        <div style={{ textAlign: "center" }}>
-                          <div style={{ marginBottom: 8 }}>
-                            <Text type="secondary">Last Visit</Text>
+                        <Col xs={24} md={6}>
+                          <div style={{ textAlign: "center" }}>
+                            <div style={{ marginBottom: 8 }}>
+                              <Text type="secondary">Last Visit</Text>
+                              <div>
+                                <Text>{patient.lastVisit}</Text>
+                              </div>
+                            </div>
                             <div>
-                              <Text>{patient.lastVisit}</Text>
+                              <Text type="secondary">Next Appointment</Text>
+                              <div>
+                                <Text style={{ color: "#ff1493" }}>
+                                  {patient.nextAppointment}
+                                </Text>
+                              </div>
                             </div>
                           </div>
-                          <div>
-                            <Text type="secondary">Next Appointment</Text>
-                            <div>
-                              <Text style={{ color: "#ff1493" }}>{patient.nextAppointment}</Text>
-                            </div>
-                          </div>
-                        </div>
-                      </Col>
+                        </Col>
 
-                      <Col xs={24} md={4}>
-                        <Space direction="vertical">
-                          <Button
-                            type="primary"
-                            icon={<EyeOutlined />}
-                            onClick={() => detailLink(patient.id)}
-                            style={{
-                              backgroundColor: "#ff69b4",
-                              borderColor: "#ff69b4",
-                            }}
-                          >
-                            View Details
-                          </Button>
-                          <Button
-                            icon={<EditOutlined />}
-                            style={{
-                              borderColor: "#ff69b4",
-                              color: "#ff69b4",
-                            }}
-                          >
-                            Edit
-                          </Button>
-                        </Space>
-                      </Col>
-                    </Row>
-                  </Card>
-                ))}
+                        <Col xs={24} md={4}>
+                          <Space direction="vertical">
+                            <Button
+                              type="primary"
+                              icon={<EyeOutlined />}
+                              onClick={() => detailLink(patient.id)}
+                              style={{
+                                backgroundColor: "#ff69b4",
+                                borderColor: "#ff69b4",
+                              }}
+                            >
+                              View Details
+                            </Button>
+                            <Button
+                              icon={<EditOutlined />}
+                              style={{
+                                borderColor: "#ff69b4",
+                                color: "#ff69b4",
+                              }}
+                            >
+                              Edit
+                            </Button>
+                          </Space>
+                        </Col>
+                      </Row>
+                    </Card>
+                  ))}
               </div>
             ),
           },
@@ -363,112 +388,126 @@ export default function PatientsPage() {
             label: `IUI (${treatmentCounts.iui})`,
             children: (
               <div>
-                {patients.filter(p => p.treatment === "IUI").map((patient) => (
-                  <Card
-                    key={patient.id}
-                    style={{
-                      marginBottom: 16,
-                      borderColor: "#ffb6c1",
-                      boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
-                      backgroundColor: "#fff5f7",
-                    }}
-                  >
-                    <Row align="middle" justify="space-between">
-                      <Col xs={24} md={8}>
-                        <Space>
-                          <Avatar
-                            size={48}
-                            style={{
-                              backgroundColor: "#ff69b4",
-                              color: "white",
-                            }}
-                          >
-                            {patient.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </Avatar>
-                          <div>
-                            <Text strong style={{ fontSize: 16, color: "#ff69b4" }}>
-                              {patient.name}
-                            </Text>
+                {patients
+                  .filter((p) => p.treatment === "IUI")
+                  .map((patient) => (
+                    <Card
+                      key={patient.id}
+                      style={{
+                        marginBottom: 16,
+                        borderColor: "#ffb6c1",
+                        boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
+                        backgroundColor: "#fff5f7",
+                      }}
+                    >
+                      <Row align="middle" justify="space-between">
+                        <Col xs={24} md={8}>
+                          <Space>
+                            <Avatar
+                              size={48}
+                              style={{
+                                backgroundColor: "#ff69b4",
+                                color: "white",
+                              }}
+                            >
+                              {patient.name
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")}
+                            </Avatar>
                             <div>
-                              <Text type="secondary">
-                                Age: {patient.age} • {patient.treatment} Treatment
+                              <Text
+                                strong
+                                style={{ fontSize: 16, color: "#ff69b4" }}
+                              >
+                                {patient.name}
+                              </Text>
+                              <div>
+                                <Text type="secondary">
+                                  Age: {patient.age} • {patient.treatment}{" "}
+                                  Treatment
+                                </Text>
+                              </div>
+                              <Space style={{ marginTop: 8 }}>
+                                <Badge
+                                  color="#ff69b4"
+                                  text={patient.treatment}
+                                />
+                                <Badge
+                                  color={
+                                    patient.status === "active"
+                                      ? "#ff1493"
+                                      : "#ff69b4"
+                                  }
+                                  text={patient.status}
+                                />
+                              </Space>
+                            </div>
+                          </Space>
+                        </Col>
+
+                        <Col xs={24} md={6}>
+                          <div style={{ textAlign: "center" }}>
+                            <Text type="secondary">Current Stage</Text>
+                            <div>
+                              <Text strong style={{ color: "#ff69b4" }}>
+                                {patient.stage}
                               </Text>
                             </div>
-                            <Space style={{ marginTop: 8 }}>
-                              <Badge
-                                color="#ff69b4"
-                                text={patient.treatment}
-                              />
-                              <Badge
-                                color={patient.status === "active" ? "#ff1493" : "#ff69b4"}
-                                text={patient.status}
-                              />
-                            </Space>
+                            <Progress
+                              percent={patient.progress}
+                              size="small"
+                              strokeColor="#ff69b4"
+                            />
                           </div>
-                        </Space>
-                      </Col>
+                        </Col>
 
-                      <Col xs={24} md={6}>
-                        <div style={{ textAlign: "center" }}>
-                          <Text type="secondary">Current Stage</Text>
-                          <div>
-                            <Text strong style={{ color: "#ff69b4" }}>{patient.stage}</Text>
-                          </div>
-                          <Progress 
-                            percent={patient.progress} 
-                            size="small"
-                            strokeColor="#ff69b4"
-                          />
-                        </div>
-                      </Col>
-
-                      <Col xs={24} md={6}>
-                        <div style={{ textAlign: "center" }}>
-                          <div style={{ marginBottom: 8 }}>
-                            <Text type="secondary">Last Visit</Text>
+                        <Col xs={24} md={6}>
+                          <div style={{ textAlign: "center" }}>
+                            <div style={{ marginBottom: 8 }}>
+                              <Text type="secondary">Last Visit</Text>
+                              <div>
+                                <Text>{patient.lastVisit}</Text>
+                              </div>
+                            </div>
                             <div>
-                              <Text>{patient.lastVisit}</Text>
+                              <Text type="secondary">Next Appointment</Text>
+                              <div>
+                                <Text style={{ color: "#ff1493" }}>
+                                  {patient.nextAppointment}
+                                </Text>
+                              </div>
                             </div>
                           </div>
-                          <div>
-                            <Text type="secondary">Next Appointment</Text>
-                            <div>
-                              <Text style={{ color: "#ff1493" }}>{patient.nextAppointment}</Text>
-                            </div>
-                          </div>
-                        </div>
-                      </Col>
+                        </Col>
 
-                      <Col xs={24} md={4}>
-                        <Space direction="vertical">
-                          <Button
-                            type="primary"
-                            icon={<EyeOutlined />}
-                            onClick={() => detailLink(patient.id)}
-                            style={{
-                              backgroundColor: "#ff69b4",
-                              borderColor: "#ff69b4",
-                            }}
-                          >
-                            View Details
-                          </Button>
-                          <Button
-                            icon={<EditOutlined />}
-                            style={{
-                              borderColor: "#ff69b4",
-                              color: "#ff69b4",
-                            }}
-                          >
-                            Edit
-                          </Button>
-                        </Space>
-                      </Col>
-                    </Row>
-                  </Card>
-                ))}
+                        <Col xs={24} md={4}>
+                          <Space direction="vertical">
+                            <Button
+                              type="primary"
+                              icon={<EyeOutlined />}
+                              onClick={() => detailLink(patient.id)}
+                              style={{
+                                backgroundColor: "#ff69b4",
+                                borderColor: "#ff69b4",
+                              }}
+                            >
+                              View Details
+                            </Button>
+                            <Button
+                              icon={<EditOutlined />}
+                              style={{
+                                borderColor: "#ff69b4",
+                                color: "#ff69b4",
+                              }}
+                            >
+                              Edit
+                            </Button>
+                          </Space>
+                        </Col>
+                      </Row>
+                    </Card>
+                  ))}
               </div>
             ),
           },

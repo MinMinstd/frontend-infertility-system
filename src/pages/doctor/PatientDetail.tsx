@@ -1,34 +1,39 @@
-import {
-  Card,
-  Typography,
-  Row,
-  Col,
-  Input,
-  Button,
-  Tabs,
-  Tag,
-  Progress,
-  Space,
-  Steps,
-  Form,
-  Timeline,
-  Avatar,
-  Statistic,
-} from "antd";
-import {
-  EditOutlined,
-  SaveOutlined,
-  MedicineBoxOutlined,
-  ExperimentOutlined,
-  FileTextOutlined,
-  PhoneOutlined,
-  MailOutlined,
-  HeartOutlined,
-} from "@ant-design/icons";
-import { DoctorSidebar } from "./DoctorSidebar";
 import { useState } from "react";
+import { Typography, Row, Col, Button, Tabs, Space, Form } from "antd";
+import { EditOutlined, SaveOutlined } from "@ant-design/icons";
+
+import { TreatmentResultModal } from "./components/modals/TreatmentResultModal";
+import { MedicalDetailModal } from "./components/modals/MedicalDetailModal";
+import { TestResultModal } from "./components/modals/TestResultModal";
+import { PatientOverviewCards } from "./PatientOverviewCards";
+import { PatientInformation } from "./PatientInformation";
+import { TreatmentProgress } from "./TreatmentProgress";
+import { DoctorSidebar } from "./DoctorSidebar";
 import dayjs from "dayjs";
-import { DatePicker } from "antd";
+import { MedicalManagement } from "./MedicalManagement";
+
+interface TreatmentResultFormValues {
+  date: dayjs.Dayjs;
+  description: string;
+  result: string;
+}
+
+interface MedicalDetailFormValues {
+  date: dayjs.Dayjs;
+  road_id: string;
+  treatment_result_id: string;
+  type: string;
+  test_result: string;
+  note: string;
+}
+
+interface TestResultFormValues {
+  treatment_result_id: string;
+  name: string;
+  description: string;
+  result_id: string;
+  note: string;
+}
 
 const { Title, Text } = Typography;
 
@@ -64,102 +69,156 @@ export default function PatientDetailPage() {
     { name: "Pregnancy Test", completed: false, date: "2024-02-12" },
   ];
 
-  const injectionSchedule = [
+  const treatmentRoadmap = [
     {
-      medication: "Gonal-F",
-      dose: "225 IU",
-      time: "8:00 AM",
-      status: "completed",
-      date: "2024-01-15",
+      Road_ID: "R001",
+      Date: "2024-01-01",
+      Stage: "Giai đoạn chuẩn bị",
+      Service_Name: "Khám sức khỏe tổng quát",
+      Description: "Khám lâm sàng và đánh giá tình trạng sức khỏe",
+      Duration_day: 1,
+      Price: 500000,
+      Status: "Đã hoàn thành",
     },
     {
-      medication: "Cetrotide",
-      dose: "0.25mg",
-      time: "8:00 PM",
-      status: "completed",
-      date: "2024-01-15",
+      Road_ID: "R002",
+      Date: "2024-01-05",
+      Stage: "Giai đoạn chuẩn bị",
+      Service_Name: "Xét nghiệm máu",
+      Description: "Xét nghiệm hormone, chức năng gan thận",
+      Duration_day: 1,
+      Price: 800000,
+      Status: "Đã hoàn thành",
     },
     {
-      medication: "Gonal-F",
-      dose: "225 IU",
-      time: "8:00 AM",
-      status: "pending",
-      date: "2024-01-16",
+      Road_ID: "R003",
+      Date: "2024-01-10",
+      Stage: "Giai đoạn điều trị",
+      Service_Name: "Kích thích buồng trứng",
+      Description: "Sử dụng thuốc kích thích phóng noãn",
+      Duration_day: 10,
+      Price: 2000000,
+      Status: "Đang tiến hành",
     },
     {
-      medication: "Cetrotide",
-      dose: "0.25mg",
-      time: "8:00 PM",
-      status: "pending",
-      date: "2024-01-16",
-    },
-  ];
-
-  const testResults = [
-    {
-      date: "2024-01-15",
-      result: "1,250 pg/mL",
-      note: "Estradiol (E2) - High level",
-    },
-    {
-      date: "2024-01-15",
-      result: "5.2 mIU/mL",
-      note: "LH - Normal range",
-    },
-    {
-      date: "2024-01-15",
-      result: "0.8 ng/mL",
-      note: "Progesterone - Normal range",
-    },
-    {
-      date: "2024-01-14",
-      result: "12",
-      note: "Follicle Count - Normal range",
+      Road_ID: "R004",
+      Date: "2024-01-20",
+      Stage: "Giai đoạn điều trị",
+      Service_Name: "Chọc hút trứng",
+      Description: "Thu thập trứng từ buồng trứng",
+      Duration_day: 1,
+      Price: 1500000,
+      Status: "Đang chờ",
     },
   ];
 
-  const [isFormVisible, setIsFormVisible] = useState(false);
+  const [treatmentResults, setTreatmentResults] = useState([
+    {
+      Treatment_result_ID: "TR001",
+      Road_ID: "R001",
+      Date: "2024-01-01",
+      Description: "Khám lâm sàng hoàn tất, không phát hiện bất thường",
+      Result: "Đáp ứng tốt",
+    },
+    {
+      Treatment_result_ID: "TR002",
+      Road_ID: "R002",
+      Date: "2024-01-05",
+      Description: "Kết quả xét nghiệm trong giới hạn bình thường",
+      Result: "Bình thường",
+    },
+  ]);
+
+  const [medicalRecordDetails, setMedicalRecordDetails] = useState([
+    {
+      Detail_ID: "MD001",
+      Record_ID: "MR001",
+      Treatment_result_ID: "TR001",
+      Date: "2024-01-01",
+      Road_ID: "R001",
+      Type: "Theo dõi",
+      Test_result: "Huyết áp: 120/80, Nhịp tim: 72",
+      Note: "Bệnh nhân tình trạng ổn định",
+    },
+    {
+      Detail_ID: "MD002",
+      Record_ID: "MR001",
+      Treatment_result_ID: "TR002",
+      Date: "2024-01-05",
+      Road_ID: "R002",
+      Type: "Xét nghiệm",
+      Test_result: "FSH: 8.2, LH: 5.1, E2: 45",
+      Note: "Các chỉ số hormone trong giới hạn bình thường",
+    },
+  ]);
+
+  const [testResults, setTestResults] = useState([
+    {
+      Test_ID: "T001",
+      Treatment_result_ID: "TR002",
+      Name: "Xét nghiệm hormone",
+      Description: "Kiểm tra mức độ hormone sinh sản",
+      Result_ID: "MD002",
+      Note: "Kết quả tốt, phù hợp để bắt đầu điều trị",
+    },
+  ]);
+
+  const [activeTab, setActiveTab] = useState("overview");
+  const [isResultModalVisible, setIsResultModalVisible] = useState(false);
+  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
+  const [isTestModalVisible, setIsTestModalVisible] = useState(false);
+  const [selectedRoadId, setSelectedRoadId] = useState("");
+
   const [form] = Form.useForm();
-  const [testResultsList, setTestResultsList] = useState(testResults);
+  const [detailForm] = Form.useForm();
+  const [testForm] = Form.useForm();
 
-  const currentStep = treatmentStages.findIndex((stage) => stage.current);
-
-  const showForm = () => {
-    setIsFormVisible(true);
+  const showResultModal = (roadId: string) => {
+    setSelectedRoadId(roadId);
+    setIsResultModalVisible(true);
   };
 
-  const handleCancel = () => {
-    setIsFormVisible(false);
+  const handleResultSubmit = (values: TreatmentResultFormValues) => {
+    const newResult = {
+      Treatment_result_ID: `TR${Date.now()}`,
+      Road_ID: selectedRoadId,
+      Date: values.date.format("YYYY-MM-DD"),
+      Description: values.description,
+      Result: values.result,
+    };
+    setTreatmentResults([...treatmentResults, newResult]);
+    setIsResultModalVisible(false);
     form.resetFields();
   };
 
-  interface TestResultFormValues {
-    date: dayjs.Dayjs; // Changed from Date to moment.Moment to match DatePicker value type
+  const handleDetailSubmit = (values: MedicalDetailFormValues) => {
+    const newDetail = {
+      Detail_ID: `MD${Date.now()}`,
+      Record_ID: "MR001",
+      Treatment_result_ID: values.treatment_result_id,
+      Date: values.date.format("YYYY-MM-DD"),
+      Road_ID: values.road_id,
+      Type: values.type,
+      Test_result: values.test_result,
+      Note: values.note,
+    };
+    setMedicalRecordDetails([...medicalRecordDetails, newDetail]);
+    setIsDetailModalVisible(false);
+    detailForm.resetFields();
+  };
 
-    result: string;
-    note: string;
-  }
-
-  interface TestResult {
-    date: string;
-    result: string;
-    note: string;
-  }
-
-  const handleSubmit = (values: TestResultFormValues) => {
-    try {
-      const newTestResult: TestResult = {
-        date: values.date.format("YYYY-MM-DD"),
-        result: values.result,
-        note: values.note,
-      };
-      setTestResultsList([...testResultsList, newTestResult]);
-      setIsFormVisible(false);
-      form.resetFields();
-    } catch (error) {
-      console.error("Error submitting test result:", error);
-      // Handle error appropriately
-    }
+  const handleTestSubmit = (values: TestResultFormValues) => {
+    const newTest = {
+      Test_ID: `T${Date.now()}`,
+      Treatment_result_ID: values.treatment_result_id,
+      Name: values.name,
+      Description: values.description,
+      Result_ID: values.result_id,
+      Note: values.note,
+    };
+    setTestResults([...testResults, newTest]);
+    setIsTestModalVisible(false);
+    testForm.resetFields();
   };
 
   const PatientDetailContent = () => (
@@ -211,75 +270,11 @@ export default function PatientDetailPage() {
       </div>
 
       {/* Patient Overview Cards */}
-      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-        <Col xs={24} sm={6}>
-          <Card
-            style={{
-              borderColor: "#ff69b4",
-              boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
-            }}
-          >
-            <Statistic
-              title={
-                <span style={{ color: "#ff69b4" }}>Treatment Progress</span>
-              }
-              value={patient.progress}
-              suffix="%"
-              prefix={<ExperimentOutlined style={{ color: "#ff69b4" }} />}
-              valueStyle={{ color: "#ff69b4" }}
-            />
-            <Progress percent={patient.progress} strokeColor="#ff69b4" />
-          </Card>
-        </Col>
-        <Col xs={24} sm={6}>
-          <Card
-            style={{
-              borderColor: "#ff1493",
-              boxShadow: "0 2px 8px rgba(255, 20, 147, 0.1)",
-            }}
-          >
-            <Statistic
-              title={<span style={{ color: "#ff1493" }}>Current Stage</span>}
-              value={patient.stage}
-              prefix={<FileTextOutlined style={{ color: "#ff1493" }} />}
-              valueStyle={{ color: "#ff1493", fontSize: "14px" }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={6}>
-          <Card
-            style={{
-              borderColor: "#ff69b4",
-              boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
-            }}
-          >
-            <Statistic
-              title={<span style={{ color: "#ff69b4" }}>Treatment Type</span>}
-              value={patient.treatment}
-              prefix={<MedicineBoxOutlined style={{ color: "#ff69b4" }} />}
-              valueStyle={{ color: "#ff69b4" }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={6}>
-          <Card
-            style={{
-              borderColor: "#ff1493",
-              boxShadow: "0 2px 8px rgba(255, 20, 147, 0.1)",
-            }}
-          >
-            <Statistic
-              title={<span style={{ color: "#ff1493" }}>Status</span>}
-              value={patient.status}
-              prefix={<HeartOutlined style={{ color: "#ff1493" }} />}
-              valueStyle={{ color: "#ff1493" }}
-            />
-          </Card>
-        </Col>
-      </Row>
+      <PatientOverviewCards patient={patient} />
 
       <Tabs
-        defaultActiveKey="overview"
+        activeKey={activeTab}
+        onChange={(key) => setActiveTab(key)}
         items={[
           {
             key: "overview",
@@ -287,419 +282,57 @@ export default function PatientDetailPage() {
             children: (
               <Row gutter={[24, 24]}>
                 <Col xs={24} lg={12}>
-                  <Card
-                    title={
-                      <span style={{ color: "#ff69b4" }}>
-                        Patient Information
-                      </span>
-                    }
-                    style={{
-                      borderColor: "#ff69b4",
-                      boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
-                    }}
-                  >
-                    <Space direction="vertical" style={{ width: "100%" }}>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          marginBottom: 16,
-                        }}
-                      >
-                        <Avatar
-                          size={64}
-                          style={{
-                            backgroundColor: "#ff69b4",
-                            color: "white",
-                            marginRight: 16,
-                          }}
-                        >
-                          {patient.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </Avatar>
-                        <div>
-                          <Title
-                            level={3}
-                            style={{ margin: 0, color: "#ff69b4" }}
-                          >
-                            {patient.name}
-                          </Title>
-                          <Text type="secondary">Patient ID: {patient.id}</Text>
-                        </div>
-                      </div>
-
-                      <Form layout="vertical">
-                        <Row gutter={16}>
-                          <Col span={12}>
-                            <Form.Item
-                              label={
-                                <span style={{ color: "#ff69b4" }}>
-                                  Full Name
-                                </span>
-                              }
-                            >
-                              <Input
-                                value={patient.name}
-                                readOnly
-                                style={{
-                                  backgroundColor: "#fff5f7",
-                                  borderColor: "#ffb6c1",
-                                }}
-                              />
-                            </Form.Item>
-                          </Col>
-                          <Col span={12}>
-                            <Form.Item
-                              label={
-                                <span style={{ color: "#ff69b4" }}>Age</span>
-                              }
-                            >
-                              <Input
-                                value={patient.age}
-                                readOnly
-                                style={{
-                                  backgroundColor: "#fff5f7",
-                                  borderColor: "#ffb6c1",
-                                }}
-                              />
-                            </Form.Item>
-                          </Col>
-                          <Col span={12}>
-                            <Form.Item
-                              label={
-                                <span style={{ color: "#ff69b4" }}>Phone</span>
-                              }
-                            >
-                              <Input
-                                value={patient.phone}
-                                prefix={
-                                  <PhoneOutlined style={{ color: "#ff69b4" }} />
-                                }
-                                readOnly
-                                style={{
-                                  backgroundColor: "#fff5f7",
-                                  borderColor: "#ffb6c1",
-                                }}
-                              />
-                            </Form.Item>
-                          </Col>
-                          <Col span={12}>
-                            <Form.Item
-                              label={
-                                <span style={{ color: "#ff69b4" }}>Email</span>
-                              }
-                            >
-                              <Input
-                                value={patient.email}
-                                prefix={
-                                  <MailOutlined style={{ color: "#ff69b4" }} />
-                                }
-                                readOnly
-                                style={{
-                                  backgroundColor: "#fff5f7",
-                                  borderColor: "#ffb6c1",
-                                }}
-                              />
-                            </Form.Item>
-                          </Col>
-                          <Col span={12}>
-                            <Form.Item
-                              label={
-                                <span style={{ color: "#ff69b4" }}>
-                                  Partner
-                                </span>
-                              }
-                            >
-                              <Input
-                                value={patient.partner}
-                                readOnly
-                                style={{
-                                  backgroundColor: "#fff5f7",
-                                  borderColor: "#ffb6c1",
-                                }}
-                              />
-                            </Form.Item>
-                          </Col>
-                          <Col span={12}>
-                            <Form.Item
-                              label={
-                                <span style={{ color: "#ff69b4" }}>
-                                  Start Date
-                                </span>
-                              }
-                            >
-                              <Input
-                                value={patient.startDate}
-                                readOnly
-                                style={{
-                                  backgroundColor: "#fff5f7",
-                                  borderColor: "#ffb6c1",
-                                }}
-                              />
-                            </Form.Item>
-                          </Col>
-                        </Row>
-                      </Form>
-                    </Space>
-                  </Card>
+                  <PatientInformation patient={patient} />
                 </Col>
-
                 <Col xs={24} lg={12}>
-                  <Card
-                    title={
-                      <span style={{ color: "#ff69b4" }}>
-                        Treatment Progress
-                      </span>
-                    }
-                    style={{
-                      borderColor: "#ff69b4",
-                      boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
-                    }}
-                  >
-                    <Steps
-                      direction="vertical"
-                      current={currentStep}
-                      items={treatmentStages.map((stage) => ({
-                        title: stage.name,
-                        description: stage.date,
-                        status: stage.completed
-                          ? "finish"
-                          : stage.current
-                          ? "process"
-                          : "wait",
-                      }))}
-                      progressDot
-                      style={{ color: "#ff69b4" }}
-                    />
-                  </Card>
+                  <TreatmentProgress treatmentStages={treatmentStages} />
                 </Col>
               </Row>
             ),
           },
           {
             key: "medications",
-            label: "Medications",
+            label: "Medical Management",
             children: (
-              <Card
-                title={
-                  <span style={{ color: "#ff69b4" }}>Injection Schedule</span>
-                }
-                style={{
-                  borderColor: "#ff69b4",
-                  boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
-                }}
-              >
-                <Timeline
-                  items={injectionSchedule.map((injection) => ({
-                    color:
-                      injection.status === "completed" ? "#ff1493" : "#ff69b4",
-                    children: (
-                      <div style={{ padding: "8px 0" }}>
-                        <Space direction="vertical" size="small">
-                          <div>
-                            <Text strong style={{ color: "#ff69b4" }}>
-                              {injection.medication}
-                            </Text>
-                            <Tag
-                              color={
-                                injection.status === "completed"
-                                  ? "#ff1493"
-                                  : "#ffb6c1"
-                              }
-                              style={{ marginLeft: 8 }}
-                            >
-                              {injection.status}
-                            </Tag>
-                          </div>
-                          <Text type="secondary">
-                            Time: {injection.time} | Date: {injection.date}
-                          </Text>
-                        </Space>
-                      </div>
-                    ),
-                  }))}
+              <>
+                <MedicalManagement
+                  treatmentRoadmap={treatmentRoadmap}
+                  treatmentResults={treatmentResults}
+                  medicalRecordDetails={medicalRecordDetails}
+                  testResults={testResults}
+                  onUpdateResult={showResultModal}
+                  onAddResult={() => setIsResultModalVisible(true)}
+                  onAddDetail={() => setIsDetailModalVisible(true)}
+                  onAddTest={() => setIsTestModalVisible(true)}
                 />
-              </Card>
-            ),
-          },
-          {
-            key: "test_results",
-            label: "Test Results",
-            children: (
-              <Card
-                title={
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <span style={{ color: "#ff69b4" }}>Laboratory Results</span>
-                    <Space>
-                      <Button
-                        size="small"
-                        icon={<EditOutlined />}
-                        onClick={showForm}
-                        style={{
-                          borderColor: "#ff69b4",
-                          color: "#ff69b4",
-                        }}
-                      >
-                        Add Test Result
-                      </Button>
-                      <Button
-                        size="small"
-                        icon={<EditOutlined />}
-                        style={{
-                          borderColor: "#ff1493",
-                          color: "#ff1493",
-                        }}
-                      >
-                        Edit All
-                      </Button>
-                    </Space>
-                  </div>
-                }
-                style={{
-                  borderColor: "#ff69b4",
-                  boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
-                }}
-              >
-                {isFormVisible && (
-                  <Card
-                    title={
-                      <span style={{ color: "#ff69b4" }}>
-                        Add New Test Result
-                      </span>
-                    }
-                    style={{
-                      marginBottom: 16,
-                      borderColor: "#ff69b4",
-                      backgroundColor: "#fff5f7",
-                    }}
-                    extra={
-                      <Button
-                        size="small"
-                        onClick={handleCancel}
-                        style={{
-                          borderColor: "#ff69b4",
-                          color: "#ff69b4",
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                    }
-                  >
-                    <Form form={form} layout="vertical" onFinish={handleSubmit}>
-                      <Row gutter={16}>
-                        <Col span={8}>
-                          <Form.Item
-                            label={
-                              <span style={{ color: "#ff69b4" }}>Date</span>
-                            }
-                            name="date"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please select date!",
-                              },
-                            ]}
-                          >
-                            <DatePicker
-                              style={{ width: "100%" }}
-                              format="YYYY-MM-DD"
-                            />
-                          </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                          <Form.Item
-                            label={
-                              <span style={{ color: "#ff69b4" }}>Result</span>
-                            }
-                            name="result"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please enter result!",
-                              },
-                            ]}
-                          >
-                            <Input placeholder="Enter test result" />
-                          </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                          <Form.Item
-                            label={
-                              <span style={{ color: "#ff69b4" }}>Note</span>
-                            }
-                            name="note"
-                            rules={[
-                              { required: true, message: "Please enter note!" },
-                            ]}
-                          >
-                            <Input placeholder="Enter note" />
-                          </Form.Item>
-                        </Col>
-                      </Row>
-                      <Form.Item>
-                        <Space>
-                          <Button
-                            type="primary"
-                            htmlType="submit"
-                            style={{
-                              backgroundColor: "#ff69b4",
-                              borderColor: "#ff69b4",
-                            }}
-                          >
-                            Add Result
-                          </Button>
-                          <Button onClick={handleCancel}>Cancel</Button>
-                        </Space>
-                      </Form.Item>
-                    </Form>
-                  </Card>
-                )}
-                <Row gutter={[16, 16]}>
-                  {testResultsList.map((test, index) => (
-                    <Col xs={24} sm={12} lg={8} key={index}>
-                      <Card
-                        size="small"
-                        style={{
-                          borderColor: "#ffb6c1",
-                          backgroundColor: "#fff5f7",
-                        }}
-                        extra={
-                          <Button
-                            size="small"
-                            type="text"
-                            icon={<EditOutlined />}
-                            style={{ color: "#ff69b4" }}
-                          />
-                        }
-                      >
-                        <Space direction="vertical" style={{ width: "100%" }}>
-                          <div>
-                            <Text strong style={{ color: "#ff69b4" }}>
-                              Date: {test.date}
-                            </Text>
-                          </div>
-                          <div>
-                            <Text style={{ color: "#ff1493" }}>
-                              Result: {test.result}
-                            </Text>
-                          </div>
-                          <div>
-                            <Text type="secondary">Note: {test.note}</Text>
-                          </div>
-                        </Space>
-                      </Card>
-                    </Col>
-                  ))}
-                </Row>
-              </Card>
+
+                {/* Modals */}
+                <TreatmentResultModal
+                  visible={isResultModalVisible}
+                  onCancel={() => setIsResultModalVisible(false)}
+                  onSubmit={handleResultSubmit}
+                  treatmentRoadmap={treatmentRoadmap}
+                  form={form}
+                />
+
+                <MedicalDetailModal
+                  visible={isDetailModalVisible}
+                  onCancel={() => setIsDetailModalVisible(false)}
+                  onSubmit={handleDetailSubmit}
+                  treatmentRoadmap={treatmentRoadmap}
+                  treatmentResults={treatmentResults}
+                  form={detailForm}
+                />
+
+                <TestResultModal
+                  visible={isTestModalVisible}
+                  onCancel={() => setIsTestModalVisible(false)}
+                  onSubmit={handleTestSubmit}
+                  treatmentResults={treatmentResults}
+                  medicalRecordDetails={medicalRecordDetails}
+                  form={testForm}
+                />
+              </>
             ),
           },
         ]}
