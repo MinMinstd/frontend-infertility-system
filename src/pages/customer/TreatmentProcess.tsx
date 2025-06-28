@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Modal, Button } from "antd";
+import { useLocation, useNavigate } from "react-router-dom";
 
 // Định nghĩa interface cho loại xét nghiệm
 interface TypeTest {
@@ -19,92 +20,92 @@ interface Treatment {
 }
 
 // Dữ liệu ban đầu
-const initialTreatments: Treatment[] = [
-  {
-    date: "2025-06-03",
-    testResult: "Bình thường",
-    note: "Tư vấn khởi đầu IVF",
-    typeName: "Consultation",
-    status: "Complete",
-    treatmentResultId: 1,
-    typeTest: [
-      {
-        name: "Xét nghiệm máu",
-        description: "Kiểm tra nội tiết",
-      },
-    ],
-  },
-  {
-    date: "2025-06-06",
-    testResult: "15 trứng được lấy",
-    note: "Không biến chứng",
-    typeName: "Treatment",
-    status: "Complete",
-    treatmentResultId: 2,
-    typeTest: [
-      {
-        name: "Siêu âm",
-        description: "Theo dõi nang trứng",
-      },
-    ],
-  },
-  {
-    date: "2025-06-09",
-    testResult: "Tinh trùng đạt chuẩn",
-    note: "Sẵn sàng tạo phôi",
-    typeName: "Treatment",
-    status: "Complete",
-    treatmentResultId: 1,
-    typeTest: [
-      {
-        name: "Xét nghiệm máu",
-        description: "Kiểm tra nội tiết",
-      },
-    ],
-  },
-  {
-    date: "2025-06-12",
-    testResult: "Tạo 5 phôi tốt",
-    note: "Đánh giá phôi ok",
-    typeName: "Treatment",
-    status: "Complete",
-    treatmentResultId: 1,
-    typeTest: [
-      {
-        name: "Xét nghiệm máu",
-        description: "Kiểm tra nội tiết",
-      },
-    ],
-  },
-  {
-    date: "2025-06-15",
-    testResult: "Chuyển 2 phôi",
-    note: "Tiến hành thành công",
-    typeName: "Treatment",
-    status: "Complete",
-    treatmentResultId: 2,
-    typeTest: [
-      {
-        name: "Siêu âm",
-        description: "Theo dõi nang trứng",
-      },
-    ],
-  },
-  {
-    date: "2025-06-16",
-    testResult: "HCG dương tính",
-    note: "Thành công",
-    typeName: "Result",
-    status: "Complete",
-    treatmentResultId: 1,
-    typeTest: [
-      {
-        name: "Xét nghiệm máu",
-        description: "Kiểm tra nội tiết",
-      },
-    ],
-  },
-];
+// const initialTreatments: Treatment[] = [
+//   {
+//     date: "2025-06-03",
+//     testResult: "Bình thường",
+//     note: "Tư vấn khởi đầu IVF",
+//     typeName: "Consultation",
+//     status: "Complete",
+//     treatmentResultId: 1,
+//     typeTest: [
+//       {
+//         name: "Xét nghiệm máu",
+//         description: "Kiểm tra nội tiết",
+//       },
+//     ],
+//   },
+//   {
+//     date: "2025-06-06",
+//     testResult: "15 trứng được lấy",
+//     note: "Không biến chứng",
+//     typeName: "Treatment",
+//     status: "Complete",
+//     treatmentResultId: 2,
+//     typeTest: [
+//       {
+//         name: "Siêu âm",
+//         description: "Theo dõi nang trứng",
+//       },
+//     ],
+//   },
+//   {
+//     date: "2025-06-09",
+//     testResult: "Tinh trùng đạt chuẩn",
+//     note: "Sẵn sàng tạo phôi",
+//     typeName: "Treatment",
+//     status: "Complete",
+//     treatmentResultId: 1,
+//     typeTest: [
+//       {
+//         name: "Xét nghiệm máu",
+//         description: "Kiểm tra nội tiết",
+//       },
+//     ],
+//   },
+//   {
+//     date: "2025-06-12",
+//     testResult: "Tạo 5 phôi tốt",
+//     note: "Đánh giá phôi ok",
+//     typeName: "Treatment",
+//     status: "Complete",
+//     treatmentResultId: 1,
+//     typeTest: [
+//       {
+//         name: "Xét nghiệm máu",
+//         description: "Kiểm tra nội tiết",
+//       },
+//     ],
+//   },
+//   {
+//     date: "2025-06-15",
+//     testResult: "Chuyển 2 phôi",
+//     note: "Tiến hành thành công",
+//     typeName: "Treatment",
+//     status: "Complete",
+//     treatmentResultId: 2,
+//     typeTest: [
+//       {
+//         name: "Siêu âm",
+//         description: "Theo dõi nang trứng",
+//       },
+//     ],
+//   },
+//   {
+//     date: "2025-06-16",
+//     testResult: "HCG dương tính",
+//     note: "Thành công",
+//     typeName: "Result",
+//     status: "Complete",
+//     treatmentResultId: 1,
+//     typeTest: [
+//       {
+//         name: "Xét nghiệm máu",
+//         description: "Kiểm tra nội tiết",
+//       },
+//     ],
+//   },
+// ];
 
 const TreatmentManagement: React.FC = () => {
   const [treatments, setTreatments] = useState<Treatment[]>([]);
@@ -114,16 +115,28 @@ const TreatmentManagement: React.FC = () => {
     null
   );
   const [modalVisible, setModalVisible] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  // const treatmentDataFromState = location.state?.treatmentDetails || [];
+  const treatmentDataFromState = useMemo(() => {
+    return location.state?.treatmentDetails || [];
+  }, [location.state]);
 
   // Giả lập tải dữ liệu
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setTreatments(initialTreatments);
-      setLoading(false);
-    }, 1000);
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setTreatments(initialTreatments);
+  //     setLoading(false);
+  //   }, 1000);
 
-    return () => clearTimeout(timer);
-  }, []);
+  //   return () => clearTimeout(timer);
+  // }, []);
+  useEffect(() => {
+    if (treatmentDataFromState.length > 0) {
+      setTreatments(treatmentDataFromState);
+      setLoading(false);
+    }
+  }, [treatmentDataFromState]);
 
   // Lọc dữ liệu theo từ khóa tìm kiếm
   const filteredTreatments = treatments.filter(
@@ -135,6 +148,13 @@ const TreatmentManagement: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-800 p-6">
+      <Button
+        onClick={() => navigate(-1)}
+        className="mb-6 bg-white border border-pink-500 text-pink-600 hover:bg-pink-50"
+      >
+        ← Quay lại hồ sơ điều trị
+      </Button>
+
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-black dark:text-gray-200 mb-2">
           Quá trình Điều trị Hiếm muộn

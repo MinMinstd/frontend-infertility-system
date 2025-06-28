@@ -4,11 +4,9 @@ export interface MedicalRecordDetail {
   date: string;
   note: string;
   testResult: string;
-  type: string | null;
-  medicalRecordId: number;
-  consulationResultId: number | null;
-  treatmentResultId: number | null;
-  treatmentRoadmapId: number;
+  typeName: string | null;
+  stage: string;
+  status: string;
 }
 
 export interface TreatmentHistory {

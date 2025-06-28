@@ -57,9 +57,23 @@ const MedicalRecord: React.FC = () => {
                   <Text strong className="text-base">
                     {formatDate(detail.date)}
                   </Text>
-                  <Tag color="success">Hoàn thành</Tag>
+                  <Tag
+                    color={detail.status === "Complete" ? "green" : "default"}
+                  >
+                    {detail.status === "Complete"
+                      ? "Hoàn thành"
+                      : detail.status}
+                  </Tag>
                 </div>
                 <div className="space-y-2">
+                  <div>
+                    <Text type="secondary">Loại điều trị: </Text>
+                    <Text>{detail.typeName}</Text>
+                  </div>
+                  <div>
+                    <Text type="secondary">Giai đoạn: </Text>
+                    <Text strong>{detail.stage}</Text>
+                  </div>
                   <div>
                     <Text type="secondary">Kết quả xét nghiệm: </Text>
                     <Text className="text-green-600 font-medium">
@@ -70,12 +84,6 @@ const MedicalRecord: React.FC = () => {
                     <Text type="secondary">Ghi chú: </Text>
                     <Text>{detail.note}</Text>
                   </div>
-                  {detail.treatmentRoadmapId && (
-                    <div>
-                      <Text type="secondary">ID lộ trình điều trị: </Text>
-                      <Text>{detail.treatmentRoadmapId}</Text>
-                    </div>
-                  )}
                 </div>
               </div>
             ),
@@ -143,19 +151,9 @@ const MedicalRecord: React.FC = () => {
 
       {/* Lịch sử điều trị với quá trình chi tiết */}
       <Card className="rounded-xl shadow-lg">
-        <div className="flex justify-between items-center mb-4">
-          <Title level={3} className="text-pink-600 font-bold mb-0">
-            Lịch sử điều trị
-          </Title>
-          <Link to="/user/treatment_management">
-            <Button
-              type="primary"
-              className="bg-pink-500 hover:bg-pink-600 border-none rounded-lg text-white px-4 py-1 text-base font-semibold"
-            >
-              Xem chi tiết
-            </Button>
-          </Link>
-        </div>
+        <Title level={3} className="text-pink-600 font-bold mb-4 text-center">
+          Lịch sử điều trị
+        </Title>
 
         {!loading && medicalRecord.length === 0 && (
           <div className="text-center text-gray-500 py-6">
@@ -171,7 +169,7 @@ const MedicalRecord: React.FC = () => {
           <Timeline>
             {medicalRecord.map((item, index) => (
               <Timeline.Item
-                key={item.attempt ?? index} // Hoặc item.id nếu có
+                key={item.attempt ?? index}
                 color={item.status === "Thành công" ? "green" : "pink"}
               >
                 <div className="border rounded-lg overflow-hidden">
@@ -207,6 +205,7 @@ const MedicalRecord: React.FC = () => {
                         {item.status}
                       </Tag>
                     </div>
+
                     <div className="grid grid-cols-2 gap-4 mb-2">
                       <div>
                         <Text type="secondary">Ngày bắt đầu: </Text>
@@ -217,17 +216,30 @@ const MedicalRecord: React.FC = () => {
                         <Text strong>{formatDate(item.endDate)}</Text>
                       </div>
                     </div>
+
                     <div className="mb-2">
                       <Text type="secondary">Chẩn đoán: </Text>
                       <Text strong>{item.diagnosis}</Text>
                     </div>
-                    <div>
+                    <div className="mb-2">
                       <Text type="secondary">Lần thử: </Text>
                       <Text strong>{item.attempt}</Text>
                     </div>
+
+                    {/*  Nút xem chi tiết đặt tại đây */}
+                    <Link
+                      to="/user/treatment_management"
+                      state={{ treatmentDetails: item.medicalRecordDetails }}
+                    >
+                      <Button
+                        type="link"
+                        className="text-pink-600 hover:text-pink-800 px-0 mt-2"
+                      >
+                        Xem chi tiết
+                      </Button>
+                    </Link>
                   </div>
 
-                  {/* Quá trình điều trị chi tiết cho từng giai đoạn */}
                   {expandedStages.includes(index.toString()) && (
                     <div className="px-4 pb-4 bg-gray-50">
                       {renderMedicalRecordDetails(
