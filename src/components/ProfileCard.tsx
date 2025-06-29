@@ -8,6 +8,7 @@ import type {
   ProfileFormInputs,
 } from "../types/user.d";
 import UserApi from "../servers/user.api";
+import axios from "axios";
 
 const ProfileCard = () => {
   const {
@@ -24,12 +25,26 @@ const ProfileCard = () => {
       birthday: "",
       gender: "",
       address: "",
-      password: "",
+      currentPassword: "",
+      newPassword: "",
       confirmPassword: "",
     },
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const watchPassword = watch("currentPassword");
+  const watchNewPassword = watch("newPassword");
+  const watchConfirmPassword = watch("confirmPassword");
+
+  // const isChangingPassword = !!(
+  //   watchPassword ||
+  //   watchNewPassword ||
+  //   watchConfirmPassword
+  // );
+  const isChangingPassword =
+    watchPassword?.length > 0 &&
+    watchNewPassword?.length > 0 &&
+    watchConfirmPassword?.length > 0;
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -44,12 +59,13 @@ const ProfileCard = () => {
           email: customer.email ?? "",
           phone: customer.phone ?? "",
           birthday: customer.birthday,
-          gender:
-            customer.gender === "Nam"
-              ? "M"
-              : customer.gender === "Nữ"
-              ? "F"
-              : "",
+          gender: customer.gender,
+          // gender:
+          //   customer.gender === "Nam"
+          //     ? "M"
+          //     : customer.gender === "Nữ"
+          //     ? "F"More actions
+          //     : "",
           address: customer.address ?? "",
 
           password: "", // Để trống vì API không trả về mật khẩu
@@ -91,13 +107,56 @@ const ProfileCard = () => {
       console.log("Password trả về nè:", dataChangeInfor);
       console.log("Profile trả về nè:", dataChangePassword);
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Kiểm tra điều kiện nhập mật khẩu
+      if (
+        (watchPassword || watchNewPassword || watchConfirmPassword) &&
+        !isChangingPassword
+      ) {
+        message.error("Vui lòng điền đầy đủ thông tin đổi mật khẩu");
+        return;
+      }
 
-      message.success("Cập nhật thông tin thành công!");
+      // Cập nhật thông tin cá nhân
+      await UserApi.UpdateProfile({
+        fullName: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        birthday: data.birthday,
+        gender: data.gender,
+        address: data.address,
+      });
+
+      // Nếu có nhập mật khẩu thì mới gọi API đổi mật khẩu
+      if (isChangingPassword) {
+        const resChangePassword = await UserApi.ChangePassword({
+          currentPassword: data.currentPassword,
+          newPassword: data.newPassword,
+          confirmPassword: data.confirmPassword,
+        });
+        console.log("Kết quả đổi mật khẩu:", resChangePassword.data);
+      }
+
+      message.success("Cập nhật thành công!");
+
+      // Reset mật khẩu sau khi đổi
+      if (isChangingPassword) {
+        reset({
+          ...data,
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+      }
     } catch (err) {
-      console.error("Profile update error:", err);
-      message.error("Cập nhật thất bại. Vui lòng thử lại!");
+      if (axios.isAxiosError(err)) {
+        console.error("🔥 Lỗi chi tiết từ server:", err.response?.data);
+        message.error(
+          err.response?.data?.message || "Cập nhật thất bại. Vui lòng thử lại!"
+        );
+      } else {
+        console.error("Lỗi không xác định:", err);
+        message.error("Đã xảy ra lỗi không xác định.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -344,8 +403,8 @@ const ProfileCard = () => {
                 <option value="" disabled>
                   Chọn giới tính
                 </option>
-                <option value="M">Nam</option>
-                <option value="F">Nữ</option>
+                <option value="Nam">Nam</option>
+                <option value="Nữ">Nữ</option>
               </select>
               <label
                 className={`peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 ${
@@ -370,15 +429,17 @@ const ProfileCard = () => {
             <div className="relative z-0 w-full mb-8 group">
               <input
                 type="password"
-                {...register("password", {
-                  required: "Vui lòng nhập mật khẩu hiện tại",
-                  minLength: {
-                    value: 6,
-                    message: "Mật khẩu phải có ít nhất 6 ký tự",
+                {...register("currentPassword", {
+                  validate: (value) => {
+                    if (isChangingPassword && !value)
+                      return "Vui lòng nhập mật khẩu hiện tại";
+                    if (value && value.length < 6)
+                      return "Mật khẩu phải có ít nhất 6 ký tự";
+                    return true;
                   },
                 })}
                 className={`block py-3 px-0 w-full text-sm bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 peer transition-all duration-300 ${
-                  errors.password
+                  errors.currentPassword
                     ? "text-red-600 border-red-500 focus:border-red-600"
                     : "text-gray-900 border-pink-300 focus:border-pink-500"
                 }`}
@@ -387,17 +448,17 @@ const ProfileCard = () => {
               />
               <label
                 className={`peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 ${
-                  errors.password
+                  errors.currentPassword
                     ? "text-red-500 peer-focus:text-red-600"
                     : "text-pink-600 peer-focus:text-pink-500"
                 }`}
               >
                 Mật khẩu hiện tại *
               </label>
-              {errors.password && (
+              {errors.currentPassword && (
                 <p className="text-red-500 text-xs mt-2 flex items-center gap-1">
                   <span className="w-1 h-1 bg-red-500 rounded-full"></span>
-                  {errors.password.message as string}
+                  {errors.currentPassword.message as string}
                 </p>
               )}
             </div>
@@ -406,18 +467,23 @@ const ProfileCard = () => {
               <input
                 type="password"
                 {...register("newPassword", {
-                  required: "Vui lòng nhập mật khẩu mới",
-                  minLength: {
-                    value: 6,
-                    message: "Mật khẩu mới phải có ít nhất 6 ký tự",
+                  validate: (value) => {
+                    if (!value && (watchPassword || watchConfirmPassword)) {
+                      return "Vui lòng nhập mật khẩu mới";
+                    }
+                    if (value) {
+                      if (value.length < 9) {
+                        return "Mật khẩu mới phải có ít nhất 9 ký tự";
+                      }
+                      if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(value)) {
+                        return "Mật khẩu mới phải có chữ hoa, chữ thường và số";
+                      }
+                      if (value === watchPassword) {
+                        return "Mật khẩu mới phải khác mật khẩu hiện tại";
+                      }
+                    }
+                    return true;
                   },
-                  pattern: {
-                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-                    message: "Mật khẩu mới phải có chữ hoa, chữ thường và số",
-                  },
-                  validate: (value) =>
-                    value !== watch("password") ||
-                    "Mật khẩu mới phải khác mật khẩu hiện tại",
                 })}
                 className={`block py-3 px-0 w-full text-sm bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 peer transition-all duration-300 ${
                   errors.newPassword
@@ -450,10 +516,13 @@ const ProfileCard = () => {
             <input
               type="password"
               {...register("confirmPassword", {
-                required: "Vui lòng xác nhận mật khẩu mới",
-                validate: (value) =>
-                  value === watch("newPassword") ||
-                  "Mật khẩu xác nhận không khớp với mật khẩu mới",
+                validate: (value) => {
+                  if (isChangingPassword && !value)
+                    return "Vui lòng xác nhận mật khẩu mới";
+                  if (isChangingPassword && value !== watchNewPassword)
+                    return "Mật khẩu xác nhận không khớp với mật khẩu mới";
+                  return true;
+                },
               })}
               className={`block py-3 px-0 w-full text-sm bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 peer transition-all duration-300 ${
                 errors.confirmPassword
