@@ -39,7 +39,7 @@ const MedicalRecord: React.FC = () => {
     try {
       return new Date(dateString).toLocaleDateString("vi-VN");
     } catch (error) {
-      console.log("Error", error);
+      console.error("Error formatting date:", error);
       console.error("Invalid date:", dateString);
       return "Ngày không hợp lệ";
     }
@@ -68,7 +68,13 @@ const MedicalRecord: React.FC = () => {
                 <div className="space-y-2">
                   <div>
                     <Text type="secondary">Loại điều trị: </Text>
-                    <Text>{detail.typeName}</Text>
+                    <Text>
+                      {detail.typeName === "Consultation"
+                        ? "Tư vấn"
+                        : detail.typeName === "Treatment"
+                        ? "Điều trị"
+                        : "Kết quả"}
+                    </Text>
                   </div>
                   <div>
                     <Text type="secondary">Giai đoạn: </Text>
@@ -82,7 +88,7 @@ const MedicalRecord: React.FC = () => {
                   </div>
                   <div>
                     <Text type="secondary">Ghi chú: </Text>
-                    <Text>{detail.note}</Text>
+                    <Text>{detail.note || "—"}</Text>
                   </div>
                 </div>
               </div>
@@ -98,8 +104,6 @@ const MedicalRecord: React.FC = () => {
     const fetchMedicalRecords = async () => {
       try {
         const res = await UserApi.GetMedicalRecorDetail();
-        setMedicalRecord(res.data);
-        console.log("Data medical record đưa lên nè: ", res.data);
         setMedicalRecord(res.data);
         setLoading(false);
       } catch (error) {
@@ -226,10 +230,12 @@ const MedicalRecord: React.FC = () => {
                       <Text strong>{item.attempt}</Text>
                     </div>
 
-                    {/*  Nút xem chi tiết đặt tại đây */}
                     <Link
                       to="/user/treatment_management"
-                      state={{ treatmentDetails: item.medicalRecordDetails }}
+                      state={{
+                        treatmentDetails: item.medicalRecordDetails,
+                        attempt: item.attempt,
+                      }}
                     >
                       <Button
                         type="link"

@@ -5,4 +5,14 @@ export type BookingConsulant = {
   doctorId: number;
   doctorScheduleId: number;
   serviceId: number;
-}; 
+};
+
+export type AppointmentHistory = {
+  date: string;
+  time: string;
+  fullName: string;
+  name: string;
+  status: "completed" | "upcoming" | "cancelled";
+  type: string;
+  note?: string;
+};
