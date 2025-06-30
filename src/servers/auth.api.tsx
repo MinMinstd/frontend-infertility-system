@@ -32,6 +32,10 @@ const AuthApi = {
   // API đăng nhập bằng Google token
   GoogleLogin: (data: GoogleLoginRequest) =>
     axiosClient.post<LoginResponse>("/Auth/google-login", data),
+
+  // API xác nhận email
+  confirmEmail: (token: string) =>
+    axiosClient.get("/Auth/confirm-email", { params: { token } }),
 };
 
 export default AuthApi;

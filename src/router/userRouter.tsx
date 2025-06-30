@@ -17,6 +17,7 @@ import Contact from "../components/Contact";
 import TreatmentManagement from "../pages/customer/TreatmentProcess";
 import MedicalRecord from "../pages/customer/MedicalRecord";
 import OnlineConsult from "../components/OnlineResult";
+import ConfirmEmail from "../pages/auth/ConfirmEmail";
 export const userRoutes: RouteObject[] = [
   { path: "/", element: <Home /> },
   {
@@ -44,4 +45,9 @@ export const userRoutes: RouteObject[] = [
   { path: "/user/history_medical", element: <HistoryMedical /> },
   { path: "/user/treatment_management", element: <TreatmentManagement /> },
   { path: "/user/medical_record", element: <MedicalRecord /> },
+  {
+    path: "/confirm-email",
+    element: <ConfirmEmail />,
+    handle: { layout: "none" },
+  },
 ];
