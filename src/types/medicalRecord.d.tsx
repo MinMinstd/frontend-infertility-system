@@ -4,11 +4,9 @@ export interface MedicalRecordDetail {
   date: string;
   note: string;
   testResult: string;
-  type: string | null;
-  medicalRecordId: number;
-  consulationResultId: number | null;
-  treatmentResultId: number | null;
-  treatmentRoadmapId: number;
+  typeName: string | null;
+  stage: string;
+  status: string;
 }
 
 export interface TreatmentHistory {
@@ -31,3 +29,39 @@ export interface CurrentService {
 }
 
 //Định nghĩa treatment
+
+// Định nghĩa interface cho bước điều trị
+export interface Treatment {
+  date: string;
+  testResult: string;
+  note: string;
+  typeName: "Consultation" | "Treatment" | "Result";
+  status: "Complete" | "In Progress" | "Pending";
+  treatmentResultId: number;
+  typeTest: TypeTest[];
+}
+
+export interface TreatmentStep {
+  date: string;
+  note: string;
+  testResult: string;
+  typeName: "Consultation" | "Treatment" | "Result";
+  status: "Complete" | "In Progress" | "Pending";
+  stage: string;
+}
+
+export interface TreatmentAttempt {
+  startDate: string;
+  endDate: string;
+  stage: string;
+  diagnosis: string;
+  status: string;
+  attempt: number;
+  medicalRecordDetails: TreatmentStep[];
+}
+
+//định nghĩa Type test
+export interface TypeTest {
+  name: string;
+  description: string;
+}

@@ -1,52 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Table, Tag, Button, Modal } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { Calendar, Clock, User, FileText } from "lucide-react";
-
-interface AppointmentHistory {
-  id: string;
-  date: string;
-  time: string;
-  doctorName: string;
-  service: string;
-  status: "completed" | "upcoming" | "cancelled";
-  notes?: string;
-}
+import UserApi from "../../servers/user.api";
+import type { AppointmentHistory } from "../../types/booking";
 
 const HistoryMedical = () => {
+  const [appointments, setAppointments] = useState<AppointmentHistory[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedAppointment, setSelectedAppointment] =
     useState<AppointmentHistory | null>(null);
 
-  // Mock data - replace with actual API call
-  const appointmentHistory: AppointmentHistory[] = [
-    {
-      id: "1",
-      date: "2024-03-20",
-      time: "09:00",
-      doctorName: "BS. Nguyễn Văn A",
-      service: "Tư vấn sức khỏe sinh sản",
-      status: "completed",
-      notes: "Bệnh nhân được tư vấn về các phương pháp điều trị hiếm muộn",
-    },
-    {
-      id: "2",
-      date: "2024-03-25",
-      time: "14:30",
-      doctorName: "BS. Trần Thị B",
-      service: "Khám và điều trị hiếm muộn",
-      status: "upcoming",
-    },
-    {
-      id: "3",
-      date: "2024-03-15",
-      time: "10:00",
-      doctorName: "BS. Lê Văn C",
-      service: "Thụ tinh trong ống nghiệm",
-      status: "cancelled",
-      notes: "Bệnh nhân hủy lịch do lý do cá nhân",
-    },
-  ];
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const res = await UserApi.GetBookingList();
+        console.log("Lịch sử khám bệnh:", res.data);
+        setAppointments(res.data);
+      } catch (error) {
+        console.error("Lỗi khi tải dữ liệu lịch sử khám bệnh:", error);
+      }
+    };
+    fetchAppointments();
+  }, []);
 
   const columns: ColumnsType<AppointmentHistory> = [
     {
@@ -73,8 +49,8 @@ const HistoryMedical = () => {
     },
     {
       title: "Bác sĩ",
-      dataIndex: "doctorName",
-      key: "doctorName",
+      dataIndex: "fullName",
+      key: "fullName",
       render: (name) => (
         <div className="flex items-center gap-2">
           <User className="w-4 h-4 text-green-500" />
@@ -84,8 +60,8 @@ const HistoryMedical = () => {
     },
     {
       title: "Dịch vụ",
-      dataIndex: "service",
-      key: "service",
+      dataIndex: "name",
+      key: "name",
       render: (service) => (
         <div className="flex items-center gap-2">
           <FileText className="w-4 h-4 text-purple-500" />
@@ -98,13 +74,13 @@ const HistoryMedical = () => {
       dataIndex: "status",
       key: "status",
       render: (status) => {
-        const statusConfig = {
-          completed: { color: "green", text: "Hoàn thành" },
-          upcoming: { color: "blue", text: "Sắp tới" },
-          cancelled: { color: "red", text: "Đã hủy" },
+        const statusMap: Record<string, { color: string; label: string }> = {
+          Completed: { color: "green", label: "Hoàn thành" },
+          Pending: { color: "blue", label: "Đang chờ" },
+          Cancelled: { color: "red", label: "Đã hủy" },
         };
-        const config = statusConfig[status as keyof typeof statusConfig];
-        return <Tag color={config.color}>{config.text}</Tag>;
+        const s = statusMap[status] || { color: "gray", label: status };
+        return <Tag color={s.color}>{s.label}</Tag>;
       },
     },
     {
@@ -133,10 +109,9 @@ const HistoryMedical = () => {
           </h1>
           <Table
             columns={columns}
-            dataSource={appointmentHistory}
-            rowKey="id"
+            dataSource={appointments}
+            rowKey={(record) => `${record.date}-${record.time}`}
             pagination={{ pageSize: 5 }}
-            className="custom-table"
           />
         </div>
       </div>
@@ -165,19 +140,17 @@ const HistoryMedical = () => {
               </div>
               <div>
                 <p className="text-gray-600">Bác sĩ:</p>
-                <p className="font-medium">{selectedAppointment.doctorName}</p>
+                <p className="font-medium">{selectedAppointment.fullName}</p>
               </div>
               <div>
                 <p className="text-gray-600">Dịch vụ:</p>
-                <p className="font-medium">{selectedAppointment.service}</p>
+                <p className="font-medium">{selectedAppointment.name}</p>
               </div>
             </div>
-            {selectedAppointment.notes && (
-              <div>
-                <p className="text-gray-600">Ghi chú:</p>
-                <p className="font-medium">{selectedAppointment.notes}</p>
-              </div>
-            )}
+            <div>
+              <p className="text-gray-600">Ghi chú:</p>
+              <p className="font-medium">{selectedAppointment.note || "—"}</p>
+            </div>
           </div>
         )}
       </Modal>
