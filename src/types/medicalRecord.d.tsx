@@ -58,6 +58,7 @@ export interface TreatmentAttempt {
 
 //định nghĩa Type test
 export interface TypeTest {
+  typeTestId: number;
   name: string;
   description: string;
 }
@@ -106,6 +107,9 @@ export interface MedicalRecordDetail {
 
 //create medical record detail
 export interface CreateMedicalRecordDetail {
+  medicalRecordId: number;
+  treatmentRoadmapId: number;
+  treatmentResultId: number;
   stage: string;
   stepNumber: number;
   date: dayjs.Dayjs;
@@ -113,4 +117,14 @@ export interface CreateMedicalRecordDetail {
   status: string;
   testResult?: string;
   note?: string;
+}
+
+export interface TreatmentResult_typeTest {
+  treatmentResultId: number;
+  treatmentRoadmapId: number;
+  stepNumber: number;
+  date: string;
+  description: string;
+  result: string;
+  typeTest: TypeTest[];
 }

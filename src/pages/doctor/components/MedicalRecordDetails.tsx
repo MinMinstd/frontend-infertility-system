@@ -1,29 +1,34 @@
 import { Card, Button, Timeline, Tag, Typography, Row, Col, Space } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { EditOutlined, PlusOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import type { MedicalRecordDetail } from "../../../types/medicalRecord.d";
 
 const { Text } = Typography;
-
-interface MedicalRecordDetail {
-  medicalRecordDetailId: number;
-  stepNumber: number;
-  date: string;
-  note: string;
-  testResult: string;
-  typeName: string | null;
-  status: string;
-  stage: string;
-}
 
 interface MedicalRecordDetailsProps {
   medicalRecordDetails: MedicalRecordDetail[];
   onAddDetail: () => void;
+  onUpdateDetail: (medicalDetail: MedicalRecordDetail) => void;
 }
 
 export function MedicalRecordDetails({
   medicalRecordDetails,
   onAddDetail,
+  onUpdateDetail,
 }: MedicalRecordDetailsProps) {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Complete":
+        return "green";
+      case "Pending":
+        return "orange";
+      case "Cancelled":
+        return "red";
+      default:
+        return "gray";
+    }
+  };
+
   return (
     <Card
       style={{
@@ -55,8 +60,22 @@ export function MedicalRecordDetails({
                 borderColor: "#ffb6c1",
                 backgroundColor: "#fff5f7",
                 marginBottom: 8,
+                position: "relative",
               }}
             >
+              {/* Thêm nút cập nhật */}
+              <Button
+                type="text"
+                icon={<EditOutlined />}
+                onClick={() => onUpdateDetail(detail)}
+                style={{
+                  position: "absolute",
+                  top: 8,
+                  right: 8,
+                  color: "#ff69b4",
+                }}
+              />
+
               <Row gutter={16}>
                 <Col span={12}>
                   <Space direction="vertical" size="small">
@@ -68,9 +87,7 @@ export function MedicalRecordDetails({
                     {detail.typeName && (
                       <Tag color="pink">{detail.typeName}</Tag>
                     )}
-                    <Tag
-                      color={detail.status === "Complete" ? "green" : "orange"}
-                    >
+                    <Tag color={getStatusColor(detail.status)}>
                       {detail.status}
                     </Tag>
                   </Space>

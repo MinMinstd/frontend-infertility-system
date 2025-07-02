@@ -11,12 +11,12 @@ import type { treatmentRoadmap } from "../../../types/medicalRecord.d";
 
 interface TreatmentRoadmapProps {
   treatmentRoadmap: treatmentRoadmap[];
-  onUpdateResult: (roadId: string) => void;
+  onUpdateRoadmap: (roadmap: treatmentRoadmap) => void;
 }
 
 export function TreatmentRoadmap({
   treatmentRoadmap,
-  onUpdateResult,
+  onUpdateRoadmap,
 }: TreatmentRoadmapProps) {
   const columns: ColumnsType<treatmentRoadmap> = [
     {
@@ -82,7 +82,7 @@ export function TreatmentRoadmap({
           <Button
             size="small"
             icon={<EditOutlined />}
-            onClick={() => onUpdateResult(record.treatmentRoadmapId.toString())}
+            onClick={() => onUpdateRoadmap(record)}
             style={{
               borderColor: "#ff69b4",
               color: "#ff69b4",
