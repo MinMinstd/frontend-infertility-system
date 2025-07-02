@@ -8,21 +8,21 @@ import {
   Space,
   type FormInstance,
 } from "antd";
-import dayjs from "dayjs";
 
 const { TextArea } = Input;
 const { Option } = Select;
 
 interface TreatmentResultFormValues {
-  road_id: string;
-  date: dayjs.Dayjs; // hoặc Date nếu bạn chuyển sang JS Date
-  description: string;
-  result: string;
+  treatmentRoadmapId: number;
+  date: string;
+  stage: string;
+  durationDay: number;
+  status: string;
 }
 
 interface TreatmentRoadmapItem {
-  Road_ID: string;
-  Service_Name: string;
+  treatmentRoadmapId: number;
+  stage: string;
 }
 
 interface TreatmentResultModalProps {
@@ -58,8 +58,11 @@ export function TreatmentResultModal({
         >
           <Select placeholder="Chọn bước điều trị">
             {treatmentRoadmap.map((road) => (
-              <Option key={road.Road_ID} value={road.Road_ID}>
-                {road.Road_ID} - {road.Service_Name}
+              <Option
+                key={road.treatmentRoadmapId}
+                value={`R${road.treatmentRoadmapId}`}
+              >
+                R{road.treatmentRoadmapId} - {road.stage}
               </Option>
             ))}
           </Select>
@@ -84,10 +87,9 @@ export function TreatmentResultModal({
           rules={[{ required: true, message: "Vui lòng chọn kết quả!" }]}
         >
           <Select placeholder="Chọn kết quả">
-            <Option value="Đáp ứng tốt">Đáp ứng tốt</Option>
-            <Option value="Không cải thiện">Không cải thiện</Option>
-            <Option value="Cần theo dõi thêm">Cần theo dõi thêm</Option>
-            <Option value="Bình thường">Bình thường</Option>
+            <Option value="Hoàn thành">Hoàn Thành</Option>
+            <Option value="Đang xử lý">Đang Xử Lý</Option>
+            <Option value="Thất bại">Thất Bại</Option>
           </Select>
         </Form.Item>
         <Form.Item>

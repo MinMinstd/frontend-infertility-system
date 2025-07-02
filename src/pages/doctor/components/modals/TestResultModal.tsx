@@ -7,6 +7,7 @@ import {
   Space,
   type FormInstance,
 } from "antd";
+import type { MedicalRecordDetail } from "../../../../types/medicalRecord.d";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -22,11 +23,6 @@ interface TestResultFormValues {
 interface TreatmentResult {
   Treatment_result_ID: string;
   Road_ID: string;
-}
-
-interface MedicalRecordDetail {
-  Detail_ID: string;
-  Date: string;
 }
 
 interface TestResultModalProps {
@@ -94,8 +90,11 @@ export function TestResultModal({
         >
           <Select placeholder="Chọn chi tiết ghi chú">
             {medicalRecordDetails.map((detail) => (
-              <Option key={detail.Detail_ID} value={detail.Detail_ID}>
-                {detail.Detail_ID} - {detail.Date}
+              <Option
+                key={detail.medicalRecordDetailId}
+                value={detail.medicalRecordDetailId}
+              >
+                {detail.medicalRecordDetailId} - {detail.date}
               </Option>
             ))}
           </Select>

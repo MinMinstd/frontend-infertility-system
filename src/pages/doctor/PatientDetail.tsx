@@ -1,31 +1,26 @@
-import { useState } from "react";
-import { Typography, Row, Col, Button, Tabs, Space, Form } from "antd";
-import { EditOutlined, SaveOutlined } from "@ant-design/icons";
-
+import { useEffect, useState } from "react";
+import { Typography, Row, Col, Tabs, Form, message } from "antd";
 import { TreatmentResultModal } from "./components/modals/TreatmentResultModal";
 import { MedicalDetailModal } from "./components/modals/MedicalDetailModal";
 import { TestResultModal } from "./components/modals/TestResultModal";
-import { PatientOverviewCards } from "./PatientOverviewCards";
+// import { PatientOverviewCards } from "./PatientOverviewCards"; Thanh report trong trang patient detail
 import { PatientInformation } from "./PatientInformation";
 import { TreatmentProgress } from "./TreatmentProgress";
 import { DoctorSidebar } from "./DoctorSidebar";
-import dayjs from "dayjs";
+
 import { MedicalManagement } from "./MedicalManagement";
-
-interface TreatmentResultFormValues {
-  date: dayjs.Dayjs;
-  description: string;
-  result: string;
-}
-
-interface MedicalDetailFormValues {
-  date: dayjs.Dayjs;
-  road_id: string;
-  treatment_result_id: string;
-  type: string;
-  test_result: string;
-  note: string;
-}
+import DoctorApi from "../../servers/doctor.api";
+import { useParams } from "react-router-dom";
+import type {
+  InformationPatientDetails,
+  TreatmentOverview,
+} from "../../types/doctor";
+import type {
+  CreateMedicalRecordDetail,
+  MedicalRecordDetail,
+  TreatmentResultFormValues,
+  treatmentRoadmap,
+} from "../../types/medicalRecord.d";
 
 interface TestResultFormValues {
   treatment_result_id: string;
@@ -38,79 +33,117 @@ interface TestResultFormValues {
 const { Title, Text } = Typography;
 
 export default function PatientDetailPage() {
-  const patient = {
-    id: 1,
-    name: "Sarah Johnson",
-    age: 32,
-    treatment: "IVF",
-    stage: "Egg Stimulation",
-    lastVisit: "2024-01-15",
-    nextAppointment: "2024-01-20",
-    status: "active",
-    progress: 65,
-    phone: "+1 (555) 123-4567",
-    email: "sarah.johnson@email.com",
-    partner: "Michael Johnson",
-    startDate: "2024-01-01",
-  };
+  const { customerId } = useParams<{ customerId: string }>();
+  const customerIdNumber = customerId ? Number(customerId) : undefined;
 
-  const treatmentStages = [
-    { name: "Initial Consultation", completed: true, date: "2024-01-01" },
-    { name: "Hormone Suppression", completed: true, date: "2024-01-05" },
-    {
-      name: "Egg Stimulation",
-      completed: false,
-      current: true,
-      date: "2024-01-15",
-    },
-    { name: "Egg Retrieval", completed: false, date: "2024-01-22" },
-    { name: "Fertilization", completed: false, date: "2024-01-23" },
-    { name: "Embryo Transfer", completed: false, date: "2024-01-28" },
-    { name: "Pregnancy Test", completed: false, date: "2024-02-12" },
-  ];
+  //thông tin trả ra dạng obj của Patient
+  const [infoPatient, setInfoPatient] =
+    useState<InformationPatientDetails | null>(null);
 
-  const treatmentRoadmap = [
-    {
-      Road_ID: "R001",
-      Date: "2024-01-01",
-      Stage: "Giai đoạn chuẩn bị",
-      Service_Name: "Khám sức khỏe tổng quát",
-      Description: "Khám lâm sàng và đánh giá tình trạng sức khỏe",
-      Duration_day: 1,
-      Price: 500000,
-      Status: "Đã hoàn thành",
-    },
-    {
-      Road_ID: "R002",
-      Date: "2024-01-05",
-      Stage: "Giai đoạn chuẩn bị",
-      Service_Name: "Xét nghiệm máu",
-      Description: "Xét nghiệm hormone, chức năng gan thận",
-      Duration_day: 1,
-      Price: 800000,
-      Status: "Đã hoàn thành",
-    },
-    {
-      Road_ID: "R003",
-      Date: "2024-01-10",
-      Stage: "Giai đoạn điều trị",
-      Service_Name: "Kích thích buồng trứng",
-      Description: "Sử dụng thuốc kích thích phóng noãn",
-      Duration_day: 10,
-      Price: 2000000,
-      Status: "Đang tiến hành",
-    },
-    {
-      Road_ID: "R004",
-      Date: "2024-01-20",
-      Stage: "Giai đoạn điều trị",
-      Service_Name: "Chọc hút trứng",
-      Description: "Thu thập trứng từ buồng trứng",
-      Duration_day: 1,
-      Price: 1500000,
-      Status: "Đang chờ",
-    },
-  ];
+  //thông tin trả dạng list Treatment overview
+  const [treatmentOverview, setTreatmentOverview] = useState<
+    TreatmentOverview[]
+  >([]);
+
+  //danh sách treatment roadmap trong medical manager
+  const [treatmentRoadmap, setTreatmentRoadmap] = useState<treatmentRoadmap[]>(
+    []
+  );
+
+  //danh sách medical record trong medical manager
+  const [medicalRecordDetails, setMedicalRecordDetails] = useState<
+    MedicalRecordDetail[]
+  >([]);
+
+  //Dùng để lấy thông tin dịch vụ, stage hiện tại đang sử dụng,
+  // const patient = {
+  //   id: 1,
+  //   name: "Sarah Johnson",
+  //   age: 32,
+  //   treatment: "IVF",
+  //   stage: "Egg Stimulation",
+  //   lastVisit: "2024-01-15",
+  //   nextAppointment: "2024-01-20",
+  //   status: "active",
+  //   progress: 65,
+  //   phone: "+1 (555) 123-4567",
+  //   email: "sarah.johnson@email.com",
+  //   partner: "Michael Johnson",
+  //   startDate: "2024-01-01",
+  // };
+
+  //API thông tin bệnh nhân
+  useEffect(() => {
+    const fetchInforPatient = async () => {
+      try {
+        if (customerIdNumber !== undefined) {
+          const res = await DoctorApi.GetInforPatientDetail(customerIdNumber);
+          console.log("Thông tin bệnh nhân hiển thị: ", res.data);
+          setInfoPatient(res.data);
+        }
+      } catch (error) {
+        console.error(
+          "Lỗi hệ thống không thể lấy được thông tin cá nhân bệnh nhân: ",
+          error
+        );
+      }
+    };
+    fetchInforPatient();
+  }, [customerIdNumber]);
+
+  //API giai đoạn điều trị tại overview
+  useEffect(() => {
+    const fetachTreatmentOverview = async () => {
+      try {
+        if (customerIdNumber !== undefined) {
+          const res = await DoctorApi.GetTreatmentProgressOverview(
+            customerIdNumber
+          );
+          console.log("Thông tin quy trình hoạt động: ", res.data);
+          setTreatmentOverview(res.data);
+        }
+      } catch (error) {
+        console.log("Lỗi hệ thống không load treatment overview: ", error);
+      }
+    };
+    fetachTreatmentOverview();
+  }, [customerIdNumber]);
+
+  //API tiến độ các bước điều trị Treatment roadmap
+  useEffect(() => {
+    const fetchTreatmentRoadmap = async () => {
+      try {
+        if (customerIdNumber != null) {
+          const res = await DoctorApi.GetTreatmentRoadmap(customerIdNumber);
+          console.log(" Treatment roadmap đã lọc: ", res.data);
+          setTreatmentRoadmap(res.data);
+        }
+      } catch (error) {
+        console.error("Lỗi hệ thống không lấy được danh sách: ", error);
+      }
+    };
+
+    fetchTreatmentRoadmap();
+  }, [customerIdNumber]);
+
+  // API medical record details
+  useEffect(() => {
+    const fetchMedicalRecordDetail = async () => {
+      try {
+        if (customerIdNumber != null) {
+          const res = await DoctorApi.GetMedicalRecordDetails(customerIdNumber);
+          console.log("Lấy thông tin medical record detail ở đây:", res.data);
+          setMedicalRecordDetails(res.data);
+        }
+      } catch (error) {
+        console.log(
+          "Lỗi hệ thống không thể kết nối tại medical record detail",
+          error
+        );
+      }
+    };
+    fetchMedicalRecordDetail();
+  }, [customerIdNumber]);
 
   const [treatmentResults, setTreatmentResults] = useState([
     {
@@ -129,29 +162,6 @@ export default function PatientDetailPage() {
     },
   ]);
 
-  const [medicalRecordDetails, setMedicalRecordDetails] = useState([
-    {
-      Detail_ID: "MD001",
-      Record_ID: "MR001",
-      Treatment_result_ID: "TR001",
-      Date: "2024-01-01",
-      Road_ID: "R001",
-      Type: "Theo dõi",
-      Test_result: "Huyết áp: 120/80, Nhịp tim: 72",
-      Note: "Bệnh nhân tình trạng ổn định",
-    },
-    {
-      Detail_ID: "MD002",
-      Record_ID: "MR001",
-      Treatment_result_ID: "TR002",
-      Date: "2024-01-05",
-      Road_ID: "R002",
-      Type: "Xét nghiệm",
-      Test_result: "FSH: 8.2, LH: 5.1, E2: 45",
-      Note: "Các chỉ số hormone trong giới hạn bình thường",
-    },
-  ]);
-
   const [testResults, setTestResults] = useState([
     {
       Test_ID: "T001",
@@ -167,44 +177,76 @@ export default function PatientDetailPage() {
   const [isResultModalVisible, setIsResultModalVisible] = useState(false);
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
   const [isTestModalVisible, setIsTestModalVisible] = useState(false);
-  const [selectedRoadId, setSelectedRoadId] = useState("");
 
   const [form] = Form.useForm();
   const [detailForm] = Form.useForm();
   const [testForm] = Form.useForm();
 
-  const showResultModal = (roadId: string) => {
-    setSelectedRoadId(roadId);
+  const showResultModal = () => {
     setIsResultModalVisible(true);
   };
 
+  //Cập nhật kết quả điều trị
   const handleResultSubmit = (values: TreatmentResultFormValues) => {
     const newResult = {
       Treatment_result_ID: `TR${Date.now()}`,
-      Road_ID: selectedRoadId,
-      Date: values.date.format("YYYY-MM-DD"),
-      Description: values.description,
-      Result: values.result,
+      Road_ID: `R${values.treatmentRoadmapId}`, // hoặc giữ nguyên số nếu bạn không prefix
+      Date: values.date,
+      Description: values.stage + " - " + values.durationDay + " ngày",
+      Result: values.status,
     };
     setTreatmentResults([...treatmentResults, newResult]);
     setIsResultModalVisible(false);
     form.resetFields();
   };
 
-  const handleDetailSubmit = (values: MedicalDetailFormValues) => {
-    const newDetail = {
-      Detail_ID: `MD${Date.now()}`,
-      Record_ID: "MR001",
-      Treatment_result_ID: values.treatment_result_id,
-      Date: values.date.format("YYYY-MM-DD"),
-      Road_ID: values.road_id,
-      Type: values.type,
-      Test_result: values.test_result,
-      Note: values.note,
-    };
-    setMedicalRecordDetails([...medicalRecordDetails, newDetail]);
-    setIsDetailModalVisible(false);
-    detailForm.resetFields();
+  //Thêm mới medical record
+  const handleDetailSubmit = async (values: CreateMedicalRecordDetail) => {
+    try {
+      // 1. Kiểm tra chắc chắn medicalRecordId tồn tại
+      if (!infoPatient?.medicalRecordId) {
+        throw new Error("Không tìm thấy ID hồ sơ bệnh án");
+      }
+
+      // 2. Tìm treatmentRoadmapId
+      const roadmapItem = treatmentRoadmap.find(
+        (item) => item.stage === values.stage
+      );
+      if (!roadmapItem) {
+        throw new Error("Không tìm thấy giai đoạn điều trị tương ứng");
+      }
+
+      // 3. Tạo request data với type chính xác
+      const requestData: Parameters<
+        typeof DoctorApi.CreateMedicalRecordDetail
+      >[0] = {
+        medicalRecordId: infoPatient.medicalRecordId, // Đã được kiểm tra nên không còn undefined
+        treatmentRoadmapId: roadmapItem.treatmentRoadmapId,
+        stepNumber: values.stepNumber,
+        date: values.date.format("YYYY-MM-DD"),
+        typeName: values.typeName as
+          | "Consultation"
+          | "Treatment"
+          | "Test"
+          | "Result", // Ép kiểu nếu cần
+        status: values.status as "Pending" | "Completed" | "Cancelled",
+        testResult: values.testResult || undefined, // Dùng undefined thay vì null
+        note: values.note || undefined,
+        stage: values.stage,
+      };
+
+      // 4. Gọi API
+      const response = await DoctorApi.CreateMedicalRecordDetail(requestData);
+
+      // 4. Cập nhật state và hiển thị thông báo
+      setMedicalRecordDetails((prev) => [...prev, response.data]);
+      message.success("Thêm chi tiết hồ sơ thành công");
+
+      return true;
+    } catch (error) {
+      console.error("Lỗi khi thêm chi tiết:", error);
+      return false;
+    }
   };
 
   const handleTestSubmit = (values: TestResultFormValues) => {
@@ -228,49 +270,19 @@ export default function PatientDetailPage() {
         <Row justify="space-between" align="middle">
           <Col>
             <Title level={2} style={{ color: "#ff69b4" }}>
-              Patient Details
+              Hồ Sơ Điều Trị Chi tiết
             </Title>
             <Text style={{ color: "#666" }}>
-              Comprehensive view of patient information and treatment progress
+              Tổng quan về thông tin bệnh nhân và tiến trình điều trị
             </Text>
-          </Col>
-          <Col>
-            <Space>
-              <Button
-                icon={<EditOutlined />}
-                style={{
-                  borderColor: "#ff69b4",
-                  color: "#ff69b4",
-                }}
-              >
-                Edit Patient
-              </Button>
-              <Button
-                icon={<EditOutlined />}
-                style={{
-                  borderColor: "#ff69b4",
-                  color: "#ff69b4",
-                }}
-              >
-                Edit Medical record
-              </Button>
-              <Button
-                type="primary"
-                icon={<SaveOutlined />}
-                style={{
-                  backgroundColor: "#ff69b4",
-                  borderColor: "#ff69b4",
-                }}
-              >
-                Save Changes
-              </Button>
-            </Space>
           </Col>
         </Row>
       </div>
 
       {/* Patient Overview Cards */}
-      <PatientOverviewCards patient={patient} />
+      {/* <PatientOverviewCards patient={patient} /> */}
+      {/* Muốn xóa chỗ này thành làm các thông tin như trạng thái  */}
+      {/* CHƯA SỬA CHỖ NÀY LƯU Ý !!!! */}
 
       <Tabs
         activeKey={activeTab}
@@ -282,10 +294,12 @@ export default function PatientDetailPage() {
             children: (
               <Row gutter={[24, 24]}>
                 <Col xs={24} lg={12}>
-                  <PatientInformation patient={patient} />
+                  {/* // Đã thực hiện */}
+                  <PatientInformation patient={infoPatient} />
                 </Col>
                 <Col xs={24} lg={12}>
-                  <TreatmentProgress treatmentStages={treatmentStages} />
+                  {/* // Đã thực hiện */}
+                  <TreatmentProgress treatmentStages={treatmentOverview} />
                 </Col>
               </Row>
             ),
@@ -295,6 +309,7 @@ export default function PatientDetailPage() {
             label: "Medical Management",
             children: (
               <>
+                {/* Thông tin hiển thị tại medical manager */}
                 <MedicalManagement
                   treatmentRoadmap={treatmentRoadmap}
                   treatmentResults={treatmentResults}
@@ -316,7 +331,7 @@ export default function PatientDetailPage() {
                 />
 
                 <MedicalDetailModal
-                  visible={isDetailModalVisible}
+                  open={isDetailModalVisible}
                   onCancel={() => setIsDetailModalVisible(false)}
                   onSubmit={handleDetailSubmit}
                   treatmentRoadmap={treatmentRoadmap}

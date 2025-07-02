@@ -3,17 +3,10 @@ import { TreatmentRoadmap } from "./components/TreatmentRoadmap";
 import { TreatmentResults } from "./components/TreatmentResults";
 import { MedicalRecordDetails } from "./components/MedicalRecordDetails";
 import { TestResults } from "./components/TestResults";
-
-interface TreatmentRoadmapItem {
-  Road_ID: string;
-  Date: string;
-  Stage: string;
-  Service_Name: string;
-  Description: string;
-  Duration_day: number;
-  Price: number;
-  Status: string;
-}
+import type {
+  MedicalRecordDetail,
+  treatmentRoadmap,
+} from "../../types/medicalRecord.d";
 
 interface TreatmentResult {
   Treatment_result_ID: string;
@@ -21,17 +14,6 @@ interface TreatmentResult {
   Date: string;
   Description: string;
   Result: string;
-}
-
-interface MedicalRecordDetail {
-  Detail_ID: string;
-  Record_ID: string;
-  Treatment_result_ID: string;
-  Date: string;
-  Road_ID: string;
-  Type: string;
-  Test_result: string;
-  Note: string;
 }
 
 interface TestResult {
@@ -44,7 +26,7 @@ interface TestResult {
 }
 
 interface MedicalManagementProps {
-  treatmentRoadmap: TreatmentRoadmapItem[];
+  treatmentRoadmap: treatmentRoadmap[];
   treatmentResults: TreatmentResult[];
   medicalRecordDetails: MedicalRecordDetail[];
   testResults: TestResult[];
