@@ -1,5 +1,6 @@
-//Định nghĩa Medical record
+import dayjs from "dayjs";
 
+//Định nghĩa Medical record
 export interface MedicalRecordDetail {
   date: string;
   note: string;
@@ -10,35 +11,30 @@ export interface MedicalRecordDetail {
 }
 
 export interface TreatmentHistory {
+  medicalRecordId: string;
   startDate: string;
   endDate: string;
   stage: string;
   diagnosis: string;
   status: string;
   attempt: number;
-  medicalRecordDetails: MedicalRecordDetail[];
-}
-
-export interface CurrentService {
-  id: string;
-  name: string;
-  startDate: string;
-  status: string;
-  doctor: string;
-  nextAppointment: string;
 }
 
 //Định nghĩa treatment
-
-// Định nghĩa interface cho bước điều trị
 export interface Treatment {
   date: string;
   testResult: string;
   note: string;
-  typeName: "Consultation" | "Treatment" | "Result";
-  status: "Complete" | "In Progress" | "Pending";
+  typeName: "Consultation" | "Treatment" | "Result"; // nên giới hạn bằng union type
+  status: "Complete" | "In Progress" | "Pending"; // tùy vào giá trị backend
   treatmentResultId: number;
-  typeTest: TypeTest[];
+  stage: string;
+  description: string;
+  durationDay: number;
+  typeTest: {
+    name: string;
+    description: string;
+  }[];
 }
 
 export interface TreatmentStep {
@@ -64,4 +60,57 @@ export interface TreatmentAttempt {
 export interface TypeTest {
   name: string;
   description: string;
+}
+
+//dịch vụ đang sử dụng tại customer
+export interface CurrentService {
+  fullName: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  nameService: string;
+  description: string;
+}
+
+//sử dụng tại file PatientDetails.tsx
+export interface treatmentRoadmap {
+  treatmentRoadmapId: number;
+  stepNumber: number;
+  date: string;
+  stage: string;
+  description: string;
+  durationDay: number;
+  status: string;
+}
+
+//Form kết quả
+export interface TreatmentResultFormValues {
+  treatmentRoadmapId: number;
+  date: string;
+  stage: string;
+  durationDay: number;
+  status: string;
+}
+
+//medical record detail
+export interface MedicalRecordDetail {
+  medicalRecordDetailId: number;
+  stepNumber: number;
+  date: string;
+  note: string;
+  testResult: string;
+  typeName: string | null;
+  status: string;
+  stage: string;
+}
+
+//create medical record detail
+export interface CreateMedicalRecordDetail {
+  stage: string;
+  stepNumber: number;
+  date: dayjs.Dayjs;
+  typeName: string;
+  status: string;
+  testResult?: string;
+  note?: string;
 }

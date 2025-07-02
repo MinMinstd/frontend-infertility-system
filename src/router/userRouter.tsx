@@ -14,7 +14,7 @@ import FeedbackPage from "../pages/customer/Feedback";
 import SupportUser from "../pages/customer/SupportUser";
 import RegisterService from "../components/RegisterService";
 import Contact from "../components/Contact";
-import TreatmentManagement from "../pages/customer/TreatmentProcess";
+import TreatmentProcess from "../pages/customer/TreatmentProcess";
 import MedicalRecord from "../pages/customer/MedicalRecord";
 import OnlineConsult from "../components/OnlineResult";
 export const userRoutes: RouteObject[] = [
@@ -42,6 +42,6 @@ export const userRoutes: RouteObject[] = [
   { path: "/user/register_service", element: <RegisterService /> },
   { path: "/user/profile", element: <ProfileCard /> },
   { path: "/user/history_medical", element: <HistoryMedical /> },
-  { path: "/user/treatment_management", element: <TreatmentManagement /> },
+  { path: "/user/treatment_process/:id", element: <TreatmentProcess /> },
   { path: "/user/medical_record", element: <MedicalRecord /> },
 ];

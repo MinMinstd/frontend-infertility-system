@@ -82,21 +82,25 @@ const mockUpcomingAppointments: Appointment[] = [
 
 export default function DoctorSchedule() {
   const [appointments] = useState<Appointment[]>(mockAppointments);
-  const [upcomingAppointments] = useState<Appointment[]>(mockUpcomingAppointments);
+  const [upcomingAppointments] = useState<Appointment[]>(
+    mockUpcomingAppointments
+  );
 
   const AppointmentContent = () => (
     <div>
       <div style={{ marginBottom: 32 }}>
         <Row justify="space-between" align="middle">
           <Col>
-            <Title level={2} style={{ color: "#ff69b4" }}>Appointments</Title>
+            <Title level={2} style={{ color: "#ff69b4" }}>
+              Appointments
+            </Title>
             <Text type="secondary">
               Manage patient appointments and scheduling
             </Text>
           </Col>
           <Col>
-            <Button 
-              type="primary" 
+            <Button
+              type="primary"
               icon={<PlusOutlined />}
               style={{
                 backgroundColor: "#ff69b4",
@@ -112,9 +116,16 @@ export default function DoctorSchedule() {
       {/* Quick Stats */}
       <Row gutter={[24, 24]} style={{ marginBottom: 32 }}>
         <Col xs={24} sm={6}>
-          <Card style={{ borderColor: "#ff69b4", boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)" }}>
+          <Card
+            style={{
+              borderColor: "#ff69b4",
+              boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
+            }}
+          >
             <Statistic
-              title={<span style={{ color: "#ff69b4" }}>Today's Appointments</span>}
+              title={
+                <span style={{ color: "#ff69b4" }}>Today's Appointments</span>
+              }
               value={appointments.length}
               prefix={<CalendarOutlined style={{ color: "#ff69b4" }} />}
               valueStyle={{ color: "#ff69b4" }}
@@ -122,16 +133,28 @@ export default function DoctorSchedule() {
           </Card>
         </Col>
         <Col xs={24} sm={6}>
-          <Card style={{ borderColor: "#ff1493", boxShadow: "0 2px 8px rgba(255, 20, 147, 0.1)" }}>
+          <Card
+            style={{
+              borderColor: "#ff1493",
+              boxShadow: "0 2px 8px rgba(255, 20, 147, 0.1)",
+            }}
+          >
             <Statistic
               title={<span style={{ color: "#ff1493" }}>Confirmed</span>}
-              value={appointments.filter((a) => a.status === "confirmed").length}
+              value={
+                appointments.filter((a) => a.status === "confirmed").length
+              }
               valueStyle={{ color: "#ff1493" }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={6}>
-          <Card style={{ borderColor: "#ffb6c1", boxShadow: "0 2px 8px rgba(255, 182, 193, 0.1)" }}>
+          <Card
+            style={{
+              borderColor: "#ffb6c1",
+              boxShadow: "0 2px 8px rgba(255, 182, 193, 0.1)",
+            }}
+          >
             <Statistic
               title={<span style={{ color: "#ffb6c1" }}>Pending</span>}
               value={appointments.filter((a) => a.status === "pending").length}
@@ -140,7 +163,12 @@ export default function DoctorSchedule() {
           </Card>
         </Col>
         <Col xs={24} sm={6}>
-          <Card style={{ borderColor: "#ff69b4", boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)" }}>
+          <Card
+            style={{
+              borderColor: "#ff69b4",
+              boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
+            }}
+          >
             <Statistic
               title={<span style={{ color: "#ff69b4" }}>Tomorrow</span>}
               value={upcomingAppointments.length}
@@ -198,9 +226,12 @@ export default function DoctorSchedule() {
       {/* Appointments List */}
       <Row gutter={[24, 24]}>
         <Col xs={24} lg={16}>
-          <Card 
-            title={<span style={{ color: "#ff69b4" }}>Today's Appointments</span>}
-            style={{ borderColor: "#ff69b4", boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)" }}
+          <Card
+            title={<span style={{ color: "#ff69b4" }}>Patient booking</span>}
+            style={{
+              borderColor: "#ff69b4",
+              boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
+            }}
           >
             <List
               dataSource={appointments}
@@ -230,7 +261,11 @@ export default function DoctorSchedule() {
                           {appointment.patient}
                         </Text>
                         <Tag
-                          color={appointment.status === "confirmed" ? "#ff1493" : "#ffb6c1"}
+                          color={
+                            appointment.status === "confirmed"
+                              ? "#ff1493"
+                              : "#ffb6c1"
+                          }
                         >
                           {appointment.status}
                         </Tag>
@@ -241,7 +276,8 @@ export default function DoctorSchedule() {
                         <Text>{appointment.type}</Text>
                         <Space>
                           <Text type="secondary">
-                            <CalendarOutlined /> {appointment.date} at {appointment.time}
+                            <CalendarOutlined /> {appointment.date} at{" "}
+                            {appointment.time}
                           </Text>
                           <Text type="secondary">
                             <ClockCircleOutlined /> {appointment.duration}
@@ -282,9 +318,12 @@ export default function DoctorSchedule() {
         </Col>
 
         <Col xs={24} lg={8}>
-          <Card 
+          <Card
             title={<span style={{ color: "#ff69b4" }}>Upcoming</span>}
-            style={{ borderColor: "#ff69b4", boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)" }}
+            style={{
+              borderColor: "#ff69b4",
+              boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
+            }}
           >
             <List
               dataSource={upcomingAppointments}

@@ -18,12 +18,16 @@ const UserApi = {
     axiosClient.put<ChangePassword>("/customer/ChangePassword", data),
 
   //medical treatment record detail
-  GetMedicalRecorDetail: () =>
-    axiosClient.get("/customer/medicalRecordWithDetail"),
+  GetMedicalRecord: () => axiosClient.get("/customer/medicalRecord"),
 
   //medical treatment with typetest
-  GetMedicalRecordWithTypeTest: () =>
-    axiosClient.get("/customer/medicalRecordDetailWithTypeTest"),
+  GetMedicalRecordDetail: (id: string) =>
+    axiosClient.get(
+      `/customer/medicalRecordDetail-treatmentResult-typeTest/${id}`
+    ),
+
+  //Dịch vụ hiện tại của customer
+  GetCurrentService: () => axiosClient.get("/customer/getInformationService"),
 
   //Danh sách booking từ khách hàng
   GetBookingList: () => axiosClient.get("customer/GetListBookingInCustomer"),

@@ -1,18 +1,31 @@
 import { Card, Steps } from "antd";
-
-interface TreatmentStage {
-  name: string;
-  completed: boolean;
-  current?: boolean;
-  date: string;
-}
+import type { TreatmentOverview } from "../../types/doctor";
+import dayjs from "dayjs";
 
 interface TreatmentProgressProps {
-  treatmentStages: TreatmentStage[];
+  treatmentStages: TreatmentOverview[];
 }
 
 export function TreatmentProgress({ treatmentStages }: TreatmentProgressProps) {
-  const currentStep = treatmentStages.findIndex((stage) => stage.current);
+  const today = dayjs();
+
+  // Map lại treatmentStages để thêm current và completed
+  const mappedStages = treatmentStages.map((stage) => {
+    const start = dayjs(stage.date);
+    const end = start.add(stage.durationDay, "day");
+
+    const current =
+      today.isAfter(start.subtract(1, "day")) && today.isBefore(end);
+    const completed = today.isAfter(end);
+
+    return {
+      ...stage,
+      current,
+      completed,
+    };
+  });
+
+  const currentStep = mappedStages.findIndex((stage) => stage.current);
 
   return (
     <Card
@@ -25,9 +38,9 @@ export function TreatmentProgress({ treatmentStages }: TreatmentProgressProps) {
       <Steps
         direction="vertical"
         current={currentStep}
-        items={treatmentStages.map((stage) => ({
-          title: stage.name,
-          description: stage.date,
+        items={mappedStages.map((stage) => ({
+          title: stage.stage,
+          description: dayjs(stage.date).format("YYYY-MM-DD"),
           status: stage.completed
             ? "finish"
             : stage.current

@@ -9,24 +9,17 @@ import {
   Button,
   Space,
   type FormInstance,
+  message,
 } from "antd";
-import dayjs from "dayjs";
+
+import type { CreateMedicalRecordDetail } from "../../../../types/medicalRecord.d";
 
 const { TextArea } = Input;
 const { Option } = Select;
 
-interface MedicalDetailFormValues {
-  date: dayjs.Dayjs; // hoặc `Date` nếu bạn xử lý với JS Date
-  road_id: string;
-  treatment_result_id: string;
-  type: string;
-  test_result: string;
-  note: string;
-}
-
 interface TreatmentRoadmapItem {
-  Road_ID: string;
-  Service_Name: string;
+  treatmentRoadmapId: number;
+  stage: string;
 }
 
 interface TreatmentResult {
@@ -35,31 +28,44 @@ interface TreatmentResult {
 }
 
 interface MedicalDetailModalProps {
-  visible: boolean;
+  open: boolean; // Thay 'visible' thành 'open' để phù hợp với Ant Design v5+
   onCancel: () => void;
-  onSubmit: (values: MedicalDetailFormValues) => void;
+  onSubmit: (values: CreateMedicalRecordDetail) => void;
   treatmentRoadmap: TreatmentRoadmapItem[];
   treatmentResults: TreatmentResult[];
-  form: FormInstance<MedicalDetailFormValues>;
+  form: FormInstance<CreateMedicalRecordDetail>;
+  // Có thể thêm các props optional khác nếu cần
+  loading?: boolean;
 }
 
 export function MedicalDetailModal({
-  visible,
+  open,
   onCancel,
   onSubmit,
   treatmentRoadmap,
   treatmentResults,
   form,
+  loading = false,
 }: MedicalDetailModalProps) {
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+      onSubmit(values);
+    } catch (error) {
+      console.log("Lỗi khi submit form:", error);
+      message.error("Xảy ra lỗi khi xác thực form");
+    }
+  };
   return (
     <Modal
       title={<span style={{ color: "#ff69b4" }}>Thêm chi tiết điều trị</span>}
-      open={visible}
+      open={open}
       onCancel={onCancel}
       footer={null}
       width={800}
+      destroyOnClose
     >
-      <Form form={form} layout="vertical" onFinish={onSubmit}>
+      <Form form={form} layout="vertical" onFinish={handleSubmit}>
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
@@ -72,14 +78,19 @@ export function MedicalDetailModal({
           </Col>
           <Col span={12}>
             <Form.Item
-              label={<span style={{ color: "#ff69b4" }}>Bước điều trị</span>}
+              label={
+                <span style={{ color: "#ff69b4" }}>Giai đoạn điều trị</span>
+              }
               name="road_id"
               rules={[{ required: true, message: "Vui lòng chọn bước!" }]}
             >
               <Select placeholder="Chọn bước điều trị">
                 {treatmentRoadmap.map((road) => (
-                  <Option key={road.Road_ID} value={road.Road_ID}>
-                    {road.Road_ID} - {road.Service_Name}
+                  <Option
+                    key={road.treatmentRoadmapId}
+                    value={`R${road.treatmentRoadmapId}`}
+                  >
+                    R{road.treatmentRoadmapId} - {road.stage}
                   </Option>
                 ))}
               </Select>
@@ -141,6 +152,7 @@ export function MedicalDetailModal({
                 backgroundColor: "#ff69b4",
                 borderColor: "#ff69b4",
               }}
+              loading={loading}
             >
               Lưu chi tiết
             </Button>
