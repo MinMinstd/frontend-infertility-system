@@ -127,3 +127,11 @@ export interface TreatmentResult_typeTest {
   result: string;
   typeTest: TypeTest[];
 }
+
+export interface ConsulationResult_typeTest {
+  consulationResultId: number;
+  date: string;
+  resultValue: string;
+  note: string;
+  typeTests: TypeTest[];
+}

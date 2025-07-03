@@ -15,6 +15,7 @@ import type {
   TreatmentOverview,
 } from "../../types/doctor";
 import type {
+  ConsulationResult_typeTest,
   MedicalRecordDetail,
   TreatmentResult_typeTest,
   treatmentRoadmap,
@@ -46,6 +47,11 @@ export default function PatientDetailPage() {
   const [treatmentResult_typeTest, settreatmentResult_typeTest] = useState<
     TreatmentResult_typeTest[]
   >([]);
+
+  const [consulationResult_typeTest, setConsultationResult_TypeTest] = useState<
+    ConsulationResult_typeTest[]
+  >([]);
+
   const [testResults, setTestResults] = useState<TypeTest[]>([]);
   const [activeTab, setActiveTab] = useState("overview");
   const [isTestModalVisible, setIsTestModalVisible] = useState(false);
@@ -62,10 +68,12 @@ export default function PatientDetailPage() {
     isUpdateMedicalDetailModalVisible,
     setIsUpdateMedicalDetailModalVisible,
   ] = useState(false);
+
   const [
     isCreateMedicalDetailModalVisible,
     setIsCreateMedicalDetailModalVisible,
   ] = useState(false);
+
   const [editingMedicalDetail, setEditingMedicalDetail] =
     useState<MedicalRecordDetail | null>(null);
 
@@ -127,6 +135,19 @@ export default function PatientDetailPage() {
     fetchTreatmentResult_Typetest();
   }, [customerIdNumber]);
 
+  useEffect(() => {
+    const fetchConsulationR_TestT = async () => {
+      if (customerIdNumber != null) {
+        const res = await DoctorApi.GetConsultaionResult_TypeTest(
+          customerIdNumber
+        );
+        console.log("Data fetchConsulationR_TestT:", res.data);
+        setConsultationResult_TypeTest(res.data);
+      }
+    };
+    fetchConsulationR_TestT();
+  }, [customerIdNumber]);
+
   const showUpdateRoadmapModal = (roadmap: treatmentRoadmap) => {
     setEditingRoadmap(roadmap);
     setIsUpdateRoadmapModalVisible(true);
@@ -155,6 +176,7 @@ export default function PatientDetailPage() {
     medicalDetailForm.resetFields();
   };
 
+  //Treatment roadmap
   const handleUpdateTreatmentRoadmap = async (updated: treatmentRoadmap) => {
     if (!customerIdNumber || !editingRoadmap) return;
 
@@ -280,6 +302,8 @@ export default function PatientDetailPage() {
     }
   };
 
+  //Consulation result
+
   const handleTestSubmit = (values: TestResultFormValues) => {
     const newTest: TypeTest = {
       typeTestId: Date.now(),
@@ -341,7 +365,7 @@ export default function PatientDetailPage() {
                   treatmentRoadmap={treatmentRoadmap}
                   treatmentResults={treatmentResult_typeTest}
                   medicalRecordDetails={medicalRecordDetails}
-                  testResults={testResults}
+                  consulationResults={consulationResult_typeTest}
                   onAddTest={() => setIsTestModalVisible(true)}
                   onUpdateRoadmap={showUpdateRoadmapModal}
                   onUpdateDetail={showUpdateMedicalDetailModal}

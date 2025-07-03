@@ -96,6 +96,11 @@ const DoctorApi = {
   GetTreatmentResult_TypeTest: (customerid: number) => {
     return axiosClient.get(`Doctor/treatmentResult-typeTest/${customerid}`);
   },
+
+  //Thông tin consulation result - type test
+  GetConsultaionResult_TypeTest: (customerid: number) => {
+    return axiosClient.get(`Doctor/consultationResult-typeTests/${customerid}`);
+  },
 };
 
 export default DoctorApi;
