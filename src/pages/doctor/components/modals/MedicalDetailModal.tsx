@@ -53,7 +53,6 @@ export function MedicalDetailModal({
   onSubmit,
   treatmentRoadmap,
   treatmentResults,
-
   form,
   loading = false,
 }: MedicalDetailModalProps) {
@@ -62,7 +61,7 @@ export function MedicalDetailModal({
       const values = await form.validateFields();
       onSubmit({
         ...values,
-        date: values.date,
+        date: dayjs(values.date).format("YYYY-MM-DD"),
       });
     } catch (error) {
       console.log("Lỗi khi submit form:", error);

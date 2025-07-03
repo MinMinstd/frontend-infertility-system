@@ -62,6 +62,10 @@ export default function PatientDetailPage() {
     isUpdateMedicalDetailModalVisible,
     setIsUpdateMedicalDetailModalVisible,
   ] = useState(false);
+  const [
+    isCreateMedicalDetailModalVisible,
+    setIsCreateMedicalDetailModalVisible,
+  ] = useState(false);
   const [editingMedicalDetail, setEditingMedicalDetail] =
     useState<MedicalRecordDetail | null>(null);
 
@@ -146,6 +150,11 @@ export default function PatientDetailPage() {
     });
   };
 
+  const showCreateMedicalDetailModal = () => {
+    setIsCreateMedicalDetailModalVisible(true);
+    medicalDetailForm.resetFields();
+  };
+
   const handleUpdateTreatmentRoadmap = async (updated: treatmentRoadmap) => {
     if (!customerIdNumber || !editingRoadmap) return;
 
@@ -179,6 +188,7 @@ export default function PatientDetailPage() {
     }
   };
 
+  //Medical record detail
   const handleUpdateMedicalRecordDetail = async (updated: {
     date: string;
     testResult?: string;
@@ -214,6 +224,59 @@ export default function PatientDetailPage() {
     } catch (error) {
       console.error("Lỗi khi cập nhật hồ sơ bệnh án:", error);
       message.error("Cập nhật thất bại");
+    }
+  };
+
+  const handleCreateMedicalRecordDetail = async (values: {
+    treatmentRoadmapId: number;
+    date: string;
+    typeName: string;
+    testResult?: string;
+    note?: string;
+    status: string;
+  }) => {
+    if (!customerIdNumber) return;
+
+    try {
+      const roadmapId = Number(values.treatmentRoadmapId);
+      const response = await DoctorApi.CreateMedicalRecordDetail(
+        customerIdNumber,
+        {
+          treatmentRoadmapId: roadmapId,
+          date: values.date,
+          typeName: values.typeName,
+          testResult: values.testResult || "",
+          note: values.note || "",
+          status: values.status,
+        }
+      );
+
+      // Tìm roadmap tương ứng để lấy stage và stepNumber
+      const relatedRoadmap = treatmentRoadmap.find(
+        (r) => r.treatmentRoadmapId === roadmapId
+      );
+
+      setMedicalRecordDetails((prev) => [
+        ...prev,
+        {
+          medicalRecordDetailId: response.data.medicalRecordDetailId,
+          treatmentRoadmapId: roadmapId,
+          date: dayjs(values.date).format("YYYY-MM-DD"),
+          typeName: values.typeName,
+          testResult: values.testResult || "",
+          note: values.note || "",
+          status: values.status,
+          stage: relatedRoadmap?.stage || "", // Cung cấp giá trị mặc định nếu cần
+          stepNumber: relatedRoadmap?.stepNumber || 0, // Cung cấp giá trị mặc định nếu cần
+        },
+      ]);
+
+      message.success("Tạo mới hồ sơ bệnh án thành công");
+      setIsCreateMedicalDetailModalVisible(false);
+      medicalDetailForm.resetFields();
+    } catch (error) {
+      console.error("Lỗi khi tạo mới hồ sơ bệnh án:", error);
+      message.error("Tạo mới thất bại");
     }
   };
 
@@ -279,10 +342,10 @@ export default function PatientDetailPage() {
                   treatmentResults={treatmentResult_typeTest}
                   medicalRecordDetails={medicalRecordDetails}
                   testResults={testResults}
-                  onAddDetail={() => {}}
                   onAddTest={() => setIsTestModalVisible(true)}
                   onUpdateRoadmap={showUpdateRoadmapModal}
                   onUpdateDetail={showUpdateMedicalDetailModal}
+                  onAddDetail={showCreateMedicalDetailModal}
                   onAddResult={() => {}}
                   onUpdateResult={() => {}}
                 />
@@ -317,6 +380,21 @@ export default function PatientDetailPage() {
                   treatmentResults={treatmentResult_typeTest}
                   form={medicalDetailForm}
                   isEditing={true} // ✅ Thêm prop này để phân biệt chế độ edit
+                />
+
+                <MedicalDetailModal
+                  open={isCreateMedicalDetailModalVisible}
+                  onCancel={() => setIsCreateMedicalDetailModalVisible(false)}
+                  onSubmit={(values) => {
+                    handleCreateMedicalRecordDetail({
+                      ...values,
+                      date: values.date, // Đã xử lý trong hàm handle
+                    });
+                  }}
+                  treatmentRoadmap={treatmentRoadmap}
+                  treatmentResults={treatmentResult_typeTest}
+                  form={medicalDetailForm}
+                  isEditing={false}
                 />
 
                 <TestResultModal

@@ -11,6 +11,7 @@ const axiosClient = axios.create({
 //Sử dụng lưu token vào local storage
 axiosClient.interceptors.request.use((config) => {
   const token = localStorage.getItem("accesstoken");
+  console.log("Sending token:", token);
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }
