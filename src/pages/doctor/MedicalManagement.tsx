@@ -5,35 +5,22 @@ import { MedicalRecordDetails } from "./components/MedicalRecordDetails";
 import { TestResults } from "./components/TestResults";
 import type {
   MedicalRecordDetail,
+  TreatmentResult_typeTest,
   treatmentRoadmap,
+  TypeTest,
 } from "../../types/medicalRecord.d";
-
-interface TreatmentResult {
-  Treatment_result_ID: string;
-  Road_ID: string;
-  Date: string;
-  Description: string;
-  Result: string;
-}
-
-interface TestResult {
-  Test_ID: string;
-  Treatment_result_ID: string;
-  Name: string;
-  Description: string;
-  Result_ID: string;
-  Note: string;
-}
 
 interface MedicalManagementProps {
   treatmentRoadmap: treatmentRoadmap[];
-  treatmentResults: TreatmentResult[];
+  treatmentResults: TreatmentResult_typeTest[];
   medicalRecordDetails: MedicalRecordDetail[];
-  testResults: TestResult[];
+  testResults: TypeTest[];
   onUpdateResult: (roadId: string) => void;
   onAddResult: () => void;
   onAddDetail: () => void;
   onAddTest: () => void;
+  onUpdateRoadmap: (roadmap: treatmentRoadmap) => void;
+  onUpdateDetail: (medicalDetail: MedicalRecordDetail) => void;
 }
 
 export function MedicalManagement({
@@ -41,7 +28,8 @@ export function MedicalManagement({
   treatmentResults,
   medicalRecordDetails,
   testResults,
-  onUpdateResult,
+  onUpdateRoadmap,
+  onUpdateDetail,
   onAddResult,
   onAddDetail,
   onAddTest,
@@ -75,7 +63,7 @@ export function MedicalManagement({
             children: (
               <TreatmentRoadmap
                 treatmentRoadmap={treatmentRoadmap}
-                onUpdateResult={onUpdateResult}
+                onUpdateRoadmap={onUpdateRoadmap}
               />
             ),
           },
@@ -116,6 +104,7 @@ export function MedicalManagement({
               <MedicalRecordDetails
                 medicalRecordDetails={medicalRecordDetails}
                 onAddDetail={onAddDetail}
+                onUpdateDetail={onUpdateDetail}
               />
             ),
           },

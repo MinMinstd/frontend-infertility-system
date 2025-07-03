@@ -7,7 +7,11 @@ interface ProtedRouterProps {
 
 //Thực hiện kiểm tra quyền truy cập
 const ProtedRouter = ({ allowedRoles }: ProtedRouterProps) => {
-  const { isLoggedIn, user } = useAuth();
+  const { isLoggedIn, user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <div>Đang tải xác thực...</div>; // hoặc spinner
+  }
 
   if (!isLoggedIn) {
     return <Navigate to="/login" />;

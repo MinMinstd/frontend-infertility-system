@@ -15,6 +15,7 @@ interface AuthContextType {
   user: User | null;
   login: (token: string) => Promise<void>;
   logout: () => void;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,22 +24,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchUser = useCallback(async () => {
     try {
       const res = await AuthApi.Me(); //API trả về user (id, role, name)
+      console.log("User info:", res.data);
       setUser(res.data);
-    } catch {
+      setIsLoggedIn(true);
+    } catch (error) {
+      console.error("Lỗi khi gọi AuthApi.Me:", error);
       logout(); // token không hoạt động sẽ tự động logout
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("accesstoken");
     if (token) {
-      setIsLoggedIn(true);
       setAccessToken(token);
       fetchUser();
+    } else {
+      setIsLoading(false);
     }
   }, [fetchUser]); // Add fetchUser to dependency array
 
@@ -50,7 +58,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
+    console.log("Trước khi xóa:", localStorage.getItem("accesstoken")); // kiểm tra có tồn tại không
     localStorage.removeItem("accesstoken");
+    console.log("Sau khi xóa:", localStorage.getItem("accesstoken")); // xem đã mất chưa
     setIsLoggedIn(false);
     setAccessToken(null);
     setUser(null);
@@ -58,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ isLoggedIn, accessToken, user, login, logout }}
+      value={{ isLoggedIn, accessToken, user, login, logout, isLoading }}
     >
       {children}
     </AuthContext.Provider>

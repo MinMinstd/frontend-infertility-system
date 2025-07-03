@@ -1,14 +1,12 @@
-import dayjs from "dayjs";
-
 //Định nghĩa Medical record
-export interface MedicalRecordDetail {
-  date: string;
-  note: string;
-  testResult: string;
-  typeName: string | null;
-  stage: string;
-  status: string;
-}
+// export interface MedicalRecordDetail {
+//   date: string;
+//   note: string;
+//   testResult: string;
+//   typeName: string | null;
+//   stage: string;
+//   status: string;
+// }
 
 export interface TreatmentHistory {
   medicalRecordId: string;
@@ -58,6 +56,7 @@ export interface TreatmentAttempt {
 
 //định nghĩa Type test
 export interface TypeTest {
+  typeTestId: number;
   name: string;
   description: string;
 }
@@ -95,22 +94,36 @@ export interface TreatmentResultFormValues {
 //medical record detail
 export interface MedicalRecordDetail {
   medicalRecordDetailId: number;
-  stepNumber: number;
+  treatmentRoadmapId: number;
+  stepNumber?: number;
   date: string;
-  note: string;
-  testResult: string;
+  note?: string;
+  testResult?: string;
   typeName: string | null;
   status: string;
-  stage: string;
+  stage?: string;
 }
 
 //create medical record detail
 export interface CreateMedicalRecordDetail {
+  medicalRecordId: number;
+  treatmentRoadmapId: number;
+  treatmentResultId: number;
   stage: string;
   stepNumber: number;
-  date: dayjs.Dayjs;
+  date: string;
   typeName: string;
   status: string;
   testResult?: string;
   note?: string;
+}
+
+export interface TreatmentResult_typeTest {
+  treatmentResultId: number;
+  treatmentRoadmapId: number;
+  stepNumber: number;
+  date: string;
+  description: string;
+  result: string;
+  typeTest: TypeTest[];
 }

@@ -12,10 +12,9 @@ import {
 const { TextArea } = Input;
 const { Option } = Select;
 
-interface TreatmentResultFormValues {
-  treatmentRoadmapId: number;
+interface TreatmentRoadmapUpdateFormValues {
   date: string;
-  stage: string;
+  description: string;
   durationDay: number;
   status: string;
 }
@@ -28,16 +27,15 @@ interface TreatmentRoadmapItem {
 interface TreatmentResultModalProps {
   visible: boolean;
   onCancel: () => void;
-  onSubmit: (values: TreatmentResultFormValues) => void;
+  onSubmit: (values: TreatmentRoadmapUpdateFormValues) => void;
   treatmentRoadmap: TreatmentRoadmapItem[];
-  form: FormInstance<TreatmentResultFormValues>;
+  form: FormInstance<TreatmentRoadmapUpdateFormValues>;
 }
 
-export function TreatmentResultModal({
+export function TreatmentRoadMapModal({
   visible,
   onCancel,
   onSubmit,
-  treatmentRoadmap,
   form,
 }: TreatmentResultModalProps) {
   return (
@@ -52,28 +50,13 @@ export function TreatmentResultModal({
     >
       <Form form={form} layout="vertical" onFinish={onSubmit}>
         <Form.Item
-          label={<span style={{ color: "#ff69b4" }}>Bước điều trị</span>}
-          name="road_id"
-          rules={[{ required: true, message: "Vui lòng chọn bước điều trị!" }]}
-        >
-          <Select placeholder="Chọn bước điều trị">
-            {treatmentRoadmap.map((road) => (
-              <Option
-                key={road.treatmentRoadmapId}
-                value={`R${road.treatmentRoadmapId}`}
-              >
-                R{road.treatmentRoadmapId} - {road.stage}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-        <Form.Item
           label={<span style={{ color: "#ff69b4" }}>Ngày cập nhật</span>}
           name="date"
           rules={[{ required: true, message: "Vui lòng chọn ngày!" }]}
         >
           <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" />
         </Form.Item>
+
         <Form.Item
           label={<span style={{ color: "#ff69b4" }}>Mô tả điều trị</span>}
           name="description"
@@ -81,17 +64,27 @@ export function TreatmentResultModal({
         >
           <TextArea rows={3} placeholder="Nhập mô tả chi tiết điều trị" />
         </Form.Item>
+
         <Form.Item
-          label={<span style={{ color: "#ff69b4" }}>Kết quả</span>}
-          name="result"
-          rules={[{ required: true, message: "Vui lòng chọn kết quả!" }]}
+          label={<span style={{ color: "#ff69b4" }}>Thời gian (ngày)</span>}
+          name="durationDay"
+          rules={[{ required: true, message: "Vui lòng nhập thời gian!" }]}
         >
-          <Select placeholder="Chọn kết quả">
-            <Option value="Hoàn thành">Hoàn Thành</Option>
-            <Option value="Đang xử lý">Đang Xử Lý</Option>
-            <Option value="Thất bại">Thất Bại</Option>
+          <Input type="number" min={1} placeholder="Số ngày điều trị" />
+        </Form.Item>
+
+        <Form.Item
+          label={<span style={{ color: "#ff69b4" }}>Trạng thái</span>}
+          name="status"
+          rules={[{ required: true, message: "Vui lòng chọn trạng thái!" }]}
+        >
+          <Select placeholder="Chọn trạng thái">
+            <Option value="Đã hoàn thành">Đã hoàn thành</Option>
+            <Option value="Đang tiến hành">Đang tiến hành</Option>
+            <Option value="Chưa bắt đầu">Chưa bắt đầu</Option>
           </Select>
         </Form.Item>
+
         <Form.Item>
           <Space>
             <Button
@@ -102,7 +95,7 @@ export function TreatmentResultModal({
                 borderColor: "#ff69b4",
               }}
             >
-              Lưu kết quả
+              Cập nhật
             </Button>
             <Button onClick={onCancel}>Hủy</Button>
           </Space>
