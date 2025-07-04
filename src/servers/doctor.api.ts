@@ -97,6 +97,26 @@ const DoctorApi = {
     return axiosClient.get(`Doctor/treatmentResult-typeTest/${customerid}`);
   },
 
+  //Cập nhật thông tin treatment result - type test
+  UpdateTreatmentResult_TypeTest: (
+    treatmentResultId: number,
+    data: {
+      dateTreatmentResult: string;
+      description: string;
+      result: string;
+      typeTest: {
+        typeTestId: number;
+        name: string;
+        description: string;
+      }[];
+    }
+  ) => {
+    return axiosClient.put(
+      `Doctor/treatmentResult-typeTest/${treatmentResultId}`,
+      data
+    );
+  },
+
   //Thông tin consulation result - type test
   GetConsultaionResult_TypeTest: (customerid: number) => {
     return axiosClient.get(`Doctor/consultationResult-typeTests/${customerid}`);

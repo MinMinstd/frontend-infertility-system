@@ -2,7 +2,7 @@ import { Alert, Collapse } from "antd";
 import { TreatmentRoadmap } from "./components/TreatmentRoadmap";
 import { TreatmentResults } from "./components/TreatmentResults";
 import { MedicalRecordDetails } from "./components/MedicalRecordDetails";
-import { ConsulationResults } from "./components/TestResults";
+import { ConsulationResults } from "./components/ConsulationResults";
 import type {
   ConsulationResult_typeTest,
   MedicalRecordDetail,
@@ -20,6 +20,7 @@ interface MedicalManagementProps {
   onAddDetail: () => void;
   onAddTest: () => void;
   onUpdateRoadmap: (roadmap: treatmentRoadmap) => void;
+  onUpdateTreatmentResult: (treatmentReuslut: TreatmentResult_typeTest) => void;
   onUpdateDetail: (medicalDetail: MedicalRecordDetail) => void;
 }
 
@@ -29,6 +30,7 @@ export function MedicalManagement({
   medicalRecordDetails,
   consulationResults,
   onUpdateRoadmap,
+  onUpdateTreatmentResult,
   onUpdateDetail,
   onAddResult,
   onAddDetail,
@@ -82,8 +84,9 @@ export function MedicalManagement({
             ),
             children: (
               <TreatmentResults
-                treatmentResults={treatmentResults}
+                treatmentResults={treatmentResults} //hiển thị thông tin
                 onAddResult={onAddResult}
+                onUpdateTreatmentResult={onUpdateTreatmentResult}
               />
             ),
           },
