@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 //Định nghĩa Medical record
 // export interface MedicalRecordDetail {
 //   date: string;
@@ -126,4 +128,21 @@ export interface TreatmentResult_typeTest {
   description: string;
   result: string;
   typeTest: TypeTest[];
+}
+
+//update treatment result _ type test
+export interface UpdateTreatmentResultFormValues {
+  dateTreatmentResult: dayjs.Dayjs; // từ DatePicker
+  description: string;
+  result: string;
+  typeTest: TypeTest[]; // giữ nguyên vì đã chuẩn rồi
+}
+
+//Định nghĩa Consulation result - typetest
+export interface ConsulationResult_typeTest {
+  consulationResultId: number;
+  date: string;
+  resultValue: string;
+  note: string;
+  typeTests: TypeTest[];
 }

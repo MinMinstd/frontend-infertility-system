@@ -1,25 +1,18 @@
-"use client";
-
 import { Card, Button, Space, Typography, Divider } from "antd";
 import { PlusOutlined, EyeOutlined, EditOutlined } from "@ant-design/icons";
+import type { ConsulationResult_typeTest } from "../../../types/medicalRecord.d";
 
 const { Text } = Typography;
 
-interface TestResult {
-  Test_ID: string;
-  Treatment_result_ID: string;
-  Name: string;
-  Description: string;
-  Result_ID: string;
-  Note: string;
-}
-
-interface TestResultsProps {
-  testResults: TestResult[];
+interface ConsulationResultsProps {
+  consulationResults: ConsulationResult_typeTest[];
   onAddTest: () => void;
 }
 
-export function TestResults({ testResults, onAddTest }: TestResultsProps) {
+export function ConsulationResults({
+  consulationResults,
+  onAddTest,
+}: ConsulationResultsProps) {
   return (
     <Card
       style={{
@@ -37,18 +30,23 @@ export function TestResults({ testResults, onAddTest }: TestResultsProps) {
             borderColor: "#ff69b4",
           }}
         >
-          Thêm kết quả xét nghiệm
+          Thêm kết luận xét nghiệm
         </Button>
       </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {testResults.map((test) => (
+        {consulationResults.map((result) => (
           <Card
-            key={test.Test_ID}
+            key={result.consulationResultId}
             style={{
               borderColor: "#ffb6c1",
               backgroundColor: "#fff5f7",
             }}
-            title={<span style={{ color: "#ff69b4" }}>{test.Name}</span>}
+            title={
+              <span style={{ color: "#ff69b4" }}>
+                Ngày kết luận: {result.date}
+              </span>
+            }
             extra={
               <Space>
                 <Button
@@ -67,20 +65,26 @@ export function TestResults({ testResults, onAddTest }: TestResultsProps) {
             }
           >
             <Space direction="vertical" style={{ width: "100%" }}>
-              <div>
-                <Text type="secondary">Mô tả: {test.Description}</Text>
-              </div>
-              <div>
-                <Text type="secondary">Liên kết kết quả: {test.Result_ID}</Text>
-              </div>
+              <Text strong>Kết luận:</Text>
+              <Text type="secondary">{result.resultValue}</Text>
+
               <Divider style={{ margin: "8px 0" }} />
-              <div>
-                <Text strong style={{ color: "#ff69b4" }}>
-                  Đánh giá chuyên môn:
-                </Text>
-                <br />
-                <Text type="secondary">{test.Note}</Text>
-              </div>
+
+              <Text strong>Ghi chú:</Text>
+              <Text type="secondary">{result.note}</Text>
+
+              <Divider style={{ margin: "8px 0" }} />
+
+              <Text strong>Các xét nghiệm liên quan:</Text>
+              <ul style={{ paddingLeft: 20 }}>
+                {result.typeTests.map((test) => (
+                  <li key={test.typeTestId}>
+                    <Text>
+                      <strong>{test.name}</strong> – {test.description}
+                    </Text>
+                  </li>
+                ))}
+              </ul>
             </Space>
           </Card>
         ))}

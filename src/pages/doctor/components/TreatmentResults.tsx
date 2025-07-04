@@ -8,11 +8,13 @@ const { Text } = Typography;
 interface TreatmentResultsProps {
   treatmentResults: TreatmentResult_typeTest[];
   onAddResult: () => void;
+  onUpdateTreatmentResult: (record: TreatmentResult_typeTest) => void;
 }
 
 export function TreatmentResults({
   treatmentResults,
   onAddResult,
+  onUpdateTreatmentResult,
 }: TreatmentResultsProps) {
   return (
     <Card
@@ -54,6 +56,7 @@ export function TreatmentResults({
                 type="text"
                 icon={<EditOutlined />}
                 style={{ color: "#ff69b4" }}
+                onClick={() => onUpdateTreatmentResult(result)}
               />
             }
           >

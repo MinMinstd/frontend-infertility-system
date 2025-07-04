@@ -2,24 +2,25 @@ import { Alert, Collapse } from "antd";
 import { TreatmentRoadmap } from "./components/TreatmentRoadmap";
 import { TreatmentResults } from "./components/TreatmentResults";
 import { MedicalRecordDetails } from "./components/MedicalRecordDetails";
-import { TestResults } from "./components/TestResults";
+import { ConsulationResults } from "./components/ConsulationResults";
 import type {
+  ConsulationResult_typeTest,
   MedicalRecordDetail,
   TreatmentResult_typeTest,
   treatmentRoadmap,
-  TypeTest,
 } from "../../types/medicalRecord.d";
 
 interface MedicalManagementProps {
   treatmentRoadmap: treatmentRoadmap[];
   treatmentResults: TreatmentResult_typeTest[];
   medicalRecordDetails: MedicalRecordDetail[];
-  testResults: TypeTest[];
+  consulationResults: ConsulationResult_typeTest[];
   onUpdateResult: (roadId: string) => void;
   onAddResult: () => void;
   onAddDetail: () => void;
   onAddTest: () => void;
   onUpdateRoadmap: (roadmap: treatmentRoadmap) => void;
+  onUpdateTreatmentResult: (treatmentReuslut: TreatmentResult_typeTest) => void;
   onUpdateDetail: (medicalDetail: MedicalRecordDetail) => void;
 }
 
@@ -27,8 +28,9 @@ export function MedicalManagement({
   treatmentRoadmap,
   treatmentResults,
   medicalRecordDetails,
-  testResults,
+  consulationResults,
   onUpdateRoadmap,
+  onUpdateTreatmentResult,
   onUpdateDetail,
   onAddResult,
   onAddDetail,
@@ -82,8 +84,9 @@ export function MedicalManagement({
             ),
             children: (
               <TreatmentResults
-                treatmentResults={treatmentResults}
+                treatmentResults={treatmentResults} //hiển thị thông tin
                 onAddResult={onAddResult}
+                onUpdateTreatmentResult={onUpdateTreatmentResult}
               />
             ),
           },
@@ -122,7 +125,10 @@ export function MedicalManagement({
               </span>
             ),
             children: (
-              <TestResults testResults={testResults} onAddTest={onAddTest} />
+              <ConsulationResults
+                consulationResults={consulationResults}
+                onAddTest={onAddTest}
+              />
             ),
           },
         ]}
