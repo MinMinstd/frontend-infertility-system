@@ -7,13 +7,13 @@ const { Text } = Typography;
 
 interface TreatmentResultsProps {
   treatmentResults: TreatmentResult_typeTest[];
-  onAddResult: () => void;
+  onAddTreatmentResult: () => void;
   onUpdateTreatmentResult: (record: TreatmentResult_typeTest) => void;
 }
 
 export function TreatmentResults({
   treatmentResults,
-  onAddResult,
+  onAddTreatmentResult,
   onUpdateTreatmentResult,
 }: TreatmentResultsProps) {
   return (
@@ -27,7 +27,7 @@ export function TreatmentResults({
         <Button
           type="primary"
           icon={<PlusOutlined />}
-          onClick={onAddResult}
+          onClick={onAddTreatmentResult}
           style={{
             backgroundColor: "#ff69b4",
             borderColor: "#ff69b4",
@@ -63,7 +63,10 @@ export function TreatmentResults({
             <Space direction="vertical" style={{ width: "100%" }}>
               <div>
                 <Text strong style={{ color: "#ff69b4" }}>
-                  Ngày: {dayjs(result.date).format("DD/MM/YYYY")}
+                  Ngày:{" "}
+                  {dayjs(result.dateTreatmentResult).isValid()
+                    ? dayjs(result.dateTreatmentResult).format("DD/MM/YYYY")
+                    : "Không xác định"}
                 </Text>
               </div>
               <div>

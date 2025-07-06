@@ -1,4 +1,3 @@
-import React from "react";
 import { Card, Row, Col, Statistic, Typography, Space } from "antd";
 import {
   Calendar,
@@ -90,9 +89,7 @@ const ManagerDashboard = () => {
           <Title level={2} className="text-pink-600 !mb-0">
             Bảng điều khiển
           </Title>
-          <Text type="secondary">
-            Tổng quan về hoạt động của hệ thống
-          </Text>
+          <Text type="secondary">Tổng quan về hoạt động của hệ thống</Text>
         </div>
 
         <Row gutter={[16, 16]}>
@@ -101,8 +98,12 @@ const ManagerDashboard = () => {
               <Statistic
                 title={<span className="text-gray-600">Tổng số lịch hẹn</span>}
                 value={stats.totalAppointments}
-                prefix={<div className="p-3 rounded-lg bg-blue-500 flex items-center justify-center"><Calendar className="w-6 h-6 text-white" /></div>}
-                valueStyle={{ color: '#3b82f6' }}
+                prefix={
+                  <div className="p-3 rounded-lg bg-blue-500 flex items-center justify-center">
+                    <Calendar className="w-6 h-6 text-white" />
+                  </div>
+                }
+                valueStyle={{ color: "#3b82f6" }}
               />
             </Card>
           </Col>
@@ -111,8 +112,12 @@ const ManagerDashboard = () => {
               <Statistic
                 title={<span className="text-gray-600">Tổng số bệnh nhân</span>}
                 value={stats.totalPatients}
-                prefix={<div className="p-3 rounded-lg bg-purple-500 flex items-center justify-center"><Users className="w-6 h-6 text-white" /></div>}
-                valueStyle={{ color: '#a855f7' }}
+                prefix={
+                  <div className="p-3 rounded-lg bg-purple-500 flex items-center justify-center">
+                    <Users className="w-6 h-6 text-white" />
+                  </div>
+                }
+                valueStyle={{ color: "#a855f7" }}
               />
             </Card>
           </Col>
@@ -121,8 +126,12 @@ const ManagerDashboard = () => {
               <Statistic
                 title={<span className="text-gray-600">Tổng số bác sĩ</span>}
                 value={stats.totalDoctors}
-                prefix={<div className="p-3 rounded-lg bg-green-500 flex items-center justify-center"><User className="w-6 h-6 text-white" /></div>}
-                valueStyle={{ color: '#22c55e' }}
+                prefix={
+                  <div className="p-3 rounded-lg bg-green-500 flex items-center justify-center">
+                    <User className="w-6 h-6 text-white" />
+                  </div>
+                }
+                valueStyle={{ color: "#22c55e" }}
               />
             </Card>
           </Col>
@@ -131,8 +140,12 @@ const ManagerDashboard = () => {
               <Statistic
                 title={<span className="text-gray-600">Doanh thu</span>}
                 value={stats.totalRevenue}
-                prefix={<div className="p-3 rounded-lg bg-emerald-500 flex items-center justify-center"><DollarSign className="w-6 h-6 text-white" /></div>}
-                valueStyle={{ color: '#10b981' }}
+                prefix={
+                  <div className="p-3 rounded-lg bg-emerald-500 flex items-center justify-center">
+                    <DollarSign className="w-6 h-6 text-white" />
+                  </div>
+                }
+                valueStyle={{ color: "#10b981" }}
                 suffix="VNĐ"
               />
             </Card>
@@ -147,7 +160,9 @@ const ManagerDashboard = () => {
                 onClick={() => navigate(section.link)}
               >
                 <div className="flex items-center space-x-4">
-                  <div className={`p-3 rounded-lg ${section.bgColor} flex items-center justify-center`}>
+                  <div
+                    className={`p-3 rounded-lg ${section.bgColor} flex items-center justify-center`}
+                  >
                     {section.icon}
                   </div>
                   <div>
