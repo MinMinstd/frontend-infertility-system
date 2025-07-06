@@ -159,3 +159,15 @@ export interface ConsulationResult_typeTest {
   note: string;
   typeTests: TypeTest[];
 }
+
+//Medical record
+export interface MedicalRecord {
+  bookingId: number;
+  medicalRecordId: number;
+  startDate: string;
+  endDate: string;
+  stage: string;
+  diagnosis: string;
+  status: string;
+  attempt: number;
+} //Lấy danh sách mediccal record

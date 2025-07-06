@@ -7,6 +7,7 @@ const DoctorApi = {
       `/Doctor/GetDoctorsByServiceIdForBookingConsulation/${serviceId}`
     );
   },
+
   getDoctorSchedule: (doctorId: number, date: string) => {
     return axiosClient.get(
       `/DoctorSchedule/GetListDoctorSchedule/${doctorId}?date=${date}`
@@ -31,8 +32,14 @@ const DoctorApi = {
   },
 
   //Tiến độ các bước điều trị tại medical manager
-  GetTreatmentRoadmap: (customerId: number) => {
+  GetTreatmentRoadmap1: (customerId: number) => {
     return axiosClient.get(`Doctor/getDetailTreatmentRoadmap/${customerId}`);
+  },
+
+  GetTreatmentRoadmap: (customerId: number, bookingId: number) => {
+    return axiosClient.get(
+      `Doctor/getDetailTreatmentRoadmap/${customerId}/${bookingId}`
+    );
   },
 
   //Cập nhật treatment road map tại medical manager
@@ -132,6 +139,11 @@ const DoctorApi = {
   //Thông tin consulation result - type test
   GetConsultaionResult_TypeTest: (customerid: number) => {
     return axiosClient.get(`Doctor/consultationResult-typeTests/${customerid}`);
+  },
+
+  //danh sách medical record của một bệnh nhân
+  GetMedicalRecord(customerid: number) {
+    return axiosClient.get(`Doctor/medicalRecord/${customerid}`);
   },
 };
 

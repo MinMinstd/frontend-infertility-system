@@ -2,20 +2,17 @@ import { useEffect, useState } from "react";
 import { Typography, Row, Col, Tabs, Form, message } from "antd";
 import { MedicalDetailModal } from "./components/modals/MedicalDetailModal";
 import { TestResultModal } from "./components/modals/TestResultModal";
-import { TreatmentRoadMapModal } from "./components/modals/TreatmentRoadMapModal";
+// import { TreatmentRoadMapModal } from "./components/modals/TreatmentRoadMapModal";
 import { PatientInformation } from "./PatientInformation";
-import { TreatmentProgress } from "./TreatmentProgress";
 import { DoctorSidebar } from "./DoctorSidebar";
 import dayjs from "dayjs";
 import { MedicalManagement } from "./MedicalManagement";
 import DoctorApi from "../../servers/doctor.api";
 import { useParams } from "react-router-dom";
-import type {
-  InformationPatientDetails,
-  TreatmentOverview,
-} from "../../types/doctor";
+import type { InformationPatientDetails } from "../../types/doctor";
 import type {
   ConsulationResult_typeTest,
+  MedicalRecord,
   MedicalRecordDetail,
   TreatmentResult_typeTest,
   treatmentRoadmap,
@@ -23,6 +20,7 @@ import type {
   UpdateTreatmentResultFormValues,
 } from "../../types/medicalRecord.d";
 import { TreatmentResultModal } from "./components/modals/TreatmentResultModal";
+import { MedicalRecordOverview } from "./MedicalRecordOverview";
 
 const { Title, Text } = Typography;
 
@@ -34,12 +32,18 @@ interface TestResultFormValues {
 export default function PatientDetailPage() {
   const { customerId } = useParams<{ customerId: string }>();
   const customerIdNumber = customerId ? Number(customerId) : undefined;
+  const [selectedBookingId, setSelectedBookingId] = useState<number | null>(
+    null
+  );
+  const [selectedMedicalRecordId, setSelectedMedicalRecordId] = useState<
+    number | null
+  >(null);
 
   const [infoPatient, setInfoPatient] =
     useState<InformationPatientDetails | null>(null);
-  const [treatmentOverview, setTreatmentOverview] = useState<
-    TreatmentOverview[]
-  >([]);
+
+  const [medicalRecord, setMedicalRecord] = useState<MedicalRecord[]>([]);
+
   const [treatmentRoadmap, setTreatmentRoadmap] = useState<treatmentRoadmap[]>(
     []
   );
@@ -57,13 +61,6 @@ export default function PatientDetailPage() {
   const [testResults, setTestResults] = useState<TypeTest[]>([]);
   const [activeTab, setActiveTab] = useState("overview");
   const [isTestModalVisible, setIsTestModalVisible] = useState(false);
-
-  //road map
-  const [isUpdateRoadmapModalVisible, setIsUpdateRoadmapModalVisible] =
-    useState(false);
-  const [editingRoadmap, setEditingRoadmap] = useState<treatmentRoadmap | null>(
-    null
-  );
 
   //medical record detail
   const [
@@ -91,8 +88,6 @@ export default function PatientDetailPage() {
     useState<MedicalRecordDetail | null>(null);
 
   const [medicalDetailForm] = Form.useForm();
-  // const [treatmentResultForm] = Form.useForm();
-  const [updateForm] = Form.useForm();
 
   useEffect(() => {
     const fetchInforPatient = async () => {
@@ -105,21 +100,9 @@ export default function PatientDetailPage() {
   }, [customerIdNumber]);
 
   useEffect(() => {
-    const fetachTreatmentOverview = async () => {
-      if (customerIdNumber !== undefined) {
-        const res = await DoctorApi.GetTreatmentProgressOverview(
-          customerIdNumber
-        );
-        setTreatmentOverview(res.data);
-      }
-    };
-    fetachTreatmentOverview();
-  }, [customerIdNumber]);
-
-  useEffect(() => {
     const fetchTreatmentRoadmap = async () => {
       if (customerIdNumber != null) {
-        const res = await DoctorApi.GetTreatmentRoadmap(customerIdNumber);
+        const res = await DoctorApi.GetTreatmentRoadmap1(customerIdNumber);
         setTreatmentRoadmap(res.data);
       }
     };
@@ -165,16 +148,20 @@ export default function PatientDetailPage() {
     fetchConsulationR_TestT();
   }, [customerIdNumber]);
 
-  const showUpdateRoadmapModal = (roadmap: treatmentRoadmap) => {
-    setEditingRoadmap(roadmap);
-    setIsUpdateRoadmapModalVisible(true);
-    updateForm.setFieldsValue({
-      date: dayjs(roadmap.date),
-      description: roadmap.description,
-      durationDay: roadmap.durationDay,
-      status: roadmap.status,
-    });
-  };
+  //Lấy danh sách medical record
+  useEffect(() => {
+    const fetchMedicalRecord = async () => {
+      try {
+        if (customerIdNumber != null) {
+          const res = await DoctorApi.GetMedicalRecord(customerIdNumber);
+          setMedicalRecord(res.data);
+        }
+      } catch (error) {
+        console.error("Lỗi khi fetch danh sách medical record:", error);
+      }
+    };
+    fetchMedicalRecord();
+  }, [customerIdNumber]);
 
   //Medical record details
   const showUpdateMedicalDetailModal = (medicalDetail: MedicalRecordDetail) => {
@@ -203,40 +190,6 @@ export default function PatientDetailPage() {
       result: record.result,
       typeTest: record.typeTest ?? [],
     });
-  };
-
-  //Treatment roadmap
-  const handleUpdateTreatmentRoadmap = async (updated: treatmentRoadmap) => {
-    if (!customerIdNumber || !editingRoadmap) return;
-
-    const payload = {
-      date: updated.date,
-      stage: updated.stage,
-      description: updated.description,
-      durationDay: updated.durationDay,
-      status: updated.status,
-    };
-
-    try {
-      await DoctorApi.UpdateTreatmentRoadmap(
-        customerIdNumber,
-        updated.treatmentRoadmapId,
-        payload
-      );
-
-      setTreatmentRoadmap((prev) =>
-        prev.map((item) =>
-          item.treatmentRoadmapId === updated.treatmentRoadmapId
-            ? { ...item, ...payload }
-            : item
-        )
-      );
-
-      message.success("Cập nhật tiến độ điều trị thành công");
-    } catch (error) {
-      console.error("Lỗi khi cập nhật tiến độ điều trị:", error);
-      message.error("Cập nhật thất bại");
-    }
   };
 
   //treatment result - type test
@@ -459,7 +412,14 @@ export default function PatientDetailPage() {
                   <PatientInformation patient={infoPatient} />
                 </Col>
                 <Col xs={24} lg={12}>
-                  <TreatmentProgress treatmentStages={treatmentOverview} />
+                  <MedicalRecordOverview
+                    medicalRecord={medicalRecord}
+                    onSelectRecord={(bookingId, medicalRecordId) => {
+                      setSelectedBookingId(bookingId);
+                      setSelectedMedicalRecordId(medicalRecordId);
+                      setActiveTab("medications"); // chuyển sang tab chứa MedicalManagement
+                    }}
+                  />
                 </Col>
               </Row>
             ),
@@ -470,12 +430,14 @@ export default function PatientDetailPage() {
             children: (
               <>
                 <MedicalManagement
+                  customerId={customerIdNumber!}
+                  bookingId={selectedBookingId}
+                  medicalRecordId={selectedMedicalRecordId}
                   treatmentRoadmap={treatmentRoadmap}
                   treatmentResults={treatmentResult_typeTest}
                   medicalRecordDetails={medicalRecordDetails}
                   consulationResults={consulationResult_typeTest}
                   onAddTest={() => setIsTestModalVisible(true)}
-                  onUpdateRoadmap={showUpdateRoadmapModal}
                   onUpdateTreatmentResult={showUpdateTreatmentResultModal}
                   onUpdateDetail={showUpdateMedicalDetailModal}
                   onAddDetail={showCreateMedicalDetailModal}
@@ -485,23 +447,6 @@ export default function PatientDetailPage() {
                     treatmentResultForm.resetFields();
                   }}
                   onUpdateResult={() => {}}
-                />
-                {/* Treatment road map */}
-                <TreatmentRoadMapModal
-                  visible={isUpdateRoadmapModalVisible}
-                  onCancel={() => setIsUpdateRoadmapModalVisible(false)}
-                  onSubmit={(values) => {
-                    if (editingRoadmap) {
-                      handleUpdateTreatmentRoadmap({
-                        ...editingRoadmap,
-                        ...values,
-                        date: dayjs(values.date).format("YYYY-MM-DD"),
-                      });
-                      setIsUpdateRoadmapModalVisible(false);
-                    }
-                  }}
-                  form={updateForm}
-                  treatmentRoadmap={treatmentRoadmap}
                 />
 
                 {/* Treatment result - type test */}
