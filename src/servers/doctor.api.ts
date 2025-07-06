@@ -1,3 +1,4 @@
+import type { CreateTreatmentResultWithTypeTest } from "../types/medicalRecord.d";
 import axiosClient from "./axiosClient";
 
 const DoctorApi = {
@@ -113,6 +114,17 @@ const DoctorApi = {
   ) => {
     return axiosClient.put(
       `Doctor/treatmentResult-typeTest/${treatmentResultId}`,
+      data
+    );
+  },
+
+  //tạo mới thông tin treatment result - type test
+  CreateTreatResult_TypeTest: (
+    customerid: number,
+    data: CreateTreatmentResultWithTypeTest
+  ) => {
+    return axiosClient.post(
+      `/Doctor/CreateTreatmentResultAndTypeTest/${customerid}`,
       data
     );
   },

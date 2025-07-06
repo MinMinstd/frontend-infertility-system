@@ -16,7 +16,7 @@ interface MedicalManagementProps {
   medicalRecordDetails: MedicalRecordDetail[];
   consulationResults: ConsulationResult_typeTest[];
   onUpdateResult: (roadId: string) => void;
-  onAddResult: () => void;
+  onAddTreatmentResult: () => void;
   onAddDetail: () => void;
   onAddTest: () => void;
   onUpdateRoadmap: (roadmap: treatmentRoadmap) => void;
@@ -32,7 +32,7 @@ export function MedicalManagement({
   onUpdateRoadmap,
   onUpdateTreatmentResult,
   onUpdateDetail,
-  onAddResult,
+  onAddTreatmentResult,
   onAddDetail,
   onAddTest,
 }: MedicalManagementProps) {
@@ -85,7 +85,7 @@ export function MedicalManagement({
             children: (
               <TreatmentResults
                 treatmentResults={treatmentResults} //hiển thị thông tin
-                onAddResult={onAddResult}
+                onAddTreatmentResult={onAddTreatmentResult}
                 onUpdateTreatmentResult={onUpdateTreatmentResult}
               />
             ),

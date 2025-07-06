@@ -81,6 +81,7 @@ export default function PatientDetailPage() {
     isUpdateTreatmentResultModalVisible,
     setIsUpdateTreatmentResultModalVisible,
   ] = useState(false);
+
   const [editingTreatmentResult, setEditingTreatmentResult] =
     useState<TreatmentResult_typeTest | null>(null);
   const [treatmentResultForm] = Form.useForm();
@@ -141,7 +142,11 @@ export default function PatientDetailPage() {
         const res = await DoctorApi.GetTreatmentResult_TypeTest(
           customerIdNumber
         );
-        settreatmentResult_typeTest(res.data);
+        const mapped = res.data.map((item) => ({
+          ...item,
+          date: dayjs(item.date), // chuẩn hóa về object để format luôn đúng
+        }));
+        settreatmentResult_typeTest(mapped);
       }
     };
     fetchTreatmentResult_Typetest();
@@ -193,7 +198,7 @@ export default function PatientDetailPage() {
     setEditingTreatmentResult(record);
     setIsUpdateTreatmentResultModalVisible(true);
     treatmentResultForm.setFieldsValue({
-      dateTreatmentResult: dayjs(record.date),
+      dateTreatmentResult: dayjs(record.dateTreatmentResult),
       description: record.description,
       result: record.result,
       typeTest: record.typeTest ?? [],
@@ -257,10 +262,12 @@ export default function PatientDetailPage() {
         payload
       );
 
+      console.log("Cập nhật treatment result: ", payload);
+
       settreatmentResult_typeTest((prev) =>
         prev.map((item) =>
           item.treatmentResultId === editingTreatmentResult.treatmentResultId
-            ? { ...item, ...payload }
+            ? { ...item, ...payload, date: payload.dateTreatmentResult }
             : item
         )
       );
@@ -270,6 +277,45 @@ export default function PatientDetailPage() {
     } catch (error) {
       console.error("Lỗi cập nhật:", error);
       message.error("Cập nhật thất bại");
+    }
+  };
+
+  const handleCreateTreatmentResultWithTypeTest = async (values: {
+    dateTreatmentResult: string;
+    stage: string;
+    description: string;
+    durationDay: number;
+    result: string;
+    treatmentRoadmapId: number;
+    name: string;
+    descriptionTypeTest: string;
+  }) => {
+    if (!customerIdNumber) return;
+
+    try {
+      // Chuẩn hóa dữ liệu gửi lên API
+      const payload = {
+        ...values,
+        dateTreatmentResult: dayjs(values.dateTreatmentResult).format(
+          "YYYY-MM-DD"
+        ),
+        durationDay: Number(values.durationDay),
+      };
+
+      console.log("Payload trước khi gửi:", payload);
+
+      await DoctorApi.CreateTreatResult_TypeTest(customerIdNumber, payload);
+
+      // Sau khi tạo mới, fetch lại danh sách treatment result để cập nhật giao diện
+      const res = await DoctorApi.GetTreatmentResult_TypeTest(customerIdNumber);
+      settreatmentResult_typeTest(res.data);
+
+      message.success("Tạo mới kết quả điều trị thành công");
+      setIsUpdateTreatmentResultModalVisible(false); // hoặc set modal tạo mới về false nếu bạn có modal riêng
+      treatmentResultForm.resetFields();
+    } catch (error) {
+      console.error("Lỗi khi tạo mới kết quả điều trị:", error);
+      message.error("Tạo mới thất bại");
     }
   };
 
@@ -380,7 +426,7 @@ export default function PatientDetailPage() {
   const mappedTreatmentResults = treatmentResult_typeTest.map((item) => ({
     Treatment_result_ID: String(item.treatmentResultId),
     Road_ID: String(item.treatmentRoadmapId),
-    Date: item.date,
+    Date: item.dateTreatmentResult,
     Description: item.description,
     Result: item.result,
   }));
@@ -433,7 +479,11 @@ export default function PatientDetailPage() {
                   onUpdateTreatmentResult={showUpdateTreatmentResultModal}
                   onUpdateDetail={showUpdateMedicalDetailModal}
                   onAddDetail={showCreateMedicalDetailModal}
-                  onAddResult={() => {}}
+                  onAddTreatmentResult={() => {
+                    setIsUpdateTreatmentResultModalVisible(true);
+                    setEditingTreatmentResult(null);
+                    treatmentResultForm.resetFields();
+                  }}
                   onUpdateResult={() => {}}
                 />
                 {/* Treatment road map */}
@@ -455,14 +505,44 @@ export default function PatientDetailPage() {
                 />
 
                 {/* Treatment result - type test */}
-                <TreatmentResultModal
-                  visible={isUpdateTreatmentResultModalVisible}
+                {/* <TreatmentResultModal
+                  open={isUpdateTreatmentResultModalVisible}
                   onCancel={() => setIsUpdateTreatmentResultModalVisible(false)}
-                  onSubmit={handleUpdateTreatmentResult}
+                  onSubmit={
+                    editingTreatmentResult
+                      ? handleUpdateTreatmentResult
+                      : handleCreateTreatmentResultWithTypeTest
+                  }
+                  isEditing={!!editingTreatmentResult}
                   form={treatmentResultForm}
                   treatmentRoadmap={treatmentRoadmap}
                   treatmentResult={editingTreatmentResult}
-                />
+                /> */}
+                {editingTreatmentResult ? (
+                  <TreatmentResultModal
+                    open={isUpdateTreatmentResultModalVisible}
+                    onCancel={() =>
+                      setIsUpdateTreatmentResultModalVisible(false)
+                    }
+                    onSubmit={handleUpdateTreatmentResult}
+                    isEditing={true}
+                    form={treatmentResultForm}
+                    treatmentRoadmap={treatmentRoadmap}
+                    treatmentResult={editingTreatmentResult}
+                  />
+                ) : (
+                  <TreatmentResultModal
+                    open={isUpdateTreatmentResultModalVisible}
+                    onCancel={() =>
+                      setIsUpdateTreatmentResultModalVisible(false)
+                    }
+                    onSubmit={handleCreateTreatmentResultWithTypeTest}
+                    isEditing={false}
+                    form={treatmentResultForm}
+                    treatmentRoadmap={treatmentRoadmap}
+                    treatmentResult={null}
+                  />
+                )}
 
                 {/* Medical record detail */}
                 <MedicalDetailModal

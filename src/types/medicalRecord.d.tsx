@@ -120,11 +120,12 @@ export interface CreateMedicalRecordDetail {
   note?: string;
 }
 
+//Lấy thông tin treatment result
 export interface TreatmentResult_typeTest {
   treatmentResultId: number;
   treatmentRoadmapId: number;
   stepNumber: number;
-  date: string;
+  dateTreatmentResult: string;
   description: string;
   result: string;
   typeTest: TypeTest[];
@@ -136,6 +137,18 @@ export interface UpdateTreatmentResultFormValues {
   description: string;
   result: string;
   typeTest: TypeTest[]; // giữ nguyên vì đã chuẩn rồi
+}
+
+//Create treatment result - type test
+export interface CreateTreatmentResultWithTypeTest {
+  dateTreatmentResult: string;
+  stage: string;
+  description: string;
+  durationDay: number;
+  result: string;
+  treatmentRoadmapId: number;
+  name: string; // type test name
+  descriptionTypeTest: string;
 }
 
 //Định nghĩa Consulation result - typetest
