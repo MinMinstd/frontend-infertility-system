@@ -17,9 +17,9 @@ import type {
   TreatmentResult_typeTest,
   treatmentRoadmap,
   TypeTest,
-  UpdateTreatmentResultFormValues,
+  // UpdateTreatmentResultFormValues,
 } from "../../types/medicalRecord.d";
-import { TreatmentResultModal } from "./components/modals/TreatmentResultModal";
+// import { TreatmentResultModal } from "./components/modals/TreatmentResultModal";
 import { MedicalRecordOverview } from "./MedicalRecordOverview";
 
 const { Title, Text } = Typography;
@@ -50,6 +50,7 @@ export default function PatientDetailPage() {
   const [medicalRecordDetails, setMedicalRecordDetails] = useState<
     MedicalRecordDetail[]
   >([]);
+
   const [treatmentResult_typeTest, settreatmentResult_typeTest] = useState<
     TreatmentResult_typeTest[]
   >([]);
@@ -74,13 +75,14 @@ export default function PatientDetailPage() {
   ] = useState(false);
 
   //treatment result - type test
-  const [
-    isUpdateTreatmentResultModalVisible,
-    setIsUpdateTreatmentResultModalVisible,
-  ] = useState(false);
+  // const [
+  //   isUpdateTreatmentResultModalVisible,
+  //   setIsUpdateTreatmentResultModalVisible,
+  // ] = useState(false);
 
-  const [editingTreatmentResult, setEditingTreatmentResult] =
-    useState<TreatmentResult_typeTest | null>(null);
+  // const [editingTreatmentResult, setEditingTreatmentResult] =
+  //   useState<TreatmentResult_typeTest | null>(null);
+
   const [treatmentResultForm] = Form.useForm();
 
   //medical record detail
@@ -119,21 +121,21 @@ export default function PatientDetailPage() {
     fetchMedicalRecordDetail();
   }, [customerIdNumber]);
 
-  useEffect(() => {
-    const fetchTreatmentResult_Typetest = async () => {
-      if (customerIdNumber != null) {
-        const res = await DoctorApi.GetTreatmentResult_TypeTest(
-          customerIdNumber
-        );
-        const mapped = res.data.map((item) => ({
-          ...item,
-          date: dayjs(item.date), // chuẩn hóa về object để format luôn đúng
-        }));
-        settreatmentResult_typeTest(mapped);
-      }
-    };
-    fetchTreatmentResult_Typetest();
-  }, [customerIdNumber]);
+  // useEffect(() => {
+  //   const fetchTreatmentResult_Typetest = async () => {
+  //     if (customerIdNumber != null) {
+  //       const res = await DoctorApi.GetTreatmentResult_TypeTest(
+  //         customerIdNumber
+  //       );
+  //       const mapped = res.data.map((item) => ({
+  //         ...item,
+  //         date: dayjs(item.date), // chuẩn hóa về object để format luôn đúng
+  //       }));
+  //       settreatmentResult_typeTest(mapped);
+  //     }
+  //   };
+  //   fetchTreatmentResult_Typetest();
+  // }, [customerIdNumber]);
 
   useEffect(() => {
     const fetchConsulationR_TestT = async () => {
@@ -181,98 +183,100 @@ export default function PatientDetailPage() {
     medicalDetailForm.resetFields();
   };
 
-  const showUpdateTreatmentResultModal = (record: TreatmentResult_typeTest) => {
-    setEditingTreatmentResult(record);
-    setIsUpdateTreatmentResultModalVisible(true);
-    treatmentResultForm.setFieldsValue({
-      dateTreatmentResult: dayjs(record.dateTreatmentResult),
-      description: record.description,
-      result: record.result,
-      typeTest: record.typeTest ?? [],
-    });
-  };
+  // const showUpdateTreatmentResultModal = (record: TreatmentResult_typeTest) => {
+  //   setEditingTreatmentResult(record);
+  //   setIsUpdateTreatmentResultModalVisible(true);
+  //   treatmentResultForm.setFieldsValue({
+  //     dateTreatmentResult: dayjs(record.dateTreatmentResult),
+  //     description: record.description,
+  //     result: record.result,
+  //     typeTest: record.typeTest ?? [],
+  //   });
+  // };
 
   //treatment result - type test
-  const handleUpdateTreatmentResult = async (
-    values: UpdateTreatmentResultFormValues
-  ) => {
-    if (!editingTreatmentResult) return;
 
-    const payload = {
-      dateTreatmentResult: values.dateTreatmentResult.format("YYYY-MM-DD"),
-      description: values.description,
-      result: values.result,
-      typeTest: values.typeTest.map((item) => ({
-        typeTestId: item.typeTestId,
-        name: item.name,
-        description: item.description,
-      })),
-    };
+  // const handleUpdateTreatmentResult = async (
+  //   values: UpdateTreatmentResultFormValues
+  // ) => {
+  //   if (!editingTreatmentResult) return;
 
-    try {
-      await DoctorApi.UpdateTreatmentResult_TypeTest(
-        editingTreatmentResult.treatmentResultId,
-        payload
-      );
+  //   const payload = {
+  //     dateTreatmentResult: values.dateTreatmentResult.format("YYYY-MM-DD"),
+  //     description: values.description,
+  //     result: values.result,
+  //     typeTest: values.typeTest.map((item) => ({
+  //       typeTestId: item.typeTestId,
+  //       name: item.name,
+  //       description: item.description,
+  //     })),
+  //   };
 
-      console.log("Cập nhật treatment result: ", payload);
+  //   try {
+  //     await DoctorApi.UpdateTreatmentResult_TypeTest(
+  //       editingTreatmentResult.treatmentResultId,
+  //       payload
+  //     );
 
-      settreatmentResult_typeTest((prev) =>
-        prev.map((item) =>
-          item.treatmentResultId === editingTreatmentResult.treatmentResultId
-            ? { ...item, ...payload, date: payload.dateTreatmentResult }
-            : item
-        )
-      );
+  //     console.log("Cập nhật treatment result: ", payload);
 
-      message.success("Cập nhật kết quả điều trị thành công");
-      setIsUpdateTreatmentResultModalVisible(false);
-    } catch (error) {
-      console.error("Lỗi cập nhật:", error);
-      message.error("Cập nhật thất bại");
-    }
-  };
+  //     settreatmentResult_typeTest((prev) =>
+  //       prev.map((item) =>
+  //         item.treatmentResultId === editingTreatmentResult.treatmentResultId
+  //           ? { ...item, ...payload, date: payload.dateTreatmentResult }
+  //           : item
+  //       )
+  //     );
 
-  const handleCreateTreatmentResultWithTypeTest = async (values: {
-    dateTreatmentResult: string;
-    stage: string;
-    description: string;
-    durationDay: number;
-    result: string;
-    treatmentRoadmapId: number;
-    name: string;
-    descriptionTypeTest: string;
-  }) => {
-    if (!customerIdNumber) return;
+  //     message.success("Cập nhật kết quả điều trị thành công");
+  //     setIsUpdateTreatmentResultModalVisible(false);
+  //   } catch (error) {
+  //     console.error("Lỗi cập nhật:", error);
+  //     message.error("Cập nhật thất bại");
+  //   }
+  // };
 
-    try {
-      // Chuẩn hóa dữ liệu gửi lên API
-      const payload = {
-        ...values,
-        dateTreatmentResult: dayjs(values.dateTreatmentResult).format(
-          "YYYY-MM-DD"
-        ),
-        durationDay: Number(values.durationDay),
-      };
+  // const handleCreateTreatmentResultWithTypeTest = async (values: {
+  //   dateTreatmentResult: string;
+  //   stage: string;
+  //   description: string;
+  //   durationDay: number;
+  //   result: string;
+  //   treatmentRoadmapId: number;
+  //   name: string;
+  //   descriptionTypeTest: string;
+  // }) => {
+  //   if (!customerIdNumber) return;
 
-      console.log("Payload trước khi gửi:", payload);
+  //   try {
+  //     // Chuẩn hóa dữ liệu gửi lên API
+  //     const payload = {
+  //       ...values,
+  //       dateTreatmentResult: dayjs(values.dateTreatmentResult).format(
+  //         "YYYY-MM-DD"
+  //       ),
+  //       durationDay: Number(values.durationDay),
+  //     };
 
-      await DoctorApi.CreateTreatResult_TypeTest(customerIdNumber, payload);
+  //     console.log("Payload trước khi gửi:", payload);
 
-      // Sau khi tạo mới, fetch lại danh sách treatment result để cập nhật giao diện
-      const res = await DoctorApi.GetTreatmentResult_TypeTest(customerIdNumber);
-      settreatmentResult_typeTest(res.data);
+  //     await DoctorApi.CreateTreatResult_TypeTest(customerIdNumber, payload);
 
-      message.success("Tạo mới kết quả điều trị thành công");
-      setIsUpdateTreatmentResultModalVisible(false); // hoặc set modal tạo mới về false nếu bạn có modal riêng
-      treatmentResultForm.resetFields();
-    } catch (error) {
-      console.error("Lỗi khi tạo mới kết quả điều trị:", error);
-      message.error("Tạo mới thất bại");
-    }
-  };
+  //     // Sau khi tạo mới, fetch lại danh sách treatment result để cập nhật giao diện
+  //     const res = await DoctorApi.GetTreatmentResult_TypeTest(customerIdNumber);
+  //     settreatmentResult_typeTest(res.data);
+
+  //     message.success("Tạo mới kết quả điều trị thành công");
+  //     setIsUpdateTreatmentResultModalVisible(false); // hoặc set modal tạo mới về false nếu bạn có modal riêng
+  //     treatmentResultForm.resetFields();
+  //   } catch (error) {
+  //     console.error("Lỗi khi tạo mới kết quả điều trị:", error);
+  //     message.error("Tạo mới thất bại");
+  //   }
+  // };
 
   //Medical record detail
+
   const handleUpdateMedicalRecordDetail = async (updated: {
     date: string;
     testResult?: string;
@@ -433,20 +437,19 @@ export default function PatientDetailPage() {
                   customerId={customerIdNumber!}
                   bookingId={selectedBookingId}
                   medicalRecordId={selectedMedicalRecordId}
-                  treatmentRoadmap={treatmentRoadmap}
-                  treatmentResults={treatmentResult_typeTest}
+                  // treatmentRoadmap={treatmentRoadmap}
+                  // treatmentResults={treatmentResult_typeTest}
                   medicalRecordDetails={medicalRecordDetails}
                   consulationResults={consulationResult_typeTest}
                   onAddTest={() => setIsTestModalVisible(true)}
-                  onUpdateTreatmentResult={showUpdateTreatmentResultModal}
+                  // onUpdateTreatmentResult={showUpdateTreatmentResultModal}
                   onUpdateDetail={showUpdateMedicalDetailModal}
                   onAddDetail={showCreateMedicalDetailModal}
-                  onAddTreatmentResult={() => {
-                    setIsUpdateTreatmentResultModalVisible(true);
-                    setEditingTreatmentResult(null);
-                    treatmentResultForm.resetFields();
-                  }}
-                  onUpdateResult={() => {}}
+                  // onAddTreatmentResult={() => {
+                  //   setIsUpdateTreatmentResultModalVisible(true);
+                  //   setEditingTreatmentResult(null);
+                  //   treatmentResultForm.resetFields();
+                  // }}
                 />
 
                 {/* Treatment result - type test */}
@@ -463,7 +466,7 @@ export default function PatientDetailPage() {
                   treatmentRoadmap={treatmentRoadmap}
                   treatmentResult={editingTreatmentResult}
                 /> */}
-                {editingTreatmentResult ? (
+                {/* {editingTreatmentResult ? (
                   <TreatmentResultModal
                     open={isUpdateTreatmentResultModalVisible}
                     onCancel={() =>
@@ -487,7 +490,7 @@ export default function PatientDetailPage() {
                     treatmentRoadmap={treatmentRoadmap}
                     treatmentResult={null}
                   />
-                )}
+                )} */}
 
                 {/* Medical record detail */}
                 <MedicalDetailModal

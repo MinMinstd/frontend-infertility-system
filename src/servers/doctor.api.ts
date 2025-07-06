@@ -64,6 +64,10 @@ const DoctorApi = {
   GetMedicalRecordDetails: (customerid: number) => {
     return axiosClient.get(`Doctor/GetMedicalRecordDetail/${customerid}`);
   },
+  // ****
+  GetMedicalRecordDetailByDetailId: (medicalRecord: number) => {
+    return axiosClient.get(`Doctor/GetMedicalRecordDetail/${medicalRecord}`);
+  },
 
   //Tạo mới medical record detail (Chưa thực hiện)
   CreateMedicalRecordDetail: (
@@ -101,8 +105,10 @@ const DoctorApi = {
   },
 
   //Lấy thông tin treatment result - type test
-  GetTreatmentResult_TypeTest: (customerid: number) => {
-    return axiosClient.get(`Doctor/treatmentResult-typeTest/${customerid}`);
+  GetTreatmentResult_TypeTest: (customerid: number, bookingId: number) => {
+    return axiosClient.get(
+      `Doctor/treatmentResult-typeTest/${customerid}/${bookingId}`
+    );
   },
 
   //Cập nhật thông tin treatment result - type test

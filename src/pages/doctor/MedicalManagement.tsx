@@ -9,40 +9,39 @@ import type {
   MedicalRecordDetail,
   TreatmentResult_typeTest,
   treatmentRoadmap,
+  UpdateTreatmentResultFormValues,
 } from "../../types/medicalRecord.d";
 import { useEffect, useState } from "react";
 import DoctorApi from "../../servers/doctor.api";
 import { TreatmentRoadMapModal } from "./components/modals/TreatmentRoadMapModal";
+import { TreatmentResultModal } from "./components/modals/TreatmentResultModal";
 
 interface MedicalManagementProps {
   customerId: number;
   bookingId: number | null;
   medicalRecordId: number | null;
-  treatmentRoadmap: treatmentRoadmap[];
-  treatmentResults: TreatmentResult_typeTest[];
+  // treatmentRoadmap: treatmentRoadmap[];
+  // treatmentResults: TreatmentResult_typeTest[];
   medicalRecordDetails: MedicalRecordDetail[];
   consulationResults: ConsulationResult_typeTest[];
-  onUpdateResult: (roadId: string) => void;
-  onAddTreatmentResult: () => void;
+  // onAddTreatmentResult: () => void;
   onAddDetail: () => void;
   onAddTest: () => void;
-  // onUpdateRoadmap: (roadmap: treatmentRoadmap) => void;
-  onUpdateTreatmentResult: (treatmentReuslut: TreatmentResult_typeTest) => void;
+  // onUpdateTreatmentResult: (treatmentReuslut: TreatmentResult_typeTest) => void;
   onUpdateDetail: (medicalDetail: MedicalRecordDetail) => void;
 }
 
 export function MedicalManagement({
   customerId,
   bookingId,
-  treatmentResults,
+  medicalRecordId,
   medicalRecordDetails,
   consulationResults,
-  onUpdateTreatmentResult,
   onUpdateDetail,
-  onAddTreatmentResult,
   onAddDetail,
   onAddTest,
 }: MedicalManagementProps) {
+  //road map
   const [treatmentRoadmap, setTreatmentRoadmap] = useState<treatmentRoadmap[]>(
     []
   );
@@ -52,6 +51,31 @@ export function MedicalManagement({
     null
   );
   const [updateForm] = Form.useForm();
+
+  //treatment result - type test
+  const [treatmentResult_typeTest, settreatmentResult_typeTest] = useState<
+    TreatmentResult_typeTest[]
+  >([]);
+
+  const [editingTreatmentResult, setEditingTreatmentResult] =
+    useState<TreatmentResult_typeTest | null>(null);
+
+  const [
+    isUpdateTreatmentResultModalVisible,
+    setIsUpdateTreatmentResultModalVisible,
+  ] = useState(false);
+
+  const [treatmentResultForm] = Form.useForm();
+
+  //medical record detail
+  // const [medicalRecordDetails, setMedicalRecordDetails] = useState<
+  //   MedicalRecordDetail[]
+  // >([]);
+
+  // const [editingMedicalDetail, setEditingMedicalDetail] =
+  //   useState<MedicalRecordDetail | null>(null);
+
+  // const [medicalDetailForm] = Form.useForm();
 
   //hệ sinh thái của treatment road map
   useEffect(() => {
@@ -115,6 +139,139 @@ export function MedicalManagement({
     }
   };
 
+  //hệ sinh thái treatment result - type test
+  useEffect(() => {
+    const fetchTreatmentResult_Typetest = async () => {
+      if (customerId && bookingId) {
+        const res = await DoctorApi.GetTreatmentResult_TypeTest(
+          customerId,
+          bookingId
+        );
+        const mapped = res.data.map((item) => ({
+          ...item,
+          date: dayjs(item.date), // chuẩn hóa về object để format luôn đúng
+        }));
+        settreatmentResult_typeTest(mapped);
+      }
+    };
+    fetchTreatmentResult_Typetest();
+  }, [customerId, bookingId]);
+
+  const showUpdateTreatmentResultModal = (record: TreatmentResult_typeTest) => {
+    setEditingTreatmentResult(record);
+    setIsUpdateTreatmentResultModalVisible(true);
+    treatmentResultForm.setFieldsValue({
+      dateTreatmentResult: dayjs(record.dateTreatmentResult),
+      description: record.description,
+      result: record.result,
+      typeTest: record.typeTest ?? [],
+    });
+  };
+
+  const handleUpdateTreatmentResult = async (
+    values: UpdateTreatmentResultFormValues
+  ) => {
+    if (!editingTreatmentResult) return;
+
+    const payload = {
+      dateTreatmentResult: values.dateTreatmentResult.format("YYYY-MM-DD"),
+      description: values.description,
+      result: values.result,
+      typeTest: values.typeTest.map((item) => ({
+        typeTestId: item.typeTestId,
+        name: item.name,
+        description: item.description,
+      })),
+    };
+
+    try {
+      await DoctorApi.UpdateTreatmentResult_TypeTest(
+        editingTreatmentResult.treatmentResultId,
+        payload
+      );
+
+      console.log("Cập nhật treatment result: ", payload);
+
+      settreatmentResult_typeTest((prev) =>
+        prev.map((item) =>
+          item.treatmentResultId === editingTreatmentResult.treatmentResultId
+            ? { ...item, ...payload, date: payload.dateTreatmentResult }
+            : item
+        )
+      );
+
+      message.success("Cập nhật kết quả điều trị thành công");
+      setIsUpdateTreatmentResultModalVisible(false);
+    } catch (error) {
+      console.error("Lỗi cập nhật:", error);
+      message.error("Cập nhật thất bại");
+    }
+  };
+
+  const handleCreateTreatmentResultWithTypeTest = async (values: {
+    dateTreatmentResult: string;
+    stage: string;
+    description: string;
+    durationDay: number;
+    result: string;
+    treatmentRoadmapId: number;
+    name: string;
+    descriptionTypeTest: string;
+  }) => {
+    if (!customerId && !bookingId) return;
+
+    try {
+      // Chuẩn hóa dữ liệu gửi lên API
+      const payload = {
+        ...values,
+        dateTreatmentResult: dayjs(values.dateTreatmentResult).format(
+          "YYYY-MM-DD"
+        ),
+        durationDay: Number(values.durationDay),
+      };
+
+      console.log("Payload trước khi gửi:", payload);
+
+      await DoctorApi.CreateTreatResult_TypeTest(customerId, payload);
+
+      if (!customerId || !bookingId) return;
+      // Sau khi tạo mới, fetch lại danh sách treatment result để cập nhật giao diện
+      const res = await DoctorApi.GetTreatmentResult_TypeTest(
+        customerId,
+        bookingId
+      );
+      settreatmentResult_typeTest(res.data);
+
+      message.success("Tạo mới kết quả điều trị thành công");
+      setIsUpdateTreatmentResultModalVisible(false); // hoặc set modal tạo mới về false nếu bạn có modal riêng
+      treatmentResultForm.resetFields();
+    } catch (error) {
+      console.error("Lỗi khi tạo mới kết quả điều trị:", error);
+      message.error("Tạo mới thất bại");
+    }
+  };
+
+  // const mappedTreatmentResults = treatmentResult_typeTest.map((item) => ({
+  //   Treatment_result_ID: String(item.treatmentResultId),
+  //   Road_ID: String(item.treatmentRoadmapId),
+  //   Date: item.dateTreatmentResult,
+  //   Description: item.description,
+  //   Result: item.result,
+  // }));
+
+  //Hệ sinh thái medical record detail
+  // useEffect(() => {
+  //   const fetchMedicalRecordDetail = async () => {
+  //     if (medicalRecordId) {
+  //       const res = await DoctorApi.GetMedicalRecordDetailByDetailId(
+  //         medicalRecordId
+  //       );
+  //       setMedicalRecordDetail(res.data);
+  //     }
+  //   };
+  //   fetchMedicalRecordDetail();
+  // }, [medicalRecordId]);
+
   return (
     <div style={{ marginTop: 24 }}>
       <Alert
@@ -162,9 +319,13 @@ export function MedicalManagement({
             ),
             children: (
               <TreatmentResults
-                treatmentResults={treatmentResults} //hiển thị thông tin
-                onAddTreatmentResult={onAddTreatmentResult}
-                onUpdateTreatmentResult={onUpdateTreatmentResult}
+                treatmentResults={treatmentResult_typeTest} //hiển thị thông tin
+                onAddTreatmentResult={() => {
+                  setIsUpdateTreatmentResultModalVisible(true);
+                  setEditingTreatmentResult(null);
+                  treatmentResultForm.resetFields();
+                }}
+                onUpdateTreatmentResult={showUpdateTreatmentResultModal}
               />
             ),
           },
@@ -230,6 +391,29 @@ export function MedicalManagement({
         form={updateForm}
         treatmentRoadmap={treatmentRoadmap}
       />
+
+      {/* treatment result - typetes */}
+      {editingTreatmentResult ? (
+        <TreatmentResultModal
+          open={isUpdateTreatmentResultModalVisible}
+          onCancel={() => setIsUpdateTreatmentResultModalVisible(false)}
+          onSubmit={handleUpdateTreatmentResult}
+          isEditing={true}
+          form={treatmentResultForm}
+          treatmentRoadmap={treatmentRoadmap}
+          treatmentResult={editingTreatmentResult}
+        />
+      ) : (
+        <TreatmentResultModal
+          open={isUpdateTreatmentResultModalVisible}
+          onCancel={() => setIsUpdateTreatmentResultModalVisible(false)}
+          onSubmit={handleCreateTreatmentResultWithTypeTest}
+          isEditing={false}
+          form={treatmentResultForm}
+          treatmentRoadmap={treatmentRoadmap}
+          treatmentResult={null}
+        />
+      )}
     </div>
   );
 }
