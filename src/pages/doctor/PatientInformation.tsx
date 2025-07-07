@@ -5,13 +5,13 @@ import {
   GiftOutlined,
   HomeOutlined,
 } from "@ant-design/icons";
-import type { InformationPatientDeatils } from "../../types/doctor";
+import type { InformationPatientDetails } from "../../types/doctor";
 
 const { Title, Text } = Typography;
 
 //Định nghĩa patient thành obj
 interface PatientInformationProps {
-  patient: InformationPatientDeatils | null;
+  patient: InformationPatientDetails | null;
 }
 
 export function PatientInformation({ patient }: PatientInformationProps) {
