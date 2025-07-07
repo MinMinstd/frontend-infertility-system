@@ -147,6 +147,12 @@ const DoctorApi = {
     return axiosClient.get(`Doctor/consultationResult-typeTests/${customerid}`);
   },
 
+  GetConsultaionResult_TypeTests: (customerid: number, bookingId: number) => {
+    return axiosClient.get(
+      `Doctor/consultationResult-typeTests/${customerid}/${bookingId}`
+    );
+  },
+
   //danh sách medical record của một bệnh nhân
   GetMedicalRecord(customerid: number) {
     return axiosClient.get(`Doctor/medicalRecord/${customerid}`);
