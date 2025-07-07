@@ -143,13 +143,30 @@ const DoctorApi = {
   },
 
   //Thông tin consulation result - type test
-  GetConsultaionResult_TypeTest: (customerid: number) => {
-    return axiosClient.get(`Doctor/consultationResult-typeTests/${customerid}`);
-  },
+  // GetConsultaionResult_TypeTest: (customerid: number) => {
+  //   return axiosClient.get(`Doctor/consultationResult-typeTests/${customerid}`);
+  // },
 
   GetConsultaionResult_TypeTests: (customerid: number, bookingId: number) => {
     return axiosClient.get(
       `Doctor/consultationResult-typeTests/${customerid}/${bookingId}`
+    );
+  },
+
+  CreateConsulationResult_typeTest: (
+    customerId: number,
+    bookingId: number,
+    data: {
+      date: string;
+      resultValue: string;
+      note: string;
+      name: string;
+      descriptionTypeTest: string;
+    }
+  ) => {
+    return axiosClient.post(
+      `Doctor/consultationResult-typeTest/${customerId}/${bookingId}`,
+      data
     );
   },
 

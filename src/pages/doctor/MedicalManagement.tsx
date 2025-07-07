@@ -34,10 +34,10 @@ interface MedicalManagementProps {
   // onUpdateDetail: (medicalDetail: MedicalRecordDetail) => void;
 }
 
-interface TestResultFormValues {
-  name: string;
-  description: string;
-}
+// interface TestResultFormValues {
+//   name: string;
+//   description: string;
+// }
 
 export function MedicalManagement({
   customerId,
@@ -101,6 +101,7 @@ MedicalManagementProps) {
   >([]);
   const [isTestModalVisible, setIsTestModalVisible] = useState(false);
   const [testResults, setTestResults] = useState<TypeTest[]>([]);
+  const [consulationResultForm] = Form.useForm();
 
   // hệ sinh thái của treatment road map
   useEffect(() => {
@@ -413,15 +414,61 @@ MedicalManagementProps) {
     fetchConsulationR_typeT();
   }, [customerId, bookingId]);
 
-  const handleConSulationR_typeTSubmit = (values: TestResultFormValues) => {
-    const newTrestmentResult: TypeTest = {
-      typeTestId: Date.now(),
-      name: values.name,
-      description: values.description,
-    };
-    setTestResults([...testResults, newTrestmentResult]);
-    setIsTestModalVisible(false);
-    treatmentResultForm.resetFields();
+  const showAddConsulationR_typeTest = () => {
+    console.log("Đã vào hàm này hiển thị consulation result");
+    setIsTestModalVisible(true);
+    consulationResultForm.resetFields();
+  };
+
+  const handleCreateConSulationR_typeT = async (values: {
+    date: string;
+    resultValue: string;
+    note: string;
+    name: string;
+    descriptionTypeTest: string;
+  }) => {
+    if (!customerId || !bookingId) return;
+
+    try {
+      // Chuẩn hóa dữ liệu gửi lên API
+      const payload = {
+        date: dayjs().format("YYYY-MM-DD"), // Ngày hiện tại hoặc từ form nếu có
+        resultValue: values.note || "", // Kết quả từ note trong form
+        note: values.descriptionTypeTest || "", // Ghi chú từ description trong form
+        name: values.name, // Tên xét nghiệm
+        descriptionTypeTest: values.descriptionTypeTest, // Mô tả loại xét nghiệm
+      };
+
+      // Gọi API để tạo mới kết quả xét nghiệm
+      await DoctorApi.CreateConsulationResult_typeTest(
+        customerId,
+        bookingId,
+        payload
+      );
+
+      // Sau khi tạo mới, fetch lại danh sách để cập nhật giao diện
+      const res = await DoctorApi.GetConsultaionResult_TypeTests(
+        customerId,
+        bookingId
+      );
+      setConsultationResult_TypeTest(res.data);
+
+      // Thêm vào state testResults nếu cần
+      const newTypeTest: TypeTest = {
+        typeTestId: Date.now(),
+        name: values.name,
+        description: values.descriptionTypeTest,
+      };
+      setTestResults([...testResults, newTypeTest]);
+
+      // Hiển thị thông báo thành công và đóng modal
+      message.success("Tạo mới kết quả xét nghiệm thành công");
+      setIsTestModalVisible(false);
+      treatmentResultForm.resetFields();
+    } catch (error) {
+      console.error("Lỗi khi tạo mới kết quả xét nghiệm:", error);
+      message.error("Tạo mới thất bại");
+    }
   };
 
   const mappedTreatmentResults = treatmentResult_typeTest.map((item) => ({
@@ -431,8 +478,6 @@ MedicalManagementProps) {
     Description: item.description,
     Result: item.result,
   }));
-
-  const showAddConsulationR_typeTest = () => {};
 
   return (
     <div style={{ marginTop: 24 }}>
@@ -611,7 +656,7 @@ MedicalManagementProps) {
       <TestResultModal
         visible={isTestModalVisible}
         onCancel={() => setIsTestModalVisible(false)}
-        onSubmit={handleConSulationR_typeTSubmit}
+        onCreateConsulation={handleCreateConSulationR_typeT}
         treatmentResults={mappedTreatmentResults}
         medicalRecordDetails={medicalRecordDetail}
         form={treatmentResultForm}
