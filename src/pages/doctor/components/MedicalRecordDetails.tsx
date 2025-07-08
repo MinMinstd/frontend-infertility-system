@@ -1,29 +1,34 @@
 import { Card, Button, Timeline, Tag, Typography, Row, Col, Space } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { EditOutlined, PlusOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import type { MedicalRecordDetail } from "../../../types/medicalRecord.d";
 
 const { Text } = Typography;
-
-interface MedicalRecordDetail {
-  Detail_ID: string;
-  Record_ID: string;
-  Treatment_result_ID: string;
-  Date: string;
-  Road_ID: string;
-  Type: string;
-  Test_result: string;
-  Note: string;
-}
 
 interface MedicalRecordDetailsProps {
   medicalRecordDetails: MedicalRecordDetail[];
   onAddDetail: () => void;
+  onUpdateDetail: (medicalDetail: MedicalRecordDetail) => void;
 }
 
 export function MedicalRecordDetails({
   medicalRecordDetails,
   onAddDetail,
+  onUpdateDetail,
 }: MedicalRecordDetailsProps) {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Complete":
+        return "green";
+      case "Pending":
+        return "orange";
+      case "Cancelled":
+        return "red";
+      default:
+        return "gray";
+    }
+  };
+
   return (
     <Card
       style={{
@@ -31,7 +36,7 @@ export function MedicalRecordDetails({
         boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
       }}
     >
-      <div style={{ marginBottom: 16 }}>
+      <div className="mb-4">
         <Button
           type="primary"
           icon={<PlusOutlined />}
@@ -44,6 +49,7 @@ export function MedicalRecordDetails({
           Thêm chi tiết điều trị
         </Button>
       </div>
+
       <Timeline
         items={medicalRecordDetails.map((detail) => ({
           color: "#ff69b4",
@@ -54,22 +60,36 @@ export function MedicalRecordDetails({
                 borderColor: "#ffb6c1",
                 backgroundColor: "#fff5f7",
                 marginBottom: 8,
+                position: "relative",
               }}
             >
+              {/* Thêm nút cập nhật */}
+              <Button
+                type="text"
+                icon={<EditOutlined />}
+                onClick={() => onUpdateDetail(detail)}
+                style={{
+                  position: "absolute",
+                  top: 8,
+                  right: 8,
+                  color: "#ff69b4",
+                }}
+              />
+
               <Row gutter={16}>
                 <Col span={12}>
                   <Space direction="vertical" size="small">
-                    <div>
-                      <Text strong style={{ color: "#ff69b4" }}>
-                        Ngày: {dayjs(detail.Date).format("DD/MM/YYYY")}
-                      </Text>
-                    </div>
-                    <div>
-                      <Text type="secondary">Bước: {detail.Road_ID}</Text>
-                    </div>
-                    <div>
-                      <Tag color="#ff1493">{detail.Type}</Tag>
-                    </div>
+                    <Text strong style={{ color: "#ff69b4" }}>
+                      Ngày: {dayjs(detail.date).format("DD/MM/YYYY")}
+                    </Text>
+                    <Text type="secondary">Bước: {detail.stepNumber}</Text>
+                    <Text type="secondary">Giai đoạn: {detail.stage}</Text>
+                    {detail.typeName && (
+                      <Tag color="pink">{detail.typeName}</Tag>
+                    )}
+                    <Tag color={getStatusColor(detail.status)}>
+                      {detail.status}
+                    </Tag>
                   </Space>
                 </Col>
                 <Col span={12}>
@@ -79,14 +99,16 @@ export function MedicalRecordDetails({
                         Kết quả xét nghiệm:
                       </Text>
                       <br />
-                      <Text type="secondary">{detail.Test_result}</Text>
+                      <Text type="secondary">
+                        {detail.testResult || "Không có"}
+                      </Text>
                     </div>
                     <div>
                       <Text strong style={{ color: "#ff69b4" }}>
                         Ghi chú:
                       </Text>
                       <br />
-                      <Text type="secondary">{detail.Note}</Text>
+                      <Text type="secondary">{detail.note || "Không có"}</Text>
                     </div>
                   </Space>
                 </Col>

@@ -25,7 +25,7 @@ export const doctorRoutes: RouteObject[] = [
         element: <PatientsPage />,
       },
       {
-        path: "patients/:id",
+        path: "patients/:customerId",
         element: <PatientDetailPage />,
       },
       {

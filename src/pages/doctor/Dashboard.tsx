@@ -1,12 +1,4 @@
-import {
-  Card,
-  Typography,
-  Space,
-  Badge,
-  Row,
-  Col,
-  Statistic,
-} from "antd";
+import { Card, Typography, Space, Badge, Row, Col, Statistic } from "antd";
 import {
   CalendarOutlined,
   UserOutlined,
@@ -93,7 +85,9 @@ export default function Dashboard() {
     <div>
       <Space direction="vertical" size="large" className="w-full">
         <div>
-          <Title level={2} style={{ color: "#ff69b4" }}>Dashboard</Title>
+          <Title level={2} style={{ color: "#ff69b4" }}>
+            Dashboard
+          </Title>
           <Paragraph style={{ color: "#666" }}>
             Welcome back, Dr. Smith. Here's your overview for today.
           </Paragraph>
@@ -109,7 +103,9 @@ export default function Dashboard() {
                 }}
               >
                 <Statistic
-                  title={<span style={{ color: stat.color }}>{stat.title}</span>}
+                  title={
+                    <span style={{ color: stat.color }}>{stat.title}</span>
+                  }
                   value={stat.value}
                   valueStyle={{ color: stat.color }}
                   prefix={getIconForStat(stat.title)}
@@ -122,8 +118,10 @@ export default function Dashboard() {
 
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={12}>
-            <Card 
-              title={<span style={{ color: "#ff69b4" }}>Recent Activities</span>} 
+            <Card
+              title={
+                <span style={{ color: "#ff69b4" }}>Recent Activities</span>
+              }
               bordered={false}
               style={{
                 borderColor: "#ff69b4",
@@ -132,9 +130,9 @@ export default function Dashboard() {
             >
               <Space direction="vertical" className="w-full">
                 {recentActivities.map((activity, index) => (
-                  <Card 
-                    key={index} 
-                    size="small" 
+                  <Card
+                    key={index}
+                    size="small"
                     className="w-full"
                     style={{
                       borderColor: "#ffb6c1",
@@ -143,12 +141,11 @@ export default function Dashboard() {
                   >
                     <Space direction="vertical">
                       <Space className="w-full justify-between">
-                        <Text strong style={{ color: "#ff69b4" }}>{activity.patient}</Text>
+                        <Text strong style={{ color: "#ff69b4" }}>
+                          {activity.patient}
+                        </Text>
                         <Space>
-                          <Badge
-                            color="#ff69b4"
-                            text={activity.type}
-                          />
+                          <Badge color="#ff69b4" text={activity.type} />
                           <Badge
                             status={getStatusBadge(activity.status)}
                             text={activity.status}
@@ -180,9 +177,9 @@ export default function Dashboard() {
             >
               <Space direction="vertical" className="w-full">
                 {urgentTasks.map((task, index) => (
-                  <Card 
-                    key={index} 
-                    size="small" 
+                  <Card
+                    key={index}
+                    size="small"
                     className="w-full"
                     style={{
                       borderColor: "#ffb6c1",
@@ -191,9 +188,13 @@ export default function Dashboard() {
                   >
                     <Space direction="vertical">
                       <Space className="w-full justify-between">
-                        <Text strong style={{ color: "#ff69b4" }}>{task.patient}</Text>
+                        <Text strong style={{ color: "#ff69b4" }}>
+                          {task.patient}
+                        </Text>
                         <Badge
-                          color={task.priority === "high" ? "#ff1493" : "#ff69b4"}
+                          color={
+                            task.priority === "high" ? "#ff1493" : "#ff69b4"
+                          }
                           text={task.priority}
                         />
                       </Space>

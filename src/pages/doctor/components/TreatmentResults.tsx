@@ -1,25 +1,20 @@
 import { Card, Button, Space, Tag, Typography } from "antd";
 import { PlusOutlined, EditOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import type { TreatmentResult_typeTest } from "../../../types/medicalRecord.d";
 
 const { Text } = Typography;
 
-interface TreatmentResult {
-  Treatment_result_ID: string;
-  Road_ID: string;
-  Date: string;
-  Description: string;
-  Result: string;
-}
-
 interface TreatmentResultsProps {
-  treatmentResults: TreatmentResult[];
-  onAddResult: () => void;
+  treatmentResults: TreatmentResult_typeTest[];
+  onAddTreatmentResult: () => void;
+  onUpdateTreatmentResult: (record: TreatmentResult_typeTest) => void;
 }
 
 export function TreatmentResults({
   treatmentResults,
-  onAddResult,
+  onAddTreatmentResult,
+  onUpdateTreatmentResult,
 }: TreatmentResultsProps) {
   return (
     <Card
@@ -32,7 +27,7 @@ export function TreatmentResults({
         <Button
           type="primary"
           icon={<PlusOutlined />}
-          onClick={onAddResult}
+          onClick={onAddTreatmentResult}
           style={{
             backgroundColor: "#ff69b4",
             borderColor: "#ff69b4",
@@ -44,14 +39,16 @@ export function TreatmentResults({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {treatmentResults.map((result) => (
           <Card
-            key={result.Treatment_result_ID}
+            key={result.treatmentResultId}
             size="small"
             style={{
               borderColor: "#ffb6c1",
               backgroundColor: "#fff5f7",
             }}
             title={
-              <span style={{ color: "#ff69b4" }}>Bước: {result.Road_ID}</span>
+              <span style={{ color: "#ff69b4" }}>
+                Bước: {result.stepNumber}
+              </span>
             }
             extra={
               <Button
@@ -59,21 +56,39 @@ export function TreatmentResults({
                 type="text"
                 icon={<EditOutlined />}
                 style={{ color: "#ff69b4" }}
+                onClick={() => onUpdateTreatmentResult(result)}
               />
             }
           >
             <Space direction="vertical" style={{ width: "100%" }}>
               <div>
                 <Text strong style={{ color: "#ff69b4" }}>
-                  Ngày: {dayjs(result.Date).format("DD/MM/YYYY")}
+                  Ngày:{" "}
+                  {dayjs(result.dateTreatmentResult).isValid()
+                    ? dayjs(result.dateTreatmentResult).format("DD/MM/YYYY")
+                    : "Không xác định"}
                 </Text>
               </div>
               <div>
-                <Text type="secondary">Mô tả: {result.Description}</Text>
+                <Text type="secondary">Mô tả: {result.description}</Text>
               </div>
               <div>
-                <Tag color="#ff1493">{result.Result}</Tag>
+                <Tag color="#ff1493">{result.result}</Tag>
               </div>
+              {result.typeTest?.length > 0 && (
+                <div>
+                  <Text strong style={{ color: "#ff69b4" }}>
+                    Các xét nghiệm:
+                  </Text>
+                  <ul className="list-disc list-inside text-sm text-gray-700">
+                    {result.typeTest.map((test) => (
+                      <li key={test.typeTestId}>
+                        {test.name} – {test.description}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </Space>
           </Card>
         ))}

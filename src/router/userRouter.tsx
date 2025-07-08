@@ -14,10 +14,11 @@ import FeedbackPage from "../pages/customer/Feedback";
 import SupportUser from "../pages/customer/SupportUser";
 import RegisterService from "../components/RegisterService";
 import Contact from "../components/Contact";
-import TreatmentManagement from "../pages/customer/TreatmentProcess";
+import TreatmentProcess from "../pages/customer/TreatmentProcess";
 import MedicalRecord from "../pages/customer/MedicalRecord";
 import OnlineConsult from "../components/OnlineResult";
-import ConfirmEmail from "../pages/auth/ConfirmEmail";
+import PaymentPage from "../pages/customer/PaymentPage";
+import PaymentHistoryPage from "../pages/customer/PaymentHistory";
 export const userRoutes: RouteObject[] = [
   { path: "/", element: <Home /> },
   {
@@ -43,11 +44,8 @@ export const userRoutes: RouteObject[] = [
   { path: "/user/register_service", element: <RegisterService /> },
   { path: "/user/profile", element: <ProfileCard /> },
   { path: "/user/history_medical", element: <HistoryMedical /> },
-  { path: "/user/treatment_management", element: <TreatmentManagement /> },
+  { path: "/user/treatment_process/:id", element: <TreatmentProcess /> },
   { path: "/user/medical_record", element: <MedicalRecord /> },
-  {
-    path: "/confirm-email",
-    element: <ConfirmEmail />,
-    handle: { layout: "none" },
-  },
+  { path: "/user/payment", element: <PaymentPage /> },
+  { path: "/user/history_payment", element: <PaymentHistoryPage /> },
 ];

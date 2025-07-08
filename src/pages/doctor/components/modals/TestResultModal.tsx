@@ -1,3 +1,5 @@
+//Consulation result
+
 import {
   Modal,
   Form,
@@ -7,13 +9,19 @@ import {
   Space,
   type FormInstance,
 } from "antd";
+import type {
+  MedicalRecordDetail,
+  TypeTest,
+} from "../../../../types/medicalRecord.d";
 
 const { TextArea } = Input;
 const { Option } = Select;
 
 interface TestResultFormValues {
   name: string;
-  description: string;
+  descriptionTypeTest: string;
+  date: string;
+  resultValue: string;
   treatment_result_id: string;
   result_id: string;
   note: string;
@@ -24,28 +32,27 @@ interface TreatmentResult {
   Road_ID: string;
 }
 
-interface MedicalRecordDetail {
-  Detail_ID: string;
-  Date: string;
-}
-
 interface TestResultModalProps {
   visible: boolean;
   onCancel: () => void;
-  onSubmit: (values: TestResultFormValues) => void;
+  onCreateConsulation: (values: TestResultFormValues) => void;
   treatmentResults: TreatmentResult[];
   medicalRecordDetails: MedicalRecordDetail[];
   form: FormInstance<TestResultFormValues>;
+  testResults?: TypeTest[];
+  setTestResults?: (testResults: TypeTest[]) => void;
 }
 
 export function TestResultModal({
   visible,
   onCancel,
-  onSubmit,
+  onCreateConsulation,
   treatmentResults,
   medicalRecordDetails,
   form,
-}: TestResultModalProps) {
+}: // testResults,
+// setTestResults,
+TestResultModalProps) {
   return (
     <Modal
       title={<span style={{ color: "#ff69b4" }}>Thêm kết quả xét nghiệm</span>}
@@ -54,7 +61,7 @@ export function TestResultModal({
       footer={null}
       width={600}
     >
-      <Form form={form} layout="vertical" onFinish={onSubmit}>
+      <Form form={form} layout="vertical" onFinish={onCreateConsulation}>
         <Form.Item
           label={<span style={{ color: "#ff69b4" }}>Tên xét nghiệm</span>}
           name="name"
@@ -64,10 +71,26 @@ export function TestResultModal({
         </Form.Item>
         <Form.Item
           label={<span style={{ color: "#ff69b4" }}>Mô tả chi tiết</span>}
-          name="description"
+          name="descriptionTypeTest"
           rules={[{ required: true, message: "Vui lòng nhập mô tả!" }]}
         >
           <TextArea rows={2} placeholder="Mô tả chi tiết xét nghiệm" />
+        </Form.Item>
+        <Form.Item
+          label={<span style={{ color: "#ff69b4" }}>Ngày</span>}
+          name="date"
+          rules={[{ required: true, message: "Vui lòng nhập ngày!" }]}
+        >
+          <Input type="date" />
+        </Form.Item>
+        <Form.Item
+          label={<span style={{ color: "#ff69b4" }}>Giá trị kết quả</span>}
+          name="resultValue"
+          rules={[
+            { required: true, message: "Vui lòng nhập giá trị kết quả!" },
+          ]}
+        >
+          <Input placeholder="Ví dụ: Dương tính, Âm tính, ..." />
         </Form.Item>
         <Form.Item
           label={
@@ -94,8 +117,11 @@ export function TestResultModal({
         >
           <Select placeholder="Chọn chi tiết ghi chú">
             {medicalRecordDetails.map((detail) => (
-              <Option key={detail.Detail_ID} value={detail.Detail_ID}>
-                {detail.Detail_ID} - {detail.Date}
+              <Option
+                key={detail.medicalRecordDetailId}
+                value={detail.medicalRecordDetailId}
+              >
+                {detail.medicalRecordDetailId} - {detail.date}
               </Option>
             ))}
           </Select>

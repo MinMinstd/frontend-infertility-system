@@ -1,21 +1,22 @@
 import { Card, Space, Avatar, Typography, Form, Row, Col, Input } from "antd";
-import { PhoneOutlined, MailOutlined } from "@ant-design/icons";
+import {
+  PhoneOutlined,
+  MailOutlined,
+  GiftOutlined,
+  HomeOutlined,
+} from "@ant-design/icons";
+import type { InformationPatientDetails } from "../../types/doctor";
 
 const { Title, Text } = Typography;
 
+//Định nghĩa patient thành obj
 interface PatientInformationProps {
-  patient: {
-    id: number;
-    name: string;
-    age: number;
-    phone: string;
-    email: string;
-    partner: string;
-    startDate: string;
-  };
+  patient: InformationPatientDetails | null;
 }
 
 export function PatientInformation({ patient }: PatientInformationProps) {
+  if (!patient) return null;
+
   return (
     <Card
       title={<span style={{ color: "#ff69b4" }}>Patient Information</span>}
@@ -26,11 +27,7 @@ export function PatientInformation({ patient }: PatientInformationProps) {
     >
       <Space direction="vertical" style={{ width: "100%" }}>
         <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            marginBottom: 16,
-          }}
+          style={{ display: "flex", alignItems: "center", marginBottom: 16 }}
         >
           <Avatar
             size={64}
@@ -40,16 +37,16 @@ export function PatientInformation({ patient }: PatientInformationProps) {
               marginRight: 16,
             }}
           >
-            {patient.name
+            {patient.wife
               .split(" ")
               .map((n) => n[0])
               .join("")}
           </Avatar>
           <div>
             <Title level={3} style={{ margin: 0, color: "#ff69b4" }}>
-              {patient.name}
+              {patient.wife}
             </Title>
-            <Text type="secondary">Patient ID: {patient.id}</Text>
+            <Text type="secondary">Partner: {patient.husband}</Text>
           </div>
         </div>
 
@@ -57,27 +54,23 @@ export function PatientInformation({ patient }: PatientInformationProps) {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
-                label={<span style={{ color: "#ff69b4" }}>Full Name</span>}
+                label={<span style={{ color: "#ff69b4" }}>Wife's Name</span>}
               >
                 <Input
-                  value={patient.name}
+                  value={patient.wife}
                   readOnly
-                  style={{
-                    backgroundColor: "#fff5f7",
-                    borderColor: "#ffb6c1",
-                  }}
+                  style={{ backgroundColor: "#fff5f7", borderColor: "#ffb6c1" }}
                 />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item label={<span style={{ color: "#ff69b4" }}>Age</span>}>
+              <Form.Item
+                label={<span style={{ color: "#ff69b4" }}>Husband's Name</span>}
+              >
                 <Input
-                  value={patient.age}
+                  value={patient.husband}
                   readOnly
-                  style={{
-                    backgroundColor: "#fff5f7",
-                    borderColor: "#ffb6c1",
-                  }}
+                  style={{ backgroundColor: "#fff5f7", borderColor: "#ffb6c1" }}
                 />
               </Form.Item>
             </Col>
@@ -89,10 +82,7 @@ export function PatientInformation({ patient }: PatientInformationProps) {
                   value={patient.phone}
                   prefix={<PhoneOutlined style={{ color: "#ff69b4" }} />}
                   readOnly
-                  style={{
-                    backgroundColor: "#fff5f7",
-                    borderColor: "#ffb6c1",
-                  }}
+                  style={{ backgroundColor: "#fff5f7", borderColor: "#ffb6c1" }}
                 />
               </Form.Item>
             </Col>
@@ -104,38 +94,40 @@ export function PatientInformation({ patient }: PatientInformationProps) {
                   value={patient.email}
                   prefix={<MailOutlined style={{ color: "#ff69b4" }} />}
                   readOnly
-                  style={{
-                    backgroundColor: "#fff5f7",
-                    borderColor: "#ffb6c1",
-                  }}
+                  style={{ backgroundColor: "#fff5f7", borderColor: "#ffb6c1" }}
                 />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
-                label={<span style={{ color: "#ff69b4" }}>Partner</span>}
+                label={<span style={{ color: "#ff69b4" }}>Birthday</span>}
               >
                 <Input
-                  value={patient.partner}
+                  value={patient.birthday}
+                  prefix={<GiftOutlined style={{ color: "#ff69b4" }} />}
                   readOnly
-                  style={{
-                    backgroundColor: "#fff5f7",
-                    borderColor: "#ffb6c1",
-                  }}
+                  style={{ backgroundColor: "#fff5f7", borderColor: "#ffb6c1" }}
                 />
               </Form.Item>
             </Col>
             <Col span={12}>
+              <Form.Item label={<span style={{ color: "#ff69b4" }}>Age</span>}>
+                <Input
+                  value={patient.age}
+                  readOnly
+                  style={{ backgroundColor: "#fff5f7", borderColor: "#ffb6c1" }}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={24}>
               <Form.Item
-                label={<span style={{ color: "#ff69b4" }}>Start Date</span>}
+                label={<span style={{ color: "#ff69b4" }}>Address</span>}
               >
                 <Input
-                  value={patient.startDate}
+                  value={patient.address}
+                  prefix={<HomeOutlined style={{ color: "#ff69b4" }} />}
                   readOnly
-                  style={{
-                    backgroundColor: "#fff5f7",
-                    borderColor: "#ffb6c1",
-                  }}
+                  style={{ backgroundColor: "#fff5f7", borderColor: "#ffb6c1" }}
                 />
               </Form.Item>
             </Col>

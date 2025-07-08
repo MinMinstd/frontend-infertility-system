@@ -7,77 +7,54 @@ import {
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import type { ColumnsType } from "antd/es/table";
-
-interface TreatmentRoadmapItem {
-  Road_ID: string;
-  Date: string;
-  Stage: string;
-  Service_Name: string;
-  Description: string;
-  Duration_day: number;
-  Price: number;
-  Status: string;
-}
+import type { treatmentRoadmap } from "../../../types/medicalRecord.d";
 
 interface TreatmentRoadmapProps {
-  treatmentRoadmap: TreatmentRoadmapItem[];
-  onUpdateResult: (roadId: string) => void;
+  treatmentRoadmap: treatmentRoadmap[];
+  onUpdateRoadmap: (roadmap: treatmentRoadmap) => void;
 }
 
 export function TreatmentRoadmap({
   treatmentRoadmap,
-  onUpdateResult,
+  onUpdateRoadmap,
 }: TreatmentRoadmapProps) {
-  const columns: ColumnsType<TreatmentRoadmapItem> = [
+  const columns: ColumnsType<treatmentRoadmap> = [
     {
       title: "Mã bước",
-      dataIndex: "Road_ID",
-      key: "Road_ID",
+      dataIndex: "treatmentRoadmapId",
+      key: "treatmentRoadmapId",
       width: 100,
     },
     {
       title: "Ngày",
-      dataIndex: "Date",
-      key: "Date",
+      dataIndex: "date",
+      key: "date",
       width: 120,
       render: (date: string) => dayjs(date).format("DD/MM/YYYY"),
     },
     {
       title: "Giai đoạn",
-      dataIndex: "Stage",
-      key: "Stage",
+      dataIndex: "stage",
+      key: "stage",
       width: 150,
     },
     {
-      title: "Dịch vụ",
-      dataIndex: "Service_Name",
-      key: "Service_Name",
-      width: 200,
-    },
-    {
       title: "Mô tả",
-      dataIndex: "Description",
-      key: "Description",
+      dataIndex: "description",
+      key: "description",
       ellipsis: true,
     },
     {
       title: "Thời gian (ngày)",
-      dataIndex: "Duration_day",
-      key: "Duration_day",
+      dataIndex: "durationDay",
+      key: "durationDay",
       width: 120,
       align: "center",
     },
     {
-      title: "Chi phí",
-      dataIndex: "Price",
-      key: "Price",
-      width: 120,
-      render: (price: number) => `${price.toLocaleString()} VNĐ`,
-    },
-    {
       title: "Trạng thái",
-      dataIndex: "Status",
-      key: "Status",
+      dataIndex: "status",
+      key: "status",
       width: 150,
       render: (status: string) => {
         let color = "default";
@@ -100,12 +77,12 @@ export function TreatmentRoadmap({
       title: "Thao tác",
       key: "action",
       width: 120,
-      render: (_: unknown, record: TreatmentRoadmapItem) => (
+      render: (_: unknown, record: treatmentRoadmap) => (
         <Space>
           <Button
             size="small"
             icon={<EditOutlined />}
-            onClick={() => onUpdateResult(record.Road_ID)}
+            onClick={() => onUpdateRoadmap(record)}
             style={{
               borderColor: "#ff69b4",
               color: "#ff69b4",
@@ -128,7 +105,7 @@ export function TreatmentRoadmap({
       <Table
         columns={columns}
         dataSource={treatmentRoadmap}
-        rowKey="Road_ID"
+        rowKey="treatmentRoadmapId"
         pagination={false}
         scroll={{ x: 1200 }}
         size="small"

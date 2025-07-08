@@ -60,6 +60,22 @@ const Profile = () => {
           </li>
           <li>
             <Link
+              to="/user/payment"
+              className="block px-4 py-1 hover:bg-pink-800 dark:hover:bg-pink-800 dark:hover:text-white"
+            >
+              Thanh Toán Khoản phí
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/user/history_payment"
+              className="block px-4 py-1 hover:bg-pink-800 dark:hover:bg-pink-800 dark:hover:text-white"
+            >
+              Lịch sử thanh toán
+            </Link>
+          </li>
+          <li>
+            <Link
               to="/user/history_medical"
               className="block px-4 py-1 hover:bg-pink-800 dark:hover:bg-pink-800 dark:hover:text-white"
             >
