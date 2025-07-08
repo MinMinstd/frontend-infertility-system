@@ -16,5 +16,36 @@ export interface Account {
     createdAt: string;
     lastActiveAt: string;
     totalActiveDays: number;
+
+  }
+
+  export interface Appointment {
+    customerName: string;
+    doctorName: string;
+    note: string;
+    date: string;
+    time: string;
+    status: string;
     
+  } 
+  export interface Doctor {
+    doctorId: string;
+    fullName: string;
+    degreeName: string;
+    phone: string;
+    email: string;
+  }
+
+  export interface DaySchedule {
+    workDate: string;
+    startTime: string;
+    endTime: string;
+    status: string;
+  }
+
+  export interface Service {
+    serviceDBId: number;
+    name: string;
+    description: string;
+    price: number;
   }

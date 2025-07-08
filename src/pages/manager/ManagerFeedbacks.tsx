@@ -11,8 +11,7 @@ import {
   Popconfirm,
   message,
 } from 'antd';
-import { DeleteOutlined, EyeOutlined, CheckOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { CheckOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import ManagerApi from '../../servers/manager.api';
 import type { Feedback } from '../../types/manager.d';
@@ -23,7 +22,6 @@ const { Option } = Select;
 
 
 const ManagerFeedbacks: React.FC = () => {
-  const navigate = useNavigate();
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -49,31 +47,32 @@ const ManagerFeedbacks: React.FC = () => {
     fetchProfile();
   }, []);
 
-  const handleDeleteFeedback = (feedbackId: string) => {
-    setFeedbacks(feedbacks.filter(feedback => feedback.feedbackId !== feedbackId));
-    message.success('Đã xóa phản hồi thành công');
+  const handleApproveFeedback = async (feedbackId: string) => {
+    try {
+      await ManagerApi.UpdateFeedbackStatus(feedbackId, "Confirm");
+      setFeedbacks(feedbacks.map(feedback =>
+        feedback.feedbackId === feedbackId
+          ? { ...feedback, isApproved: true, status: 'resolved' }
+          : feedback
+      ));
+      message.success('Đã duyệt phản hồi thành công');
+    } catch {
+      message.error('Lỗi khi duyệt phản hồi');
+    }
   };
 
-  const handleViewFeedback = (feedbackId: string) => {
-    navigate(`/manager/feedbacks/${feedbackId}`);
-  };
-
-  const handleApproveFeedback = (feedbackId: string) => {
-    setFeedbacks(feedbacks.map(feedback =>
-      feedback.feedbackId === feedbackId
-        ? { ...feedback, isApproved: true, status: 'resolved' }
-        : feedback
-    ));
-    message.success('Đã duyệt phản hồi thành công');
-  };
-
-  const handleRejectFeedback = (feedbackId: string) => {
-    setFeedbacks(feedbacks.map(feedback =>
-      feedback.feedbackId === feedbackId
-        ? { ...feedback, status: 'rejected' }
-        : feedback
-    ));
-    message.success('Đã từ chối phản hồi');
+  const handleRejectFeedback = async (feedbackId: string) => {
+    try {
+      await ManagerApi.UpdateFeedbackStatus(feedbackId, "Reject");
+      setFeedbacks(feedbacks.map(feedback =>
+        feedback.feedbackId === feedbackId
+          ? { ...feedback, status: 'rejected', isApproved: false }
+          : feedback
+      ));
+      message.success('Đã từ chối phản hồi');
+    } catch {
+      message.error('Lỗi khi từ chối phản hồi');
+    }
   };
 
   const filteredFeedbacks = feedbacks.filter(feedback => {
@@ -147,15 +146,17 @@ const ManagerFeedbacks: React.FC = () => {
     {
       title: 'Thao tác',
       key: 'actions',
-      render: (_: unknown, record: Feedback) => (
-        <Space>
-          <Button
-            type="primary"
-            icon={<EyeOutlined />}
-            onClick={() => handleViewFeedback(record.feedbackId)}
-          />
-          {record.status === 'pending' && (
-            <>
+      render: (_: unknown, record: Feedback) => {
+        if (record.status === 'resolved') {
+          return <Tag color="success">Đã duyệt</Tag>;
+        }
+        if (record.status === 'rejected') {
+          return <Tag color="error">Đã bị từ chối</Tag>;
+        }
+        // Chỉ cho thao tác khi trạng thái là pending
+        if (record.status === 'pending') {
+          return (
+            <Space>
               <Button
                 type="primary"
                 icon={<CheckOutlined />}
@@ -172,22 +173,11 @@ const ManagerFeedbacks: React.FC = () => {
               >
                 <Button danger>Từ chối</Button>
               </Popconfirm>
-            </>
-          )}
-          <Popconfirm
-            title="Bạn có chắc chắn muốn xóa phản hồi này?"
-            onConfirm={() => handleDeleteFeedback(record.feedbackId)}
-            okText="Có"
-            cancelText="Không"
-          >
-            <Button
-              type="primary"
-              danger
-              icon={<DeleteOutlined />}
-            />
-          </Popconfirm>
-        </Space>
-      ),
+            </Space>
+          );
+        }
+        return null;
+      },
     },
   ];
 

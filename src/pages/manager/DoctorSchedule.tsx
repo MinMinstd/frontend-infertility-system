@@ -1,18 +1,19 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Button, Card, Typography } from "antd";
+import { Button, Card, Typography, Spin, message } from "antd";
 import { ArrowLeft } from "lucide-react";
+import ManagerApi from "../../servers/manager.api";
+import type { DaySchedule } from "../../types/manager.d";
 
 const { Title, Text } = Typography;
 
-// Interface định nghĩa cấu trúc dữ liệu lịch làm việc
 interface TimeSlot {
-  start: string;
-  end: string;
-  isAvailable: boolean;
+  startTime: string;
+  endTime: string;
+  status: string;
 }
 
-interface DaySchedule {
+interface UIDaySchedule {
   date: string;
   dayOfWeek: string;
   morning: boolean;
@@ -22,94 +23,56 @@ interface DaySchedule {
 
 const DoctorSchedule: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  console.log("Doctor ID:", id);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [doctorSchedule, setDoctorSchedule] = useState<UIDaySchedule[]>([]);
 
-  // Mock data - sẽ được thay thế bằng API call
-  const doctorSchedule: DaySchedule[] = [
-    {
-      date: "2024-03-18",
-      dayOfWeek: "Thứ Hai",
-      morning: false,
-      afternoon: false,
-      timeSlots: [],
-    },
-    {
-      date: "2024-03-19",
-      dayOfWeek: "Thứ Ba",
-      morning: true,
-      afternoon: false,
-      timeSlots: [
-        { start: "07:00", end: "07:30", isAvailable: true },
-        { start: "07:30", end: "08:00", isAvailable: true },
-        { start: "08:00", end: "08:30", isAvailable: false },
-        { start: "08:30", end: "09:00", isAvailable: true },
-        { start: "09:00", end: "09:30", isAvailable: false },
-        { start: "09:30", end: "10:00", isAvailable: true },
-        { start: "10:00", end: "10:30", isAvailable: true },
-        { start: "10:30", end: "11:00", isAvailable: false },
-        { start: "11:00", end: "11:30", isAvailable: true },
-      ],
-    },
-    {
-      date: "2024-03-20",
-      dayOfWeek: "Thứ Tư",
-      morning: true,
-      afternoon: false,
-      timeSlots: [
-        { start: "07:00", end: "07:30", isAvailable: true },
-        { start: "07:30", end: "08:00", isAvailable: false },
-        { start: "08:00", end: "08:30", isAvailable: true },
-        { start: "08:30", end: "09:00", isAvailable: true },
-        { start: "09:00", end: "09:30", isAvailable: false },
-        { start: "09:30", end: "10:00", isAvailable: true },
-        { start: "10:00", end: "10:30", isAvailable: true },
-        { start: "10:30", end: "11:00", isAvailable: false },
-        { start: "11:00", end: "11:30", isAvailable: true },
-      ],
-    },
-    {
-      date: "2024-03-21",
-      dayOfWeek: "Thứ Năm",
-      morning: false,
-      afternoon: true,
-      timeSlots: [
-        { start: "13:00", end: "13:30", isAvailable: true },
-        { start: "13:30", end: "14:00", isAvailable: false },
-        { start: "14:00", end: "14:30", isAvailable: true },
-        { start: "14:30", end: "15:00", isAvailable: true },
-        { start: "15:00", end: "15:30", isAvailable: false },
-        { start: "15:30", end: "16:00", isAvailable: true },
-        { start: "16:00", end: "16:30", isAvailable: true },
-        { start: "16:30", end: "17:00", isAvailable: false },
-      ],
-    },
-    {
-      date: "2024-03-22",
-      dayOfWeek: "Thứ Sáu",
-      morning: true,
-      afternoon: true,
-      timeSlots: [
-        { start: "07:00", end: "07:30", isAvailable: true },
-        { start: "07:30", end: "08:00", isAvailable: true },
-        { start: "08:00", end: "08:30", isAvailable: false },
-        { start: "08:30", end: "09:00", isAvailable: true },
-        { start: "09:00", end: "09:30", isAvailable: false },
-        { start: "09:30", end: "10:00", isAvailable: true },
-        { start: "10:00", end: "10:30", isAvailable: true },
-        { start: "10:30", end: "11:00", isAvailable: false },
-        { start: "11:00", end: "11:30", isAvailable: true },
-        { start: "13:00", end: "13:30", isAvailable: true },
-        { start: "13:30", end: "14:00", isAvailable: false },
-        { start: "14:00", end: "14:30", isAvailable: true },
-        { start: "14:30", end: "15:00", isAvailable: true },
-        { start: "15:00", end: "15:30", isAvailable: false },
-        { start: "15:30", end: "16:00", isAvailable: true },
-        { start: "16:00", end: "16:30", isAvailable: true },
-        { start: "16:30", end: "17:00", isAvailable: false },
-      ],
-    },
-  ];
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    ManagerApi.GetDoctorScheduleById(id)
+      .then((res) => {
+        // Map DaySchedule[] to UIDaySchedule[]
+        const grouped: { [date: string]: DaySchedule[] } = {};
+        res.data.forEach((item) => {
+          if (!grouped[item.workDate]) grouped[item.workDate] = [];
+          grouped[item.workDate].push(item);
+        });
+        const result: UIDaySchedule[] = Object.entries(grouped).map(
+          ([date, slots]) => {
+            // Xác định buổi sáng/chiều dựa vào giờ
+            const morning = slots.some(
+              (s) => parseInt(s.startTime) < 12
+            );
+            const afternoon = slots.some(
+              (s) => parseInt(s.startTime) >= 12
+            );
+            // Map timeSlots
+            const timeSlots: TimeSlot[] = slots.map((s) => ({
+              startTime: s.startTime,
+              endTime: s.endTime,
+              status: s.status,
+            }));
+            // Lấy thứ trong tuần
+            const dayOfWeek = new Date(date).toLocaleDateString("vi-VN", {
+              weekday: "long",
+            });
+            return {
+              date,
+              dayOfWeek,
+              morning,
+              afternoon,
+              timeSlots,
+            };
+          }
+        );
+        setDoctorSchedule(result);
+      })
+      .catch(() => {
+        message.error("Không thể lấy lịch làm việc của bác sĩ");
+      })
+      .finally(() => setLoading(false));
+  }, [id]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
@@ -127,88 +90,65 @@ const DoctorSchedule: React.FC = () => {
             Lịch làm việc của bác sĩ
           </Title>
         </div>
-
-        {/* Schedule Grid */}
-        <div className="grid grid-cols-1 gap-6">
-          {doctorSchedule.map((day, index) => (
-            <Card key={index} className="shadow-md">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <Title level={4} className="mb-0">
-                    {day.dayOfWeek}
-                  </Title>
-                  <Text type="secondary">
-                    {new Date(day.date).toLocaleDateString("vi-VN", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </Text>
-                </div>
-                <div className="flex gap-4">
-                  <div
-                    className={`px-3 py-1 rounded-full ${
-                      day.morning
-                        ? "bg-green-100 text-green-800"
-                        : "bg-gray-100 text-gray-500"
-                    }`}
-                  >
-                    Buổi sáng: {day.morning ? "Có lịch" : "Nghỉ"}
+        {loading ? (
+          <div className="flex justify-center items-center min-h-[200px]">
+            <Spin size="large" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6">
+            {doctorSchedule.map((day, index) => (
+              <Card key={index} className="shadow-md">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <Title level={4} className="mb-0">
+                      {day.dayOfWeek}
+                    </Title>
+                    <Text type="secondary">
+                      {new Date(day.date).toLocaleDateString("vi-VN", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </Text>
                   </div>
-                  <div
-                    className={`px-3 py-1 rounded-full ${
-                      day.afternoon
-                        ? "bg-green-100 text-green-800"
-                        : "bg-gray-100 text-gray-500"
-                    }`}
-                  >
-                    Buổi chiều: {day.afternoon ? "Có lịch" : "Nghỉ"}
-                  </div>
+                  {/* Đã xóa phần Buổi sáng/Buổi chiều */}
                 </div>
-              </div>
-
-              {/* Time Slots */}
-              {day.timeSlots.length > 0 && (
-                <div className="mt-4">
-                  <Title level={5} className="mb-3">
-                    Chi tiết khung giờ:
-                  </Title>
-                  <div className="grid grid-cols-4 gap-3">
-                    {day.timeSlots.map((slot, slotIndex) => (
-                      <div
-                        key={slotIndex}
-                        className={`p-3 rounded-lg ${
-                          slot.isAvailable
-                            ? "bg-green-50 border border-green-200"
-                            : "bg-gray-50 border border-gray-200"
-                        }`}
-                      >
-                        <div className="font-medium text-sm">
-                          {slot.start} - {slot.end}
-                        </div>
+                {/* Time Slots */}
+                {day.timeSlots.length > 0 && (
+                  <div className="mt-4">
+                    <Title level={5} className="mb-3">
+                      Chi tiết khung giờ:
+                    </Title>
+                    <div className="grid grid-cols-4 gap-3">
+                      {day.timeSlots.map((slot, slotIndex) => (
                         <div
-                          className={`text-xs mt-1 ${
-                            slot.isAvailable
-                              ? "text-green-600"
-                              : "text-gray-500"
+                          key={slotIndex}
+                          className={`p-3 rounded-lg ${
+                            slot.status && slot.status.toLowerCase() === "available"
+                              ? "bg-green-100 border border-green-300 text-green-800"
+                              : "bg-gray-100 border border-gray-300 text-gray-500"
                           }`}
                         >
-                          {slot.isAvailable ? "Có lịch" : "Chưa có lịch"}
+                          <div className="font-medium text-sm">
+                            {slot.startTime} - {slot.endTime}
+                          </div>
+                          <div className="text-xs mt-1">
+                            {slot.status && slot.status.toLowerCase() === "available" ? "Có lịch" : "Chưa có lịch"}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
-
-              {day.timeSlots.length === 0 && (
-                <div className="text-center py-4 text-gray-500">
-                  Nghỉ cả ngày
-                </div>
-              )}
-            </Card>
-          ))}
-        </div>
+                )}
+                {day.timeSlots.length === 0 && (
+                  <div className="text-center py-4 text-gray-500">
+                    Nghỉ cả ngày
+                  </div>
+                )}
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
