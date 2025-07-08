@@ -14,79 +14,76 @@ import {
 import { DeleteOutlined, EyeOutlined, CheckOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
-import { sampleFeedbacks } from '../../data/feedbackData';
-
+import ManagerApi from '../../servers/manager.api';
+import type { Feedback } from '../../types/manager.d';
 const { Title } = Typography;
 const { Search } = Input;
 const { Option } = Select;
 
-interface Feedback {
-  id: string;
-  userName: string;
-  rating: number;
-  comment: string;
-  date: string;
-  avatarUrl?: string;
-  reply?: string;
-  status?: 'pending' | 'resolved' | 'rejected';
-  category?: 'Dịch vụ' | 'Điều trị' | 'Tư vấn' | 'Khác';
-  isApproved?: boolean;
-}
+
 
 const ManagerFeedbacks: React.FC = () => {
   const navigate = useNavigate();
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [categoryFilter, setCategoryFilter] = useState<string>('all');
 
   useEffect(() => {
-    // Sử dụng dữ liệu mẫu từ feedbackData
-    const initialFeedbacks: Feedback[] = sampleFeedbacks.map(feedback => ({
-      ...feedback,
-      status: 'pending' as const,
-      category: 'Dịch vụ' as const,
-      isApproved: false,
-    }));
-    setFeedbacks(initialFeedbacks);
+    const fetchProfile = async () => {
+      try {
+        const res = await ManagerApi.GetFeedback();
+        let feedbackArr: Feedback[] = Array.isArray(res.data) ? res.data : [];
+        // Map lại dữ liệu cho đúng type
+        feedbackArr = feedbackArr.map((item: Feedback) => ({
+          ...item,
+          feedbackId: String(item.feedbackId),
+          status: item.status === "Confirm" ? "resolved" : (item.status || "pending"),
+          isApproved: item.status === "Confirm"
+        }));
+        setFeedbacks(feedbackArr);
+      } catch (error) {
+        console.error("Lỗi khi lấy phản hồi:", error);
+        message.error('Không thể lấy danh sách phản hồi');
+      }
+    };
+    fetchProfile();
   }, []);
 
-  const handleDeleteFeedback = (id: string) => {
-    setFeedbacks(feedbacks.filter(feedback => feedback.id !== id));
+  const handleDeleteFeedback = (feedbackId: string) => {
+    setFeedbacks(feedbacks.filter(feedback => feedback.feedbackId !== feedbackId));
     message.success('Đã xóa phản hồi thành công');
   };
 
-  const handleViewFeedback = (id: string) => {
-    navigate(`/manager/feedbacks/${id}`);
+  const handleViewFeedback = (feedbackId: string) => {
+    navigate(`/manager/feedbacks/${feedbackId}`);
   };
 
-  const handleApproveFeedback = (id: string) => {
-    setFeedbacks(feedbacks.map(feedback => 
-      feedback.id === id 
-        ? { ...feedback, isApproved: true, status: 'resolved' as const }
+  const handleApproveFeedback = (feedbackId: string) => {
+    setFeedbacks(feedbacks.map(feedback =>
+      feedback.feedbackId === feedbackId
+        ? { ...feedback, isApproved: true, status: 'resolved' }
         : feedback
     ));
     message.success('Đã duyệt phản hồi thành công');
   };
 
-  const handleRejectFeedback = (id: string) => {
-    setFeedbacks(feedbacks.map(feedback => 
-      feedback.id === id 
-        ? { ...feedback, status: 'rejected' as const }
+  const handleRejectFeedback = (feedbackId: string) => {
+    setFeedbacks(feedbacks.map(feedback =>
+      feedback.feedbackId === feedbackId
+        ? { ...feedback, status: 'rejected' }
         : feedback
     ));
     message.success('Đã từ chối phản hồi');
   };
 
   const filteredFeedbacks = feedbacks.filter(feedback => {
-    const matchesSearch = feedback.comment.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         feedback.userName.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (feedback.comments || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (feedback.fullName || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || feedback.status === statusFilter;
-    const matchesCategory = categoryFilter === 'all' || feedback.category === categoryFilter;
-    return matchesSearch && matchesStatus && matchesCategory;
+    return matchesSearch && matchesStatus;
   });
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string | undefined) => {
     switch (status) {
       case 'pending':
         return 'warning';
@@ -99,7 +96,7 @@ const ManagerFeedbacks: React.FC = () => {
     }
   };
 
-  const getStatusText = (status: string) => {
+  const getStatusText = (status: string | undefined) => {
     switch (status) {
       case 'pending':
         return 'Chờ xử lý';
@@ -115,13 +112,13 @@ const ManagerFeedbacks: React.FC = () => {
   const columns = [
     {
       title: 'Người dùng',
-      dataIndex: 'userName',
-      key: 'userName',
+      dataIndex: 'fullName',
+      key: 'fullName',
     },
     {
       title: 'Nội dung',
-      dataIndex: 'comment',
-      key: 'comment',
+      dataIndex: 'comments',
+      key: 'comments',
     },
     {
       title: 'Đánh giá',
@@ -129,11 +126,7 @@ const ManagerFeedbacks: React.FC = () => {
       key: 'rating',
       render: (rating: number) => `${rating}/5`,
     },
-    {
-      title: 'Danh mục',
-      dataIndex: 'category',
-      key: 'category',
-    },
+   
     {
       title: 'Trạng thái',
       dataIndex: 'status',
@@ -159,21 +152,21 @@ const ManagerFeedbacks: React.FC = () => {
           <Button
             type="primary"
             icon={<EyeOutlined />}
-            onClick={() => handleViewFeedback(record.id)}
+            onClick={() => handleViewFeedback(record.feedbackId)}
           />
           {record.status === 'pending' && (
             <>
               <Button
                 type="primary"
                 icon={<CheckOutlined />}
-                onClick={() => handleApproveFeedback(record.id)}
+                onClick={() => handleApproveFeedback(record.feedbackId)}
                 style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
               >
                 Duyệt
               </Button>
               <Popconfirm
                 title="Bạn có chắc chắn muốn từ chối phản hồi này?"
-                onConfirm={() => handleRejectFeedback(record.id)}
+                onConfirm={() => handleRejectFeedback(record.feedbackId)}
                 okText="Có"
                 cancelText="Không"
               >
@@ -183,7 +176,7 @@ const ManagerFeedbacks: React.FC = () => {
           )}
           <Popconfirm
             title="Bạn có chắc chắn muốn xóa phản hồi này?"
-            onConfirm={() => handleDeleteFeedback(record.id)}
+            onConfirm={() => handleDeleteFeedback(record.feedbackId)}
             okText="Có"
             cancelText="Không"
           >
@@ -220,23 +213,13 @@ const ManagerFeedbacks: React.FC = () => {
             <Option value="resolved">Đã duyệt</Option>
             <Option value="rejected">Từ chối</Option>
           </Select>
-          <Select
-            style={{ width: 120 }}
-            value={categoryFilter}
-            onChange={setCategoryFilter}
-          >
-            <Option value="all">Tất cả danh mục</Option>
-            <Option value="Dịch vụ">Dịch vụ</Option>
-            <Option value="Điều trị">Điều trị</Option>
-            <Option value="Tư vấn">Tư vấn</Option>
-            <Option value="Khác">Khác</Option>
-          </Select>
+          
         </Space>
 
         <Table
           columns={columns}
           dataSource={filteredFeedbacks}
-          rowKey="id"
+          rowKey="feedbackId"
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
