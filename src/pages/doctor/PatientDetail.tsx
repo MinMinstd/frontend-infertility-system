@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Typography, Row, Col, Tabs } from "antd";
+import { Typography, Row, Col, Tabs, Button, message, Form } from "antd";
+import { FileAddOutlined } from "@ant-design/icons";
 // import { TestResultModal } from "./components/modals/TestResultModal";
 // import { TreatmentRoadMapModal } from "./components/modals/TreatmentRoadMapModal";
 import { PatientInformation } from "./PatientInformation";
@@ -8,6 +9,7 @@ import { MedicalManagement } from "./MedicalManagement";
 import DoctorApi from "../../servers/doctor.api";
 import { useParams } from "react-router-dom";
 import type { InformationPatientDetails } from "../../types/doctor";
+import dayjs from "dayjs";
 import type {
   // ConsulationResult_typeTest,
   MedicalRecord,
@@ -19,6 +21,7 @@ import type {
 } from "../../types/medicalRecord.d";
 // import { TreatmentResultModal } from "./components/modals/TreatmentResultModal";
 import { MedicalRecordOverview } from "./MedicalRecordOverview";
+import { MedicalRecordModal } from "./components/modals/MedicalRecordModal";
 
 const { Title, Text } = Typography;
 
@@ -40,7 +43,13 @@ export default function PatientDetailPage() {
   const [infoPatient, setInfoPatient] =
     useState<InformationPatientDetails | null>(null);
 
+  //medical record
   const [medicalRecord, setMedicalRecord] = useState<MedicalRecord[]>([]);
+  const [
+    isCreateMedicalRecordModalVisible,
+    setIsCreateMedicalRecordModalVisible,
+  ] = useState(false);
+  const [medicalRecordForm] = Form.useForm();
 
   // const [treatmentRoadmap, setTreatmentRoadmap] = useState<treatmentRoadmap[]>(
   //   []
@@ -388,6 +397,40 @@ export default function PatientDetailPage() {
   //   Result: item.result,
   // }));
 
+  //Create medical record
+
+  const handleCreateMedicalRecord = async (value: {
+    startDate: string;
+    endDate: string;
+    stage: string;
+    diagnosis: string;
+    status: string;
+    attempt: number;
+  }) => {
+    if (!customerId) return;
+
+    try {
+      const payload = {
+        startDate: dayjs(value.startDate).format("YYYY-MM-DD"),
+        endDate: dayjs(value.endDate).format("YYYY-MM-DD"),
+        stage: value.stage,
+        diagnosis: value.diagnosis,
+        status: value.status,
+        attempt: value.attempt,
+      };
+      await DoctorApi.CreateMedicalRecord(Number(customerId), payload);
+
+      const res = await DoctorApi.GetMedicalRecord(Number(customerId));
+      setMedicalRecord(res.data);
+
+      message.success("Tạo mới hồ sơ điều trị thành công");
+      setIsCreateMedicalRecordModalVisible(false);
+      medicalRecordForm.resetFields();
+    } catch (error) {
+      console.log("lỗi không tạo mới một medical record: ", error);
+      message.error("Tạo mới hồ sơ thất bại");
+    }
+  };
   const PatientDetailContent = () => (
     <div>
       <div style={{ marginBottom: 32 }}>
@@ -416,6 +459,34 @@ export default function PatientDetailPage() {
                   <PatientInformation patient={infoPatient} />
                 </Col>
                 <Col xs={24} lg={12}>
+                  {/* Thêm nút tạo mới hồ sơ */}
+                  <Row
+                    justify="space-between"
+                    align="middle"
+                    style={{ marginBottom: 12 }}
+                  >
+                    <Col>
+                      <Text strong style={{ color: "#ff69b4", fontSize: 16 }}>
+                        Danh sách hồ sơ điều trị
+                      </Text>
+                    </Col>
+                    <Col>
+                      <Button
+                        type="primary"
+                        icon={<FileAddOutlined />}
+                        style={{
+                          backgroundColor: "#ff69b4",
+                          borderColor: "#ff69b4",
+                        }}
+                        onClick={() =>
+                          setIsCreateMedicalRecordModalVisible(true)
+                        }
+                      >
+                        Tạo hồ sơ điều trị
+                      </Button>
+                    </Col>
+                  </Row>
+
                   <MedicalRecordOverview
                     medicalRecord={medicalRecord}
                     onSelectRecord={(bookingId, medicalRecordId) => {
@@ -423,6 +494,11 @@ export default function PatientDetailPage() {
                       setSelectedMedicalRecordId(medicalRecordId);
                       setActiveTab("medications"); // chuyển sang tab chứa MedicalManagement
                     }}
+                  />
+                  <MedicalRecordModal
+                    open={isCreateMedicalRecordModalVisible}
+                    onCancel={() => setIsCreateMedicalRecordModalVisible(false)}
+                    onSubmit={handleCreateMedicalRecord}
                   />
                 </Col>
               </Row>

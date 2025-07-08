@@ -143,16 +143,13 @@ const DoctorApi = {
   },
 
   //Thông tin consulation result - type test
-  // GetConsultaionResult_TypeTest: (customerid: number) => {
-  //   return axiosClient.get(`Doctor/consultationResult-typeTests/${customerid}`);
-  // },
-
   GetConsultaionResult_TypeTests: (customerid: number, bookingId: number) => {
     return axiosClient.get(
       `Doctor/consultationResult-typeTests/${customerid}/${bookingId}`
     );
   },
 
+  //Tạo kết quả tư vấn
   CreateConsulationResult_typeTest: (
     customerId: number,
     bookingId: number,
@@ -173,6 +170,21 @@ const DoctorApi = {
   //danh sách medical record của một bệnh nhân
   GetMedicalRecord(customerid: number) {
     return axiosClient.get(`Doctor/medicalRecord/${customerid}`);
+  },
+
+  //Taọ mới một medical record dành cho bệnh nhân
+  CreateMedicalRecord: (
+    customerId: number,
+    data: {
+      startDate: string;
+      endDate: string;
+      stage: string;
+      diagnosis: string;
+      status: string;
+      attempt: number;
+    }
+  ) => {
+    return axiosClient.post(`Doctor/CreateMedicalRecord/${customerId}`, data);
   },
 };
 
