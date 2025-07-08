@@ -96,10 +96,7 @@ export default function PaymentPage() {
       dataIndex: "unitPrice",
       render: (value: number) => value.toLocaleString("vi-VN") + " đ",
     },
-    {
-      title: "Số lượng",
-      dataIndex: "quantity",
-    },
+
     {
       title: "Thành tiền",
       dataIndex: "total",
