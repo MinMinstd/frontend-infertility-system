@@ -36,11 +36,12 @@ const ManagerFeedbacks: React.FC = () => {
         feedbackArr = feedbackArr.map((item: Feedback) => ({
           ...item,
           feedbackId: String(item.feedbackId),
-          status: item.status === "Confirm" ? "resolved" : (item.status || "pending"),
-          isApproved: item.status === "Confirm"
+          // Map status từ backend sang FE
+          status: item.status === "Ok" ? "resolved" : (item.status === "No" ? "rejected" : "pending"),
+          isApproved: item.status === "Ok"
         }));
         setFeedbacks(feedbackArr);
-      } catch (error) {
+      } catch {
         message.error('Không thể lấy danh sách phản hồi');
       } finally {
         setLoading(false);
@@ -51,7 +52,7 @@ const ManagerFeedbacks: React.FC = () => {
 
   const handleApproveFeedback = async (feedbackId: string) => {
     try {
-      await ManagerApi.UpdateFeedbackStatus(feedbackId, "Confirm");
+      await ManagerApi.UpdateFeedbackStatus(feedbackId, "Ok");
       setFeedbacks(feedbacks.map(feedback =>
         feedback.feedbackId === feedbackId
           ? { ...feedback, isApproved: true, status: 'resolved' }
@@ -65,7 +66,7 @@ const ManagerFeedbacks: React.FC = () => {
 
   const handleRejectFeedback = async (feedbackId: string) => {
     try {
-      await ManagerApi.UpdateFeedbackStatus(feedbackId, "Reject");
+      await ManagerApi.UpdateFeedbackStatus(feedbackId, "No");
       setFeedbacks(feedbacks.map(feedback =>
         feedback.feedbackId === feedbackId
           ? { ...feedback, status: 'rejected', isApproved: false }
