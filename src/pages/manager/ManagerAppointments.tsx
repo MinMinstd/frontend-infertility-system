@@ -1,10 +1,9 @@
-import { Table, Tag } from "antd";
+import { Table, Tag, Spin, Empty } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useState, useEffect } from "react";
 import { Calendar, Clock, User, FileText } from "lucide-react";
 import ManagerApi from "../../servers/manager.api";
 import type { Appointment } from "../../types/manager.d";
-
 
 const ManagerAppointments = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -86,7 +85,7 @@ const ManagerAppointments = () => {
         const statusConfig = {
           scheduled: { color: "blue", text: "Đã lên lịch" },
           completed: { color: "green", text: "Hoàn thành" },
-          cancelled: { color: "red", text: "Đã hủy" },
+          cancelled: { color: "red", text: "Đã huỷ" },
           pending: { color: "orange", text: "Chờ xác nhận" },
         };
         const config = statusConfig[status as keyof typeof statusConfig] || { color: "gray", text: status };
@@ -96,20 +95,26 @@ const ManagerAppointments = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-white to-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
         <div className="bg-white rounded-2xl shadow-lg p-6">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold text-gray-800">Quản lý lịch hẹn</h1>
           </div>
-
-          <Table
-            columns={columns}
-            dataSource={appointments}
-            rowKey={(record) => `${record.customerName}-${record.doctorName}-${record.date}-${record.time}`}
-            loading={loading}
-            pagination={{ pageSize: 10 }}
-          />
+          {loading ? (
+            <div className="flex justify-center items-center py-16">
+              <Spin size="large" />
+            </div>
+          ) : (
+            <Table
+              columns={columns}
+              dataSource={appointments}
+              rowKey={(record) => `${record.customerName}-${record.doctorName}-${record.date}-${record.time}`}
+              className="rounded-xl overflow-hidden shadow"
+              pagination={{ pageSize: 10 }}
+              locale={{ emptyText: <Empty description="Không có dữ liệu lịch hẹn" /> }}
+            />
+          )}
         </div>
       </div>
     </div>

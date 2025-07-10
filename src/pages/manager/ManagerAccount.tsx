@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Row, Col, Statistic, Table, Typography, Space, Spin, message } from 'antd';
+import { Card, Row, Col, Statistic, Table, Typography, Space, Spin, message, Empty } from 'antd';
 import { UserOutlined, TeamOutlined, UserAddOutlined } from '@ant-design/icons';
 import ManagerApi from '../../servers/manager.api';
 import type { Account } from '../../types/manager.d';
@@ -70,8 +70,6 @@ const ManagerAccount: React.FC = () => {
       setDisplayAccounts(accounts);
     } catch (err) {
       message.error('Lỗi khi tải dữ liệu tài khoản!');
-      // eslint-disable-next-line no-console
-      console.error('Lỗi khi gọi API:', err);
       setAllAccounts([]);
       setDisplayAccounts([]);
     } finally {
@@ -142,7 +140,7 @@ const ManagerAccount: React.FC = () => {
   ];
 
   return (
-    <div className="p-6">
+    <div className="p-6 min-h-screen bg-gradient-to-br from-white to-gray-50">
       <Space direction="vertical" size="large" className="w-full">
         <div>
           <Typography.Title level={2} className="text-pink-600 !mb-0">
@@ -157,7 +155,7 @@ const ManagerAccount: React.FC = () => {
           {CARD_TYPES.map(card => (
             <Col xs={24} sm={12} md={6} key={card.key}>
               <Card
-                className={`shadow-md hover:shadow-lg transition-shadow cursor-pointer ${selectedType === card.key ? `ring-2 ring-${card.color}-400` : ''}`}
+                className={`shadow-md hover:shadow-lg transition-shadow cursor-pointer rounded-xl border-2 ${selectedType === card.key ? `border-${card.color}-400 ring-2 ring-${card.color}-200` : 'border-transparent'}`}
                 onClick={() => handleCardClick(card.key as CardKey)}
                 style={{ borderColor: selectedType === card.key ? `var(--${card.color}-500)` : undefined }}
               >
@@ -175,7 +173,7 @@ const ManagerAccount: React.FC = () => {
           ))}
         </Row>
 
-        <Card className="shadow-lg mt-6">
+        <Card className="shadow-lg mt-6 rounded-xl">
           {loading ? (
             <div className="flex justify-center items-center py-10">
               <Spin size="large" />
@@ -187,6 +185,7 @@ const ManagerAccount: React.FC = () => {
               rowKey="id"
               className="rounded-lg overflow-hidden"
               pagination={{ pageSize: 5 }}
+              locale={{ emptyText: <Empty description="Không có dữ liệu tài khoản" /> }}
             />
           )}
         </Card>

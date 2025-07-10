@@ -10,6 +10,8 @@ import {
   Card,
   Popconfirm,
   message,
+  Spin,
+  Empty,
 } from 'antd';
 import { CheckOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
@@ -19,19 +21,18 @@ const { Title } = Typography;
 const { Search } = Input;
 const { Option } = Select;
 
-
-
 const ManagerFeedbacks: React.FC = () => {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProfile = async () => {
+      setLoading(true);
       try {
         const res = await ManagerApi.GetFeedback();
         let feedbackArr: Feedback[] = Array.isArray(res.data) ? res.data : [];
-        // Map lại dữ liệu cho đúng type
         feedbackArr = feedbackArr.map((item: Feedback) => ({
           ...item,
           feedbackId: String(item.feedbackId),
@@ -40,8 +41,9 @@ const ManagerFeedbacks: React.FC = () => {
         }));
         setFeedbacks(feedbackArr);
       } catch (error) {
-        console.error("Lỗi khi lấy phản hồi:", error);
         message.error('Không thể lấy danh sách phản hồi');
+      } finally {
+        setLoading(false);
       }
     };
     fetchProfile();
@@ -125,7 +127,6 @@ const ManagerFeedbacks: React.FC = () => {
       key: 'rating',
       render: (rating: number) => `${rating}/5`,
     },
-   
     {
       title: 'Trạng thái',
       dataIndex: 'status',
@@ -153,7 +154,6 @@ const ManagerFeedbacks: React.FC = () => {
         if (record.status === 'rejected') {
           return <Tag color="error">Đã bị từ chối</Tag>;
         }
-        // Chỉ cho thao tác khi trạng thái là pending
         if (record.status === 'pending') {
           return (
             <Space>
@@ -182,10 +182,9 @@ const ManagerFeedbacks: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
-      <Title level={2}>Quản lý phản hồi</Title>
-
-      <Card style={{ marginBottom: '24px' }}>
+    <div className="p-6 min-h-screen bg-gradient-to-br from-white to-gray-50">
+      <Title level={2} className="text-pink-600 !mb-0">Quản lý phản hồi</Title>
+      <Card className="mb-6 rounded-xl shadow-md">
         <Space style={{ marginBottom: '16px' }}>
           <Search
             placeholder="Tìm kiếm phản hồi..."
@@ -198,24 +197,26 @@ const ManagerFeedbacks: React.FC = () => {
             value={statusFilter}
             onChange={setStatusFilter}
           >
-            <Option value="all">Tất cả trạng thái</Option>
+            <Option value="all">Tất cả</Option>
             <Option value="pending">Chờ xử lý</Option>
             <Option value="resolved">Đã duyệt</Option>
             <Option value="rejected">Từ chối</Option>
           </Select>
-          
         </Space>
-
-        <Table
-          columns={columns}
-          dataSource={filteredFeedbacks}
-          rowKey="feedbackId"
-          pagination={{
-            pageSize: 10,
-            showSizeChanger: true,
-            showTotal: (total) => `Tổng số ${total} phản hồi`,
-          }}
-        />
+        {loading ? (
+          <div className="flex justify-center items-center py-10">
+            <Spin size="large" />
+          </div>
+        ) : (
+          <Table
+            columns={columns}
+            dataSource={filteredFeedbacks}
+            rowKey="feedbackId"
+            className="rounded-lg overflow-hidden"
+            pagination={{ pageSize: 8 }}
+            locale={{ emptyText: <Empty description="Không có dữ liệu phản hồi" /> }}
+          />
+        )}
       </Card>
     </div>
   );

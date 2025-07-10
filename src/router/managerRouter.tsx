@@ -3,7 +3,7 @@ import type { RouteObject } from "react-router-dom";
 import ManagerDashboard from "../pages/manager/ManagerDashboard";
 import ManagerAppointments from "../pages/manager/ManagerAppointments";
 import ManagerDoctors from "../pages/manager/ManagerDoctors";
-import ManagerTreatmentHistory from "../pages/manager/ManagerTreatmentHistory";
+import ManagerOrder from "../pages/manager/ManagerOrder";
 import ManagerServices from "../pages/manager/ManagerServices";
 import ManagerFeedbacks from "../pages/manager/ManagerFeedbacks";
 import ManagerFinance from "../pages/manager/ManagerFinance";
@@ -29,8 +29,8 @@ const managerRouter: RouteObject[] = [
         element: <ManagerDoctors />,
       },
       {
-        path: "treatment-history",
-        element: <ManagerTreatmentHistory />,
+        path: "orders",
+        element: <ManagerOrder />,
       },
       {
         path: "services",

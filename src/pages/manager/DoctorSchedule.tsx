@@ -124,7 +124,7 @@ const DoctorSchedule: React.FC = () => {
                         <div
                           key={slotIndex}
                           className={`p-3 rounded-lg ${
-                            slot.status && slot.status.toLowerCase() === "available"
+                            slot.status && slot.status.toLowerCase() === "unavailable"
                               ? "bg-green-100 border border-green-300 text-green-800"
                               : "bg-gray-100 border border-gray-300 text-gray-500"
                           }`}
@@ -133,7 +133,7 @@ const DoctorSchedule: React.FC = () => {
                             {slot.startTime} - {slot.endTime}
                           </div>
                           <div className="text-xs mt-1">
-                            {slot.status && slot.status.toLowerCase() === "available" ? "Có lịch" : "Chưa có lịch"}
+                            {slot.status && slot.status.toLowerCase() === "unavailable" ? "Có lịch" : "Chưa có lịch"}
                           </div>
                         </div>
                       ))}

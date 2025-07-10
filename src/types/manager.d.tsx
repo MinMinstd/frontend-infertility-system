@@ -48,4 +48,27 @@ export interface Account {
     name: string;
     description: string;
     price: number;
-  }
+}
+
+export interface TreatmentRoadmap {
+    treatmentRoadmapId: number;
+    stage: string;
+    description: string;
+    durationDay: number;
+    price: number;
+    serviceName: string;
+}
+
+export interface OrderDetail {
+    orderDetailId: number;
+    doctorName: string;
+    serviceName: string;
+}
+
+export interface Order {
+    orderId: number;
+    status: string;
+    wife: string;
+    husband: string;
+    orderDetailList: OrderDetail[];
+}

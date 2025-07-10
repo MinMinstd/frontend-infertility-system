@@ -1,32 +1,32 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Modal, Space, message } from "antd";
+import { Table, Button, Modal, Space, message, Spin, Empty } from "antd";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { ColumnsType } from "antd/es/table";
 import ManagerApi from "../../servers/manager.api";
 import type { Doctor } from "../../types/manager.d";
 
-
 const ManagerDoctors: React.FC = () => {
   const navigate = useNavigate();
   const [isScheduleModalVisible, setIsScheduleModalVisible] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDoctors = async () => {
+      setLoading(true);
       try {
         const response = await ManagerApi.GetAllDoctors();
         setDoctors(response.data);
       } catch {
         message.error("Lấy danh sách bác sĩ thất bại");
+      } finally {
+        setLoading(false);
       }
     };
     fetchDoctors();
   }, []);
-
-  // Dữ liệu mẫu cho lịch làm việc - sẽ được thay thế bằng API call
-  
 
   const columns: ColumnsType<Doctor> = [
     {
@@ -69,6 +69,7 @@ const ManagerDoctors: React.FC = () => {
             type="primary"
             icon={<CalendarIcon className="w-4 h-4" />}
             onClick={() => handleViewSchedule(record)}
+            className="bg-pink-500 border-pink-500 hover:bg-pink-600 hover:border-pink-600"
           >
             Xem lịch
           </Button>
@@ -82,39 +83,29 @@ const ManagerDoctors: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-white to-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
         <div className="bg-white rounded-2xl shadow-lg p-6">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold text-gray-800">Quản lý bác sĩ</h1>
           </div>
-
-          <Table
-            columns={columns}
-            dataSource={doctors}
-            rowKey="doctorId"
-            pagination={{ pageSize: 10 }}
-          />
+          {loading ? (
+            <div className="flex justify-center items-center py-16">
+              <Spin size="large" />
+            </div>
+          ) : (
+            <Table
+              columns={columns}
+              dataSource={doctors}
+              rowKey="doctorId"
+              pagination={{ pageSize: 10 }}
+              className="rounded-xl overflow-hidden shadow"
+              locale={{ emptyText: <Empty description="Không có dữ liệu bác sĩ" /> }}
+            />
+          )}
         </div>
       </div>
-
-      <Modal
-        title={`Lịch làm việc - ${selectedDoctor?.fullName}`}
-        open={isScheduleModalVisible}
-        onCancel={() => {
-          setIsScheduleModalVisible(false);
-          setSelectedDoctor(null);
-        }}
-        footer={null}
-        width={800}
-      >
-        <div className="mt-4">
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold mb-2">Lịch làm việc trong tuần</h3>
-            {/* Đã xóa phần mockSchedule, modal này hiện không hiển thị lịch làm việc */}
-          </div>
-        </div>
-      </Modal>
+      {/* Modal lịch làm việc có thể bổ sung sau nếu cần */}
     </div>
   );
 };
