@@ -28,9 +28,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchUser = useCallback(async () => {
     try {
-      const res = await AuthApi.Me(); //API trả về user (id, role, name)
+      const res = await AuthApi.Me(); // API trả về: userId, email, phone, role
       console.log("User info:", res.data);
-      setUser(res.data);
+
+      setUser({
+        userId: res.data.userId,
+        name: res.data.name ?? "",
+        email: res.data.email,
+        phone: res.data.phone,
+        role: res.data.role,
+      });
+
       setIsLoggedIn(true);
     } catch (error) {
       console.error("Lỗi khi gọi AuthApi.Me:", error);

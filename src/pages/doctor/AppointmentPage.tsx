@@ -1,4 +1,6 @@
-import { useState } from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import {
   Card,
   Typography,
@@ -10,7 +12,6 @@ import {
   Button,
   Input,
   Select,
-  Statistic,
   Tag,
 } from "antd";
 import {
@@ -18,83 +19,115 @@ import {
   CalendarOutlined,
   PlusOutlined,
   SearchOutlined,
-  EnvironmentOutlined,
+  UserOutlined,
+  IdcardOutlined,
 } from "@ant-design/icons";
 import { DoctorSidebar } from "./DoctorSidebar";
+import DoctorApi from "../../servers/doctor.api";
+import type { AppointmentInfoPatient } from "../../types/booking";
+import { BookingHistoryModal } from "./components/modals/BookingHistoryModal";
 
 const { Title, Text } = Typography;
 
-interface Appointment {
-  key: string;
-  patient: string;
-  avatar: string;
-  status: "confirmed" | "pending";
-  type: string;
-  date: string;
-  time: string;
-  duration: string;
-  room: string;
-  treatment: string;
-}
-
-// Mock data for appointments
-const mockAppointments: Appointment[] = [
-  {
-    key: "1",
-    patient: "Nguyen Van A",
-    avatar: "A",
-    status: "confirmed",
-    type: "Consultation",
-    date: "20/01/2025",
-    time: "08:00",
-    duration: "30m",
-    room: "101",
-    treatment: "IVF",
-  },
-  {
-    key: "2",
-    patient: "Tran Thi B",
-    avatar: "B",
-    status: "pending",
-    type: "Follow-up",
-    date: "20/01/2025",
-    time: "09:00",
-    duration: "30m",
-    room: "102",
-    treatment: "IUI",
-  },
-];
-
-const mockUpcomingAppointments: Appointment[] = [
-  {
-    key: "3",
-    patient: "Le Van C",
-    avatar: "C",
-    status: "confirmed",
-    type: "Consultation",
-    date: "21/01/2025",
-    time: "10:00",
-    duration: "30m",
-    room: "103",
-    treatment: "IVF",
-  },
-];
-
 export default function DoctorSchedule() {
-  const [appointments] = useState<Appointment[]>(mockAppointments);
-  const [upcomingAppointments] = useState<Appointment[]>(
-    mockUpcomingAppointments
+  const [appointmentPatients, setAppointmentPatients] = useState<
+    AppointmentInfoPatient[]
+  >([]);
+  const [filteredPatients, setFilteredPatients] = useState<
+    AppointmentInfoPatient[]
+  >([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+
+  const [isBookingModalOpen, setBookingModalOpen] = useState(false);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<number | null>(
+    null
   );
 
+  useEffect(() => {
+    const fetchPatientAppointment = async () => {
+      try {
+        const res = await DoctorApi.GetListPatientAppointment();
+        console.log("Danh sách khách hàng đặt lịch : ", res.data);
+        setAppointmentPatients(res.data);
+        setFilteredPatients(res.data);
+      } catch (error) {
+        console.log("Lỗi không thể lấy danh sách khách hàng đặt lịch", error);
+      }
+    };
+    fetchPatientAppointment();
+  }, []);
+
+  useEffect(() => {
+    let filtered = appointmentPatients;
+
+    // Filter by search term
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (patient) =>
+          patient.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          patient.customerId
+            ?.toString()
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          patient.serviceName?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Filter by status
+    if (statusFilter !== "all") {
+      filtered = filtered.filter((patient) => patient.status === statusFilter);
+    }
+
+    setFilteredPatients(filtered);
+  }, [searchTerm, statusFilter, appointmentPatients]);
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("vi-VN");
+  };
+
+  const calculateAge = (birthday: string) => {
+    if (!birthday) return "N/A";
+    const birthDate = new Date(birthday);
+    const today = new Date();
+    const age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      return age - 1;
+    }
+    return age;
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case "confirmed":
+        return "#52c41a";
+      case "pending":
+        return "#faad14";
+      case "cancelled":
+        return "#ff4d4f";
+      case "completed":
+        return "#1890ff";
+      default:
+        return "#d9d9d9";
+    }
+  };
+
   const AppointmentContent = () => (
-    <div>
-      <div style={{ marginBottom: 32 }}>
+    <div className="p-6">
+      <div className="mb-8">
         <Row justify="space-between" align="middle">
           <Col>
-            <Title level={2} style={{ color: "#ff69b4" }}>
-              Appointments
+            <Title level={2} className="text-pink-500 mb-2">
+              Patient Appointments
             </Title>
-            <Text type="secondary">
+            <Text type="secondary" className="text-gray-600">
               Manage patient appointments and scheduling
             </Text>
           </Col>
@@ -102,10 +135,7 @@ export default function DoctorSchedule() {
             <Button
               type="primary"
               icon={<PlusOutlined />}
-              style={{
-                backgroundColor: "#ff69b4",
-                borderColor: "#ff69b4",
-              }}
+              className="bg-pink-500 border-pink-500 hover:bg-pink-600 hover:border-pink-600"
             >
               New Appointment
             </Button>
@@ -113,111 +143,29 @@ export default function DoctorSchedule() {
         </Row>
       </div>
 
-      {/* Quick Stats */}
-      <Row gutter={[24, 24]} style={{ marginBottom: 32 }}>
-        <Col xs={24} sm={6}>
-          <Card
-            style={{
-              borderColor: "#ff69b4",
-              boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
-            }}
-          >
-            <Statistic
-              title={
-                <span style={{ color: "#ff69b4" }}>Today's Appointments</span>
-              }
-              value={appointments.length}
-              prefix={<CalendarOutlined style={{ color: "#ff69b4" }} />}
-              valueStyle={{ color: "#ff69b4" }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={6}>
-          <Card
-            style={{
-              borderColor: "#ff1493",
-              boxShadow: "0 2px 8px rgba(255, 20, 147, 0.1)",
-            }}
-          >
-            <Statistic
-              title={<span style={{ color: "#ff1493" }}>Confirmed</span>}
-              value={
-                appointments.filter((a) => a.status === "confirmed").length
-              }
-              valueStyle={{ color: "#ff1493" }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={6}>
-          <Card
-            style={{
-              borderColor: "#ffb6c1",
-              boxShadow: "0 2px 8px rgba(255, 182, 193, 0.1)",
-            }}
-          >
-            <Statistic
-              title={<span style={{ color: "#ffb6c1" }}>Pending</span>}
-              value={appointments.filter((a) => a.status === "pending").length}
-              valueStyle={{ color: "#ffb6c1" }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={6}>
-          <Card
-            style={{
-              borderColor: "#ff69b4",
-              boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
-            }}
-          >
-            <Statistic
-              title={<span style={{ color: "#ff69b4" }}>Tomorrow</span>}
-              value={upcomingAppointments.length}
-              prefix={<ClockCircleOutlined style={{ color: "#ff69b4" }} />}
-              valueStyle={{ color: "#ff69b4" }}
-            />
-          </Card>
-        </Col>
-      </Row>
-
       {/* Search and Filters */}
-      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-        <Col xs={24} md={8}>
+      <Row gutter={[16, 16]} className="mb-6">
+        <Col xs={24} md={12}>
           <Input
-            placeholder="Search appointments..."
-            prefix={<SearchOutlined style={{ color: "#ff69b4" }} />}
-            style={{ borderColor: "#ff69b4" }}
+            placeholder="Search by name, customer ID, or service..."
+            prefix={<SearchOutlined className="text-pink-500" />}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="border-pink-300 focus:border-pink-500"
           />
         </Col>
-        <Col xs={24} md={4}>
+        <Col xs={24} md={6}>
           <Select
-            placeholder="Status"
-            style={{ width: "100%", borderColor: "#ff69b4" }}
+            placeholder="Filter by Status"
+            value={statusFilter}
+            onChange={setStatusFilter}
+            className="w-full"
             options={[
               { value: "all", label: "All Status" },
               { value: "confirmed", label: "Confirmed" },
               { value: "pending", label: "Pending" },
-            ]}
-          />
-        </Col>
-        <Col xs={24} md={4}>
-          <Select
-            placeholder="Treatment"
-            style={{ width: "100%", borderColor: "#ff69b4" }}
-            options={[
-              { value: "all", label: "All Treatments" },
-              { value: "IVF", label: "IVF" },
-              { value: "IUI", label: "IUI" },
-            ]}
-          />
-        </Col>
-        <Col xs={24} md={4}>
-          <Select
-            placeholder="Date"
-            style={{ width: "100%", borderColor: "#ff69b4" }}
-            options={[
-              { value: "today", label: "Today" },
-              { value: "tomorrow", label: "Tomorrow" },
-              { value: "week", label: "This Week" },
+              { value: "cancelled", label: "Cancelled" },
+              { value: "completed", label: "Completed" },
             ]}
           />
         </Col>
@@ -225,148 +173,139 @@ export default function DoctorSchedule() {
 
       {/* Appointments List */}
       <Row gutter={[24, 24]}>
-        <Col xs={24} lg={16}>
+        <Col xs={24}>
           <Card
-            title={<span style={{ color: "#ff69b4" }}>Patient booking</span>}
-            style={{
-              borderColor: "#ff69b4",
-              boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
-            }}
+            title={
+              <span className="text-pink-500 font-semibold">
+                Patient Appointments ({filteredPatients.length})
+              </span>
+            }
+            className="border-pink-200 shadow-lg"
           >
             <List
-              dataSource={appointments}
-              renderItem={(appointment: Appointment) => (
+              dataSource={filteredPatients}
+              locale={{ emptyText: "No appointments found" }}
+              renderItem={(patient: AppointmentInfoPatient) => (
                 <List.Item
-                  style={{
-                    border: "1px solid #ffb6c1",
-                    borderRadius: "8px",
-                    marginBottom: "12px",
-                    backgroundColor: "#fff5f7",
-                  }}
+                  className="border border-pink-100 rounded-lg mb-3 bg-pink-50 hover:bg-pink-100 transition-colors"
+                  style={{ padding: "16px" }}
                 >
                   <List.Item.Meta
                     avatar={
                       <Avatar
-                        style={{
-                          backgroundColor: "#ff69b4",
-                          color: "white",
-                        }}
+                        size={48}
+                        className="bg-pink-500 text-white"
+                        icon={<UserOutlined />}
                       >
-                        {appointment.avatar}
+                        {patient.fullName?.charAt(0)?.toUpperCase() || "?"}
                       </Avatar>
                     }
                     title={
-                      <Space>
-                        <Text strong style={{ color: "#ff69b4" }}>
-                          {appointment.patient}
-                        </Text>
-                        <Tag
-                          color={
-                            appointment.status === "confirmed"
-                              ? "#ff1493"
-                              : "#ffb6c1"
-                          }
-                        >
-                          {appointment.status}
-                        </Tag>
+                      <Space
+                        direction="vertical"
+                        size="small"
+                        className="w-full"
+                      >
+                        <Space className="w-full justify-between">
+                          <Text strong className="text-pink-600 text-lg">
+                            {patient.fullName || "N/A"}
+                          </Text>
+                          <Tag
+                            color={getStatusColor(patient.status)}
+                            className="font-medium"
+                          >
+                            {patient.status?.toUpperCase() || "UNKNOWN"}
+                          </Tag>
+                        </Space>
+                        <Space className="text-gray-600">
+                          <IdcardOutlined />
+                          <Text>ID: {patient.customerId || "N/A"}</Text>
+                        </Space>
                       </Space>
                     }
                     description={
-                      <Space direction="vertical" size="small">
-                        <Text>{appointment.type}</Text>
-                        <Space>
-                          <Text type="secondary">
-                            <CalendarOutlined /> {appointment.date} at{" "}
-                            {appointment.time}
-                          </Text>
-                          <Text type="secondary">
-                            <ClockCircleOutlined /> {appointment.duration}
-                          </Text>
-                        </Space>
-                        <Space>
-                          <Text type="secondary">
-                            <EnvironmentOutlined /> {appointment.room}
-                          </Text>
-                          <Tag color="#ff69b4">{appointment.treatment}</Tag>
-                        </Space>
-                      </Space>
+                      <div className="mt-3">
+                        <Row gutter={[16, 8]}>
+                          <Col xs={24} sm={12} md={8}>
+                            <Space direction="vertical" size="small">
+                              <Text type="secondary" className="font-medium">
+                                Personal Info
+                              </Text>
+                              <Space>
+                                <CalendarOutlined className="text-pink-500" />
+                                <Text>
+                                  Birthday: {formatDate(patient.birthday)}
+                                </Text>
+                              </Space>
+                              <Space>
+                                <UserOutlined className="text-pink-500" />
+                                <Text>
+                                  Age:{" "}
+                                  {patient.age ||
+                                    calculateAge(patient.birthday)}
+                                </Text>
+                              </Space>
+                            </Space>
+                          </Col>
+                          <Col xs={24} sm={12} md={8}>
+                            <Space direction="vertical" size="small">
+                              <Text type="secondary" className="font-medium">
+                                Appointment Info
+                              </Text>
+                              <Space>
+                                <ClockCircleOutlined className="text-pink-500" />
+                                <Text>
+                                  Start: {formatDate(patient.startDate)}
+                                </Text>
+                              </Space>
+                              <Tag color="#ff69b4" className="mt-1">
+                                {patient.serviceName || "No service specified"}
+                              </Tag>
+                            </Space>
+                          </Col>
+                        </Row>
+                      </div>
                     }
                   />
-                  <Space>
+                  <Space direction="vertical" className="ml-4">
                     <Button
                       type="primary"
-                      style={{
-                        backgroundColor: "#ff69b4",
-                        borderColor: "#ff69b4",
+                      className="bg-pink-500 border-pink-500 hover:bg-pink-600 hover:border-pink-600"
+                      onClick={() => {
+                        setSelectedCustomerId(patient.customerId);
+                        setBookingModalOpen(true);
                       }}
                     >
                       View Details
                     </Button>
-                    <Button
-                      style={{
-                        borderColor: "#ff69b4",
-                        color: "#ff69b4",
-                      }}
-                    >
-                      Reschedule
+                    <Button className="border-pink-500 text-pink-500 hover:border-pink-600 hover:text-pink-600">
+                      Edit
                     </Button>
                   </Space>
                 </List.Item>
               )}
-            />
-          </Card>
-        </Col>
-
-        <Col xs={24} lg={8}>
-          <Card
-            title={<span style={{ color: "#ff69b4" }}>Upcoming</span>}
-            style={{
-              borderColor: "#ff69b4",
-              boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
-            }}
-          >
-            <List
-              dataSource={upcomingAppointments}
-              renderItem={(appointment: Appointment) => (
-                <List.Item
-                  style={{
-                    border: "1px solid #ffb6c1",
-                    borderRadius: "8px",
-                    marginBottom: "8px",
-                    backgroundColor: "#fff5f7",
-                  }}
-                >
-                  <List.Item.Meta
-                    avatar={
-                      <Avatar
-                        style={{
-                          backgroundColor: "#ff1493",
-                          color: "white",
-                        }}
-                      >
-                        {appointment.avatar}
-                      </Avatar>
-                    }
-                    title={
-                      <Text strong style={{ color: "#ff69b4" }}>
-                        {appointment.patient}
-                      </Text>
-                    }
-                    description={
-                      <Space direction="vertical" size="small">
-                        <Text>{appointment.type}</Text>
-                        <Text type="secondary">
-                          {appointment.date} at {appointment.time}
-                        </Text>
-                      </Space>
-                    }
-                  />
-                </List.Item>
-              )}
+              pagination={{
+                pageSize: 10,
+                showSizeChanger: true,
+                showQuickJumper: true,
+                showTotal: (total, range) =>
+                  `${range[0]}-${range[1]} of ${total} appointments`,
+              }}
             />
           </Card>
         </Col>
       </Row>
+
+      {selectedCustomerId !== null && (
+        <BookingHistoryModal
+          open={isBookingModalOpen}
+          customerId={selectedCustomerId}
+          onClose={() => {
+            setBookingModalOpen(false);
+            setSelectedCustomerId(null);
+          }}
+        />
+      )}
     </div>
   );
 

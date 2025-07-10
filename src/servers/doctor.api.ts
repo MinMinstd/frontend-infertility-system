@@ -186,6 +186,43 @@ const DoctorApi = {
   ) => {
     return axiosClient.post(`Doctor/CreateMedicalRecord/${customerId}`, data);
   },
+
+  ////////////////////////////////////////////////////////
+  //Appointment
+
+  //Danh sách khách hàng đặt lịch khám
+  GetListPatientAppointment: () => {
+    return axiosClient.get(`/Doctor/GetListCustomer`);
+  },
+
+  //Danh sách bookinig của một khách hàng
+  GetListBookingCustomer: (customerId: number) => {
+    return axiosClient.get(`Doctor/GetBookingCustomer/${customerId}`);
+  },
+
+  //Danh sách khàm trong booking của khách hàng đó
+  GetListAppointmentInBooking: (bookingId: number) => {
+    return axiosClient.get(`/Doctor/appointmentCustomer/${bookingId}`);
+  },
+
+  //Lịch khám của bác sĩ dành cho đặt lịch khám
+  GetDoctorScheduleByDate: (date: string) => {
+    return axiosClient.get(`/DoctorSchedule/GetListScheduleForDoctor`, {
+      params: { date },
+    });
+  },
+
+  //Tạo booking từ bác sĩ tới bệnh nhân
+  CreateBookingAppointment: (
+    bookingId: number,
+    data: {
+      treatmentRoadmapId: number;
+      dateTreatment: string;
+      timeTreatment: string;
+    }
+  ) => {
+    return axiosClient.post(`Doctor/booking/${bookingId}`, data);
+  },
 };
 
 export default DoctorApi;
