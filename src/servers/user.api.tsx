@@ -31,6 +31,16 @@ const UserApi = {
 
   //Danh sách booking từ khách hàng
   GetBookingList: () => axiosClient.get("customer/GetListBookingInCustomer"),
+
+  //Thông tin payment page
+  //Thông tin người dùng
+  GetInfoCustomerPay: () => axiosClient.get("/Order/GetOrderCurrent"),
+
+  //Thông tin giai đoạn điều trị
+  GetInforTreatmentPaying: () =>
+    axiosClient.get(
+      "/TreatementRoadmap/GetTreatmentRoadmapById{treatmentRoadmapId}/{serviceId}"
+    ),
 };
 
 export default UserApi;

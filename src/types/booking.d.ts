@@ -16,3 +16,13 @@ export type AppointmentHistory = {
   type: string;
   note?: string;
 };
+
+export type AppointmentInfoPatient = {
+  customerId: number;
+  fullName: string;
+  birthday: string;
+  age: number;
+  status: string;
+  startDate: string;
+  serviceName: string;
+};

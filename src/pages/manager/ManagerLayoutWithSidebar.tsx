@@ -18,8 +18,19 @@ const { Header, Sider, Content } = Layout;
 
 const menuItems = [
   { key: "", icon: <DashboardOutlined />, label: "Bảng điều khiển" },
-  { key: "appointments", icon: <CalendarOutlined />, label: "Quản lý lịch hẹn" },
+  {
+    key: "appointments",
+    icon: <CalendarOutlined />,
+    label: "Quản lý lịch hẹn",
+  },
   { key: "doctors", icon: <UserOutlined />, label: "Quản lý bác sĩ" },
+
+  {
+    key: "treatment-history",
+    icon: <HistoryOutlined />,
+    label: "Quản lý lịch sử điều trị",
+  },
+
   { key: "orders", icon: <HistoryOutlined />, label: "Quản lý đơn hàng" },
   { key: "customers", icon: <TeamOutlined />, label: "Quản lý người dùng" },
   { key: "services", icon: <FundOutlined />, label: "Quản lý dịch vụ" },
@@ -35,7 +46,10 @@ const ManagerLayoutWithSidebar: React.FC = () => {
 
   // Function to get the label for the current selected key
   const getCurrentPageLabel = () => {
-    return menuItems.find((item) => item.key === selectedKey)?.label || "Bảng điều khiển";
+    return (
+      menuItems.find((item) => item.key === selectedKey)?.label ||
+      "Bảng điều khiển"
+    );
   };
 
   return (
@@ -94,4 +108,4 @@ const ManagerLayoutWithSidebar: React.FC = () => {
   );
 };
 
-export default ManagerLayoutWithSidebar; 
+export default ManagerLayoutWithSidebar;

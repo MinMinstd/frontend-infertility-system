@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Card,
   Table,
@@ -15,19 +13,11 @@ import {
   CreditCardOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
+import UserApi from "../../servers/user.api";
+import type { PatientInfor } from "../../types/user.d";
+import dayjs from "dayjs";
 const { Title, Text } = Typography;
-
-interface PatientInfo {
-  name: string;
-  partner: string;
-  birthday: string;
-  age: number;
-  phone: string;
-  email: string;
-  address: string;
-}
 
 interface TreatmentInfo {
   treatment: string;
@@ -45,15 +35,21 @@ interface ServiceItem {
 }
 
 export default function PaymentPage() {
-  const patientInfo: PatientInfo = {
-    name: "Nguyen Thi A",
-    partner: "Tran Van B",
-    birthday: "1992-05-10",
-    age: 33,
-    phone: "0909123456",
-    email: "a.nguyen@example.com",
-    address: "123 Đường Hoa Hồng, Quận 1, TP.HCM",
-  };
+  const [patientInfor, setPatientInfo] = useState<PatientInfor>();
+
+  //Thông tin khách hàng
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await UserApi.GetInfoCustomerPay();
+        console.log("Thông tin payment khách hàng nè : ", res.data);
+        setPatientInfo(res.data);
+      } catch (error) {
+        console.log("Lỗi Load thông tin khách hàng payment :", error);
+      }
+    };
+    fetchData();
+  }, []);
 
   const treatmentInfo: TreatmentInfo = {
     treatment: "IVF",
@@ -69,14 +65,6 @@ export default function PaymentPage() {
       unitPrice: 5000000,
       quantity: 1,
       total: 5000000,
-    },
-    {
-      key: "2",
-      serviceCode: "IVF002",
-      serviceName: "Chuyển phôi",
-      unitPrice: 7000000,
-      quantity: 1,
-      total: 7000000,
     },
   ]);
 
@@ -135,25 +123,27 @@ export default function PaymentPage() {
               className="[&_.ant-descriptions-item-label]:bg-pink-50 [&_.ant-descriptions-item-label]:text-gray-700"
             >
               <Descriptions.Item label="Họ tên (vợ)">
-                <span className="font-medium">{patientInfo.name}</span>
+                <span className="font-medium">{patientInfor?.wife}</span>
               </Descriptions.Item>
               <Descriptions.Item label="Họ tên (chồng)">
-                <span className="font-medium">{patientInfo.partner}</span>
+                <span className="font-medium">{patientInfor?.husband}</span>
               </Descriptions.Item>
               <Descriptions.Item label="Ngày sinh">
-                {patientInfo.birthday}
+                {patientInfor?.birthday
+                  ? dayjs(patientInfor.birthday).format("DD/MM/YYYY")
+                  : ""}
               </Descriptions.Item>
               <Descriptions.Item label="Tuổi">
-                {patientInfo.age}
+                {patientInfor?.age}
               </Descriptions.Item>
               <Descriptions.Item label="Số điện thoại">
-                {patientInfo.phone}
+                {patientInfor?.phone}
               </Descriptions.Item>
               <Descriptions.Item label="Email">
-                {patientInfo.email}
+                {patientInfor?.email}
               </Descriptions.Item>
               <Descriptions.Item label="Địa chỉ" span={2}>
-                {patientInfo.address}
+                {patientInfor?.address}
               </Descriptions.Item>
             </Descriptions>
           </Card>
