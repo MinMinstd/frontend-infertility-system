@@ -22,7 +22,8 @@ export function TreatmentRoadmap({
     {
       title: "Mã bước",
       dataIndex: "treatmentRoadmapId",
-      key: "treatmentRoadmapId",
+      key: "index",
+      render: (_: unknown, __: treatmentRoadmap, index: number) => index + 1,
       width: 100,
     },
     {

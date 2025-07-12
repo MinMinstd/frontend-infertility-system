@@ -4,7 +4,7 @@ import {
   Modal,
   Form,
   Input,
-  Select,
+  // Select,
   Button,
   Space,
   type FormInstance,
@@ -15,15 +15,15 @@ import type {
 } from "../../../../types/medicalRecord.d";
 
 const { TextArea } = Input;
-const { Option } = Select;
+// const { Option } = Select;
 
 interface TestResultFormValues {
   name: string;
   descriptionTypeTest: string;
   date: string;
   resultValue: string;
-  treatment_result_id: string;
-  result_id: string;
+  // treatment_result_id: string;
+  // result_id: string;
   note: string;
 }
 
@@ -47,8 +47,8 @@ export function TestResultModal({
   visible,
   onCancel,
   onCreateConsulation,
-  treatmentResults,
-  medicalRecordDetails,
+  // treatmentResults,
+  // medicalRecordDetails,
   form,
 }: // testResults,
 // setTestResults,
@@ -92,7 +92,7 @@ TestResultModalProps) {
         >
           <Input placeholder="Ví dụ: Dương tính, Âm tính, ..." />
         </Form.Item>
-        <Form.Item
+        {/* <Form.Item
           label={
             <span style={{ color: "#ff69b4" }}>Kết quả điều trị liên quan</span>
           }
@@ -109,8 +109,8 @@ TestResultModalProps) {
               </Option>
             ))}
           </Select>
-        </Form.Item>
-        <Form.Item
+        </Form.Item> */}
+        {/* <Form.Item
           label={<span style={{ color: "#ff69b4" }}>Chi tiết liên kết</span>}
           name="result_id"
           rules={[{ required: true, message: "Vui lòng chọn chi tiết!" }]}
@@ -125,7 +125,7 @@ TestResultModalProps) {
               </Option>
             ))}
           </Select>
-        </Form.Item>
+        </Form.Item> */}
         <Form.Item
           label={<span style={{ color: "#ff69b4" }}>Đánh giá chuyên môn</span>}
           name="note"

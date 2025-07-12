@@ -61,19 +61,17 @@ const DoctorApi = {
   },
 
   //Hồ sơ điều trị chi tiết tại medical manager
-  GetMedicalRecordDetails: (customerid: number) => {
-    return axiosClient.get(`Doctor/GetMedicalRecordDetail/${customerid}`);
-  },
-  // ****
-  GetMedicalRecordDetailByDetailId: (medicalRecord: number) => {
-    return axiosClient.get(`Doctor/GetMedicalRecordDetail/${medicalRecord}`);
+  GetMedicalRecordDetailByDetailId: (medicalRecordId: number) => {
+    return axiosClient.get(`Doctor/GetMedicalRecordDetail/${medicalRecordId}`);
   },
 
   //Tạo mới medical record detail (Chưa thực hiện)
   CreateMedicalRecordDetail: (
-    customerId: number,
+    medicalRecordId: number,
     data: {
       treatmentRoadmapId: number;
+      consulationResultId: number;
+      treatmentResultId: number;
       date: string;
       typeName: string;
       testResult?: string;
@@ -82,7 +80,7 @@ const DoctorApi = {
     }
   ) => {
     return axiosClient.post(
-      `/Doctor/CreateMedicalRecordDetail/${customerId}`,
+      `/Doctor/CreateMedicalRecordDetail/${medicalRecordId}`,
       data
     );
   },
@@ -163,6 +161,21 @@ const DoctorApi = {
   ) => {
     return axiosClient.post(
       `Doctor/consultationResult-typeTest/${customerId}/${bookingId}`,
+      data
+    );
+  },
+
+  //Tạo typetest dành cho consulation
+  CreateTypeTest: (
+    customerId: number,
+    consulationResultId: number,
+    data: {
+      name: string;
+      description: string;
+    }
+  ) => {
+    return axiosClient.post(
+      `/Doctor/typeTest-consultationResult/${customerId}/${consulationResultId}`,
       data
     );
   },

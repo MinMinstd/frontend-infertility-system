@@ -8,6 +8,7 @@ export type BookingConsulant = {
 };
 
 export type AppointmentHistory = {
+  bookingId: number;
   date: string;
   time: string;
   fullName: string;

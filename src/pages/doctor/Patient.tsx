@@ -51,10 +51,8 @@ export default function PatientsPage() {
 
   const treatmentCounts = {
     all: patients.length,
-    ivf: patients.filter((p) => p.serviceName === "IVF").length,
-    iui: patients.filter((p) => p.serviceName === "IUI").length,
-    icsi: 0,
-    frozen: 0,
+    ivf: patients.filter((p) => p.serviceName.includes("IVF")).length,
+    iui: patients.filter((p) => p.serviceName.includes("IUI")).length,
   };
 
   const navigate = useNavigate();
@@ -203,7 +201,7 @@ export default function PatientsPage() {
                 children: (
                   <div>
                     {patients
-                      .filter((p) => p.serviceName === "IVF")
+                      .filter((p) => p.serviceName.includes("IVF"))
                       .map(renderPatientCard)}
                   </div>
                 ),
@@ -214,7 +212,7 @@ export default function PatientsPage() {
                 children: (
                   <div>
                     {patients
-                      .filter((p) => p.serviceName === "IUI")
+                      .filter((p) => p.serviceName.includes("IUI"))
                       .map(renderPatientCard)}
                   </div>
                 ),

@@ -37,4 +37,13 @@ export interface PatientInfor {
   status: string;
   serviceName: string;
   serviceId: number;
+  orderId: number;
+}
+
+export interface PaymentInfo {
+  status: string;
+  treatmentRoadmapId: number;
+  stage: string;
+  price: number;
+  paymentId: number;
 }
