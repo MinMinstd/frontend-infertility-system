@@ -177,7 +177,7 @@ export const RegisterService = () => {
         selectedDate,
         selectedTimeString,
         selectedTime,
-        userId: user?.id,
+        userId: user?.userId,
       });
 
       const data = {
@@ -188,7 +188,7 @@ export const RegisterService = () => {
         date: selectedDate,
         time: selectedTimeString,
         doctorScheduleId: selectedTime,
-        userId: user?.id,
+        userId: user?.userId,
       };
 
       // Log the final data object being sent
@@ -232,7 +232,7 @@ export const RegisterService = () => {
   }
 
   // Tính toán ngày tối thiểu (ngày hiện tại)
-  const today = new Date().toISOString().split("T")[0];
+  // const today = new Date().toISOString().split("T")[0];
 
   return (
     <div className="bg-gray-50 py-4 px-4 sm:px-6 lg:px-8">
@@ -399,7 +399,7 @@ export const RegisterService = () => {
               <input
                 type="date"
                 required
-                min={today}
+                // min={today}
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
                 className="mt-1 block w-full h-8 rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"

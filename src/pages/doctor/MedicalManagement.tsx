@@ -6,6 +6,7 @@ import { ConsulationResults } from "./components/ConsulationResults";
 import dayjs from "dayjs";
 import type {
   ConsulationResult_typeTest,
+  CreateMedicalRecordDetail,
   MedicalRecordDetail,
   TreatmentResult_typeTest,
   treatmentRoadmap,
@@ -18,37 +19,19 @@ import { TreatmentRoadMapModal } from "./components/modals/TreatmentRoadMapModal
 import { TreatmentResultModal } from "./components/modals/TreatmentResultModal";
 import { MedicalDetailModal } from "./components/modals/MedicalDetailModal";
 import { TestResultModal } from "./components/modals/TestResultModal";
+import { CreateTypeTestModal } from "./components/modals/TypeTest.Modal";
 
 interface MedicalManagementProps {
   customerId: number;
   bookingId: number | null;
   medicalRecordId: number | null;
-  // treatmentRoadmap: treatmentRoadmap[];
-  // treatmentResults: TreatmentResult_typeTest[];
-  // medicalRecordDetails: MedicalRecordDetail[];
-  // consulationResults: ConsulationResult_typeTest[];
-  // onAddTreatmentResult: () => void;
-  // onAddDetail: () => void;
-  // onAddTest: () => void;
-  // onUpdateTreatmentResult: (treatmentReuslut: TreatmentResult_typeTest) => void;
-  // onUpdateDetail: (medicalDetail: MedicalRecordDetail) => void;
 }
-
-// interface TestResultFormValues {
-//   name: string;
-//   description: string;
-// }
 
 export function MedicalManagement({
   customerId,
   bookingId,
   medicalRecordId,
-}: // medicalRecordDetails,
-// consulationResults,
-// onUpdateDetail,
-// onAddDetail,
-// onAddTest,
-MedicalManagementProps) {
+}: MedicalManagementProps) {
   //road map
   const [treatmentRoadmap, setTreatmentRoadmap] = useState<treatmentRoadmap[]>(
     []
@@ -102,6 +85,10 @@ MedicalManagementProps) {
   const [isTestModalVisible, setIsTestModalVisible] = useState(false);
   const [testResults, setTestResults] = useState<TypeTest[]>([]);
   const [consulationResultForm] = Form.useForm();
+
+  //type test
+  const [isCreateTypeTestModalVisible, setIsCreateTypeTestModalVisible] =
+    useState(false);
 
   // hệ sinh thái của treatment road map
   useEffect(() => {
@@ -169,15 +156,23 @@ MedicalManagementProps) {
   useEffect(() => {
     const fetchTreatmentResult_Typetest = async () => {
       if (customerId && bookingId) {
-        const res = await DoctorApi.GetTreatmentResult_TypeTest(
-          customerId,
-          bookingId
-        );
-        const mapped = res.data.map((item) => ({
-          ...item,
-          date: dayjs(item.date), // chuẩn hóa về object để format luôn đúng
-        }));
-        settreatmentResult_typeTest(mapped);
+        try {
+          const res = await DoctorApi.GetTreatmentResult_TypeTest(
+            customerId,
+            bookingId
+          );
+          console.log("Treatment result mới đây nè: ", res.data);
+          const mapped = res.data.map((item) => ({
+            ...item,
+            date: dayjs(item.date), // chuẩn hóa về object để format luôn đúng
+          }));
+          settreatmentResult_typeTest(mapped);
+        } catch (error) {
+          // Xử lý lỗi ở đây, ví dụ:
+          console.error("Lỗi lấy treatment result:", error);
+          // hoặc set trạng thái lỗi cho UI, ví dụ:
+          // setError("Không thể lấy dữ liệu kết quả điều trị!");
+        }
       }
     };
     fetchTreatmentResult_Typetest();
@@ -281,16 +276,20 @@ MedicalManagementProps) {
   useEffect(() => {
     const fetchMedicalRecordDetail = async () => {
       if (medicalRecordId) {
-        const res = await DoctorApi.GetMedicalRecordDetailByDetailId(
-          medicalRecordId
-        );
-        setMedicalRecordDetail(res.data);
+        try {
+          const res = await DoctorApi.GetMedicalRecordDetailByDetailId(
+            medicalRecordId
+          );
+          console.log("Medical record của bệnh nhân mới nè:", res.data);
+          setMedicalRecordDetail(res.data);
+        } catch (error) {
+          console.log("Lỗi không thể load medical record detail: ", error);
+        }
       }
     };
     fetchMedicalRecordDetail();
   }, [medicalRecordId]);
 
-  //Đang thực hiện ngày 7/7 medical record detail
   const showUpdateMedicalDetailModal = (medicalDetail: MedicalRecordDetail) => {
     console.log("Clicked medical detail:", medicalDetail);
     setEditingMedicalDetail(medicalDetail);
@@ -346,37 +345,44 @@ MedicalManagementProps) {
     }
   };
 
-  const handleCreateMedicalRecordDetail = async (values: {
-    treatmentRoadmapId: number;
-    date: string;
-    typeName: string;
-    testResult?: string;
-    note?: string;
-    status: string;
-  }) => {
-    if (!customerId) return;
+  const handleCreateMedicalRecordDetail = async (values: CreateMedicalRecordDetail) => {
+    if (!customerId || medicalRecordId == null) return;
 
     try {
       const roadmapId = Number(values.treatmentRoadmapId);
-      const response = await DoctorApi.CreateMedicalRecordDetail(customerId, {
-        treatmentRoadmapId: roadmapId,
-        date: values.date,
-        typeName: values.typeName,
-        testResult: values.testResult || "",
-        note: values.note || "",
-        status: values.status,
-      });
+      const consulationRId = Number(values.consulationResultId);
+      const treatmentResultId = Number(values.treatmentResultId);
+      const response = await DoctorApi.CreateMedicalRecordDetail(
+        medicalRecordId,
+        {
+          treatmentRoadmapId: roadmapId,
+          consulationResultId: consulationRId,
+          treatmentResultId: treatmentResultId,
+          date: values.date,
+          typeName: values.typeName,
+          testResult: values.testResult || "",
+          note: values.note || "",
+          status: values.status,
+        }
+      );
 
+      console.log("Hồ sơ bệnh án được gửi xuống backend : ", response.data);
       // Tìm roadmap tương ứng để lấy stage và stepNumber
       const relatedRoadmap = treatmentRoadmap.find(
         (r) => r.treatmentRoadmapId === roadmapId
       );
+      
+      if (!relatedRoadmap) {
+        message.error("Không tìm thấy giai đoạn điều trị tương ứng");
+        return;
+      }
 
       setMedicalRecordDetail((prev) => [
         ...prev,
         {
           medicalRecordDetailId: response.data.medicalRecordDetailId,
           treatmentRoadmapId: roadmapId,
+          consulationResultId: consulationRId,
           date: dayjs(values.date).format("YYYY-MM-DD"),
           typeName: values.typeName,
           testResult: values.testResult || "",
@@ -433,12 +439,15 @@ MedicalManagementProps) {
       // Chuẩn hóa dữ liệu gửi lên API
       const payload = {
         date: dayjs().format("YYYY-MM-DD"), // Ngày hiện tại hoặc từ form nếu có
-        resultValue: values.note || "", // Kết quả từ note trong form
-        note: values.descriptionTypeTest || "", // Ghi chú từ description trong form
+        resultValue: values.resultValue || "",
+        note: values.note || "", // Ghi chú từ description trong form
         name: values.name, // Tên xét nghiệm
         descriptionTypeTest: values.descriptionTypeTest, // Mô tả loại xét nghiệm
       };
-
+      console.log(
+        "Dữ liệu từ form gửi lên backend của consulation : ",
+        payload
+      );
       // Gọi API để tạo mới kết quả xét nghiệm
       await DoctorApi.CreateConsulationResult_typeTest(
         customerId,
@@ -467,6 +476,38 @@ MedicalManagementProps) {
       treatmentResultForm.resetFields();
     } catch (error) {
       console.error("Lỗi khi tạo mới kết quả xét nghiệm:", error);
+      message.error("Tạo mới thất bại");
+    }
+  };
+
+  //type test dành consulation result
+  const handleCreateTypeTest = async (values: {
+    name: string;
+    description: string;
+    consulationResultId: number; // Add consulationResultId to values
+  }) => {
+    if (!customerId || !values.consulationResultId) return;
+
+    try {
+      await DoctorApi.CreateTypeTest(customerId, values.consulationResultId, {
+        name: values.name,
+        description: values.description,
+      });
+
+      message.success("Tạo mới type test thành công");
+      setIsTestModalVisible(false);
+      consulationResultForm.resetFields();
+
+      // Refresh consultation results after creating new type test
+      if (bookingId) {
+        const res = await DoctorApi.GetConsultaionResult_TypeTests(
+          customerId,
+          bookingId
+        );
+        setConsultationResult_TypeTest(res.data);
+      }
+    } catch (error) {
+      console.error("Lỗi khi tạo mới type test:", error);
       message.error("Tạo mới thất bại");
     }
   };
@@ -546,14 +587,14 @@ MedicalManagementProps) {
                   fontSize: "16px",
                 }}
               >
-                📝 3. Chi tiết điều trị mỗi ngày (Medical Record Details)
+                🧪 3. Ghi chú và đánh giá kết quả xét nghiệm
               </span>
             ),
             children: (
-              <MedicalRecordDetails
-                medicalRecordDetails={medicalRecordDetail}
-                onAddDetail={showCreateMedicalDetailModal}
-                onUpdateDetail={showUpdateMedicalDetailModal}
+              <ConsulationResults
+                consulationResults={consulationResult_typeTest}
+                onAddTest={showAddConsulationR_typeTest}
+                onAddTypeTest={() => setIsCreateTypeTestModalVisible(true)}
               />
             ),
           },
@@ -567,13 +608,14 @@ MedicalManagementProps) {
                   fontSize: "16px",
                 }}
               >
-                🧪 4. Ghi chú và đánh giá kết quả xét nghiệm
+                📝 4. Chi tiết điều trị mỗi ngày (Medical Record Details)
               </span>
             ),
             children: (
-              <ConsulationResults
-                consulationResults={consulationResult_typeTest}
-                onAddTest={showAddConsulationR_typeTest}
+              <MedicalRecordDetails
+                medicalRecordDetails={medicalRecordDetail}
+                onAddDetail={showCreateMedicalDetailModal}
+                onUpdateDetail={showUpdateMedicalDetailModal}
               />
             ),
           },
@@ -634,6 +676,7 @@ MedicalManagementProps) {
         }}
         treatmentRoadmap={treatmentRoadmap}
         treatmentResults={treatmentResult_typeTest}
+        consulationResults={consulationResult_typeTest} // ✅ thêm dòng này
         form={medicalDetailForm}
         isEditing={true} //  Thêm prop này để phân biệt chế độ edit
       />
@@ -643,11 +686,14 @@ MedicalManagementProps) {
         onSubmit={(values) => {
           handleCreateMedicalRecordDetail({
             ...values,
-            date: values.date, // Đã xử lý trong hàm handle
+            consulationResultId: values.consulationResultId,
+            date: dayjs(values.date).format("YYYY-MM-DD"), // Đã xử lý trong hàm handle
+
           });
         }}
         treatmentRoadmap={treatmentRoadmap}
         treatmentResults={treatmentResult_typeTest}
+        consulationResults={consulationResult_typeTest}
         form={medicalDetailForm}
         isEditing={false}
       />
@@ -660,6 +706,14 @@ MedicalManagementProps) {
         treatmentResults={mappedTreatmentResults}
         medicalRecordDetails={medicalRecordDetail}
         form={treatmentResultForm}
+      />
+
+      {/* Type test  */}
+      <CreateTypeTestModal
+        visible={isCreateTypeTestModalVisible}
+        onCancel={() => setIsCreateTypeTestModalVisible(false)}
+        onSubmit={handleCreateTypeTest}
+        consulationResults={consulationResult_typeTest}
       />
     </div>
   );

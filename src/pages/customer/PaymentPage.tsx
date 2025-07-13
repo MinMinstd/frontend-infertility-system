@@ -7,35 +7,17 @@ import {
   Button,
   message,
 } from "antd";
-import {
-  DownloadOutlined,
-  PrinterOutlined,
-  CreditCardOutlined,
-} from "@ant-design/icons";
+import { PrinterOutlined, CreditCardOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { useEffect, useState } from "react";
 import UserApi from "../../servers/user.api";
-import type { PatientInfor } from "../../types/user.d";
+import type { PatientInfor, PaymentInfo } from "../../types/user.d";
 import dayjs from "dayjs";
 const { Title, Text } = Typography;
 
-interface TreatmentInfo {
-  treatment: string;
-  stage: string;
-  status: string;
-}
-
-interface ServiceItem {
-  key: string;
-  serviceCode: string;
-  serviceName: string;
-  unitPrice: number;
-  quantity: number;
-  total: number;
-}
-
 export default function PaymentPage() {
   const [patientInfor, setPatientInfo] = useState<PatientInfor>();
+  const [paymentInfo, setPaymentInfo] = useState<PaymentInfo>();
 
   //Thông tin khách hàng
   useEffect(() => {
@@ -51,50 +33,97 @@ export default function PaymentPage() {
     fetchData();
   }, []);
 
-  const treatmentInfo: TreatmentInfo = {
-    treatment: "IVF",
-    stage: "Chuyển phôi",
-    status: "Đang điều trị",
-  };
+  //Thông tin thực hiện thanh toán đối với dịch nào
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await UserApi.GetPaymentByOrderId(
+          patientInfor?.orderId || 0
+        );
+        console.log("Thông tin payment nè : ", res.data);
+        setPaymentInfo(res.data);
+      } catch (error) {
+        console.log("Lỗi Load thông tin payment :", error);
+      }
+    };
+    fetchData();
+  }, [patientInfor?.orderId]);
 
-  const [services] = useState<ServiceItem[]>([
+  const columns: ColumnsType<PaymentInfo> = [
     {
-      key: "1",
-      serviceCode: "IVF001",
-      serviceName: "Chọc hút trứng",
-      unitPrice: 5000000,
-      quantity: 1,
-      total: 5000000,
-    },
-  ]);
-
-  const totalAmount = services.reduce((sum, s) => sum + s.total, 0);
-
-  const columns: ColumnsType<ServiceItem> = [
-    {
-      title: "Mã dịch vụ",
-      dataIndex: "serviceCode",
-    },
-    {
-      title: "Tên dịch vụ",
-      dataIndex: "serviceName",
+      title: "Giai đoạn thực hiện thành toán",
+      dataIndex: "stage",
     },
     {
       title: "Đơn giá",
-      dataIndex: "unitPrice",
+      dataIndex: "price",
       render: (value: number) => value.toLocaleString("vi-VN") + " đ",
     },
 
     {
       title: "Thành tiền",
-      dataIndex: "total",
+      dataIndex: "price",
       render: (value: number) => value.toLocaleString("vi-VN") + " đ",
     },
   ];
 
   const handlePrint = () => message.success("In hoá đơn thành công!");
-  const handleDownload = () => message.success("Tải PDF thành công!");
-  const handlePayment = () => message.success("Thanh toán thành công!");
+
+  // const handleUpdateStatusPayment = async () => {
+  //   try {
+  //     if (!paymentInfo?.paymentId) {
+  //       message.error("Không tìm thấy thông tin thanh toán!");
+  //       return;
+  //     }
+
+  //     await UserApi.UpdateSatatusPayment(paymentInfo.paymentId);
+  //     message.success("Cập nhật trạng thái thanh toán thành công!");
+
+  //     // Cập nhật lại thông tin thanh toán sau khi đã cập nhật trạng thái
+  //     const res = await UserApi.GetPaymentByOrderId(patientInfor?.orderId || 0);
+  //     setPaymentInfo(res.data);
+  //   } catch (error) {
+  //     console.log("Lỗi cập nhật trạng thái thanh toán: ", error);
+  //     message.error("Không thể cập nhật trạng thái thanh toán.");
+  //   }
+  // };
+
+  const handlePayment = async () => {
+    //cần di chuyển
+    // try {
+    //   await handleUpdateStatusPayment();
+    //   message.success("Thanh toán thành công!");
+    // } catch (error) {
+    //   console.log("Lỗi không thể cập nhập được trạng thái của status: ", error);
+    //   message.error("Thanh toán không thành công!");
+    // }
+
+    try {
+      if (!paymentInfo || !patientInfor) {
+        message.error("Thiếu thông tin thanh toán hoặc bệnh nhân.");
+        return;
+      }
+
+      const payload = {
+        orderId: patientInfor.orderId,
+        amount: paymentInfo.price,
+        orderInfo: `Thanh toán cho giai đoạn: ${paymentInfo.stage}`,
+        returnUrl: window.location.origin + "/payment-success",
+      };
+
+      const res = await UserApi.CreateVnPayPayment(payload);
+      const paymentUrl = res.data;
+
+      if (paymentUrl) {
+        window.location.href = paymentUrl;
+      } else {
+        message.error("Không thể tạo thanh toán VNPay.");
+      }
+    } catch (error) {
+      console.error("Lỗi tạo thanh toán VNPay:", error);
+      message.error("Thanh toán thất bại.");
+    }
+  };
 
   return (
     <div className="container mx-auto max-w-6xl">
@@ -163,14 +192,14 @@ export default function PaymentPage() {
               className="[&_.ant-descriptions-item-label]:bg-pink-50 [&_.ant-descriptions-item-label]:text-gray-700"
             >
               <Descriptions.Item label="Loại điều trị">
-                <span className="font-medium">{treatmentInfo.treatment}</span>
+                <span className="font-medium">{patientInfor?.serviceName}</span>
               </Descriptions.Item>
               <Descriptions.Item label="Giai đoạn hiện tại">
-                <span className="font-medium">{treatmentInfo.stage}</span>
+                <span className="font-medium">{paymentInfo?.stage}</span>
               </Descriptions.Item>
               <Descriptions.Item label="Trạng thái">
                 <Tag color="processing" className="font-medium">
-                  {treatmentInfo.status}
+                  {paymentInfo?.status}
                 </Tag>
               </Descriptions.Item>
             </Descriptions>
@@ -184,16 +213,17 @@ export default function PaymentPage() {
                 Chi tiết dịch vụ
               </h3>
             </div>
+
             <Table
               columns={columns}
-              dataSource={services}
+              dataSource={paymentInfo ? [paymentInfo] : []}
               pagination={false}
               bordered
               className="[&_.ant-table-thead>tr>th]:bg-pink-50 [&_.ant-table-thead>tr>th]:text-gray-700 [&_.ant-table-thead>tr>th]:font-semibold"
             />
             <div className="flex justify-end mt-6 p-4 bg-pink-50 rounded-lg border border-pink-200">
               <Text className="text-xl font-bold text-pink-600">
-                Tổng cộng: {totalAmount.toLocaleString("vi-VN")} đ
+                Tổng cộng: {paymentInfo?.price.toLocaleString("vi-VN")} đ
               </Text>
             </div>
           </Card>
@@ -208,14 +238,7 @@ export default function PaymentPage() {
           >
             In hoá đơn
           </Button>
-          <Button
-            icon={<DownloadOutlined />}
-            onClick={handleDownload}
-            className="border-pink-400 text-pink-500 hover:border-pink-500 hover:text-pink-600 font-medium px-6 py-2 h-auto"
-            size="large"
-          >
-            Tải PDF
-          </Button>
+
           <Button
             icon={<CreditCardOutlined />}
             type="primary"

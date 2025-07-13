@@ -66,7 +66,7 @@ const MedicalRecord: React.FC = () => {
       try {
         const res = await UserApi.GetCurrentService();
         console.log("Dịch vụ hiện tại:", res.data);
-        setCurrentServices([res.data]); //Đang trả ra dạng object, không phải mảng nếu là list thì cần setCurrentServices(res.data);
+        setCurrentServices(res.data); //Đang trả ra dạng object, không phải mảng nếu là list thì cần setCurrentServices(res.data);
         setcurrentServicesLoading(false);
       } catch (error) {
         console.error("Lỗi không thể load được dịch vụ hiện tại: ", error);

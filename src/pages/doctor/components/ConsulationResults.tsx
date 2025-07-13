@@ -7,10 +7,12 @@ const { Text } = Typography;
 interface ConsulationResultsProps {
   consulationResults: ConsulationResult_typeTest[];
   onAddTest: () => void;
+  onAddTypeTest?: () => void;
 }
 
 export function ConsulationResults({
   consulationResults,
+  onAddTypeTest,
   onAddTest,
 }: ConsulationResultsProps) {
   return (
@@ -31,6 +33,18 @@ export function ConsulationResults({
           }}
         >
           Thêm kết luận xét nghiệm
+        </Button>
+
+        <Button
+          type="dashed"
+          icon={<PlusOutlined />}
+          onClick={onAddTypeTest} // 👈 gọi prop mở modal TypeTest
+          style={{
+            borderColor: "#ff69b4",
+            color: "#ff69b4",
+          }}
+        >
+          Thêm loại xét nghiệm
         </Button>
       </div>
 

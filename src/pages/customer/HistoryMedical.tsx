@@ -1,3 +1,5 @@
+// File: src/pages/Patient/components/HistoryMedical.tsx
+
 import { useState, useEffect } from "react";
 import { Table, Tag, Button, Modal } from "antd";
 import type { ColumnsType } from "antd/es/table";
@@ -5,22 +7,44 @@ import { Calendar, Clock, User, FileText } from "lucide-react";
 import UserApi from "../../servers/user.api";
 import type { AppointmentHistory } from "../../types/booking";
 
+interface AppointmentDetail {
+  doctorName: string;
+  serviceName: string;
+  stageName: string | null;
+  dateTreatment: string | null;
+  timeTreatment: string | null;
+}
+
 const HistoryMedical = () => {
   const [appointments, setAppointments] = useState<AppointmentHistory[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedAppointment, setSelectedAppointment] =
     useState<AppointmentHistory | null>(null);
+  const [appointmentDetails, setAppointmentDetails] = useState<
+    AppointmentDetail[]
+  >([]);
+
+  const fetchAppointments = async () => {
+    try {
+      const res = await UserApi.GetBookingList();
+      setAppointments(res.data);
+    } catch (error) {
+      console.error("Lỗi khi tải dữ liệu lịch sử khám bệnh:", error);
+    }
+  };
+
+  const handleViewDetail = async (record: AppointmentHistory) => {
+    setSelectedAppointment(record);
+    setIsModalVisible(true);
+    try {
+      const res = await UserApi.GetAppointmentInBooking(record.bookingId);
+      setAppointmentDetails(res.data);
+    } catch (err) {
+      console.error("Lỗi khi lấy chi tiết lịch khám:", err);
+    }
+  };
 
   useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        const res = await UserApi.GetBookingList();
-        console.log("Lịch sử khám bệnh:", res.data);
-        setAppointments(res.data);
-      } catch (error) {
-        console.error("Lỗi khi tải dữ liệu lịch sử khám bệnh:", error);
-      }
-    };
     fetchAppointments();
   }, []);
 
@@ -87,13 +111,7 @@ const HistoryMedical = () => {
       title: "Thao tác",
       key: "action",
       render: (_, record) => (
-        <Button
-          type="link"
-          onClick={() => {
-            setSelectedAppointment(record);
-            setIsModalVisible(true);
-          }}
-        >
+        <Button type="link" onClick={() => handleViewDetail(record)}>
           Xem chi tiết
         </Button>
       ),
@@ -119,7 +137,10 @@ const HistoryMedical = () => {
       <Modal
         title="Chi tiết lịch hẹn"
         open={isModalVisible}
-        onCancel={() => setIsModalVisible(false)}
+        onCancel={() => {
+          setIsModalVisible(false);
+          setAppointmentDetails([]);
+        }}
         footer={null}
         width={600}
       >
@@ -151,6 +172,47 @@ const HistoryMedical = () => {
               <p className="text-gray-600">Ghi chú:</p>
               <p className="font-medium">{selectedAppointment.note || "—"}</p>
             </div>
+
+            {appointmentDetails.length > 0 && (
+              <div className="space-y-3 mt-6">
+                <p className="text-base font-semibold text-gray-700">
+                  Danh sách các lần khám trong booking:
+                </p>
+                {appointmentDetails.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="border border-gray-200 rounded-md p-3 bg-pink-50 text-sm"
+                  >
+                    <p>
+                      <strong>Bác sĩ:</strong> {item.doctorName}
+                    </p>
+                    <p>
+                      <strong>Dịch vụ:</strong> {item.serviceName}
+                    </p>
+                    <p>
+                      <strong>Giai đoạn:</strong>{" "}
+                      {item.stageName || (
+                        <span className="italic text-gray-400">—</span>
+                      )}
+                    </p>
+                    <p>
+                      <strong>Ngày khám:</strong>{" "}
+                      {item.dateTreatment ? (
+                        new Date(item.dateTreatment).toLocaleDateString("vi-VN")
+                      ) : (
+                        <span className="italic text-gray-400">—</span>
+                      )}
+                    </p>
+                    <p>
+                      <strong>Thời gian:</strong>{" "}
+                      {item.timeTreatment || (
+                        <span className="italic text-gray-400">—</span>
+                      )}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </Modal>
