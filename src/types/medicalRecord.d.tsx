@@ -183,3 +183,17 @@ export interface Embryo {
   note?: string;
   customerId: number;
 }
+
+export interface CreateEmbryo {
+  createAt: string;
+  quality: string;
+  status: string;
+  note?: string;
+}
+
+export interface UpdateEmbryo {
+  transferredAt: string;
+  type: string;
+  status: string;
+  note: string;
+}
