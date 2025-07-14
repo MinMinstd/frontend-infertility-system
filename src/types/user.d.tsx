@@ -24,3 +24,26 @@ export interface ChangePassword {
   newPassword: string;
   confirmPassword: string;
 }
+
+//thông tin khách hàng trong payment
+export interface PatientInfor {
+  wife: string;
+  husband: string;
+  birthday: string;
+  age: number;
+  phone: string;
+  email: string;
+  address: string;
+  status: string;
+  serviceName: string;
+  serviceId: number;
+  orderId: number;
+}
+
+export interface PaymentInfo {
+  status: string;
+  treatmentRoadmapId: number;
+  stage: string;
+  price: number;
+  paymentId: number;
+}

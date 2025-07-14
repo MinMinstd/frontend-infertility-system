@@ -12,6 +12,7 @@ import {
 } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
 import type { MenuProps } from "antd";
+import { useAuth } from "../../context/AuthContext";
 
 const { Sider, Header, Content } = Layout;
 const { Title, Text } = Typography;
@@ -24,6 +25,7 @@ export const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useAuth();
 
   const menuItems = [
     {
@@ -70,8 +72,9 @@ export const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ children }) => {
     navigate(key);
   };
 
-  const handleUserMenuClick: MenuProps["onClick"] = ({ key }) => {
+  const handleUserMenuClick: MenuProps["onClick"] = async ({ key }) => {
     if (key === "logout") {
+      await logout();
       navigate("/login");
     }
   };

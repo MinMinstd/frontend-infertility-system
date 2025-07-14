@@ -61,19 +61,17 @@ const DoctorApi = {
   },
 
   //Hồ sơ điều trị chi tiết tại medical manager
-  GetMedicalRecordDetails: (customerid: number) => {
-    return axiosClient.get(`Doctor/GetMedicalRecordDetail/${customerid}`);
-  },
-  // ****
-  GetMedicalRecordDetailByDetailId: (medicalRecord: number) => {
-    return axiosClient.get(`Doctor/GetMedicalRecordDetail/${medicalRecord}`);
+  GetMedicalRecordDetailByDetailId: (medicalRecordId: number) => {
+    return axiosClient.get(`Doctor/GetMedicalRecordDetail/${medicalRecordId}`);
   },
 
   //Tạo mới medical record detail (Chưa thực hiện)
   CreateMedicalRecordDetail: (
-    customerId: number,
+    medicalRecordId: number,
     data: {
       treatmentRoadmapId: number;
+      consulationResultId: number;
+      treatmentResultId: number;
       date: string;
       typeName: string;
       testResult?: string;
@@ -82,7 +80,7 @@ const DoctorApi = {
     }
   ) => {
     return axiosClient.post(
-      `/Doctor/CreateMedicalRecordDetail/${customerId}`,
+      `/Doctor/CreateMedicalRecordDetail/${medicalRecordId}`,
       data
     );
   },
@@ -167,6 +165,21 @@ const DoctorApi = {
     );
   },
 
+  //Tạo typetest dành cho consulation
+  CreateTypeTest: (
+    customerId: number,
+    consulationResultId: number,
+    data: {
+      name: string;
+      description: string;
+    }
+  ) => {
+    return axiosClient.post(
+      `/Doctor/typeTest-consultationResult/${customerId}/${consulationResultId}`,
+      data
+    );
+  },
+
   //danh sách medical record của một bệnh nhân
   GetMedicalRecord(customerid: number) {
     return axiosClient.get(`Doctor/medicalRecord/${customerid}`);
@@ -185,6 +198,43 @@ const DoctorApi = {
     }
   ) => {
     return axiosClient.post(`Doctor/CreateMedicalRecord/${customerId}`, data);
+  },
+
+  ////////////////////////////////////////////////////////
+  //Appointment
+
+  //Danh sách khách hàng đặt lịch khám
+  GetListPatientAppointment: () => {
+    return axiosClient.get(`/Doctor/GetListCustomer`);
+  },
+
+  //Danh sách bookinig của một khách hàng
+  GetListBookingCustomer: (customerId: number) => {
+    return axiosClient.get(`Doctor/GetBookingCustomer/${customerId}`);
+  },
+
+  //Danh sách khàm trong booking của khách hàng đó
+  GetListAppointmentInBooking: (bookingId: number) => {
+    return axiosClient.get(`/Doctor/appointmentCustomer/${bookingId}`);
+  },
+
+  //Lịch khám của bác sĩ dành cho đặt lịch khám
+  GetDoctorScheduleByDate: (date: string) => {
+    return axiosClient.get(`/DoctorSchedule/GetListScheduleForDoctor`, {
+      params: { date },
+    });
+  },
+
+  //Tạo booking từ bác sĩ tới bệnh nhân
+  CreateBookingAppointment: (
+    bookingId: number,
+    data: {
+      treatmentRoadmapId: number;
+      dateTreatment: string;
+      timeTreatment: string;
+    }
+  ) => {
+    return axiosClient.post(`Doctor/booking/${bookingId}`, data);
   },
 };
 

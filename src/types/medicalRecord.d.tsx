@@ -111,8 +111,9 @@ export interface CreateMedicalRecordDetail {
   medicalRecordId: number;
   treatmentRoadmapId: number;
   treatmentResultId: number;
-  stage: string;
-  stepNumber: number;
+  consulationResultId: number; // Thêm trường này
+  stage?: string; // Đánh dấu là optional
+  stepNumber?: number; // Đánh dấu là optional
   date: string;
   typeName: string;
   status: string;

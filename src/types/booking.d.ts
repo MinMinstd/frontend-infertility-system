@@ -8,6 +8,7 @@ export type BookingConsulant = {
 };
 
 export type AppointmentHistory = {
+  bookingId: number;
   date: string;
   time: string;
   fullName: string;
@@ -15,4 +16,14 @@ export type AppointmentHistory = {
   status: "completed" | "upcoming" | "cancelled";
   type: string;
   note?: string;
+};
+
+export type AppointmentInfoPatient = {
+  customerId: number;
+  fullName: string;
+  birthday: string;
+  age: number;
+  status: string;
+  startDate: string;
+  serviceName: string;
 };

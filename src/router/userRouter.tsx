@@ -19,6 +19,7 @@ import MedicalRecord from "../pages/customer/MedicalRecord";
 import OnlineConsult from "../components/OnlineResult";
 import PaymentPage from "../pages/customer/PaymentPage";
 import PaymentHistoryPage from "../pages/customer/PaymentHistory";
+import PaymentSuccessPage from "../pages/customer/Payment-success";
 export const userRoutes: RouteObject[] = [
   { path: "/", element: <Home /> },
   {
@@ -47,5 +48,6 @@ export const userRoutes: RouteObject[] = [
   { path: "/user/treatment_process/:id", element: <TreatmentProcess /> },
   { path: "/user/medical_record", element: <MedicalRecord /> },
   { path: "/user/payment", element: <PaymentPage /> },
+  { path: "/payment-success", element: <PaymentSuccessPage /> },
   { path: "/user/history_payment", element: <PaymentHistoryPage /> },
 ];

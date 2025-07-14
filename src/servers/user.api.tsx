@@ -31,6 +31,38 @@ const UserApi = {
 
   //Danh sách booking từ khách hàng
   GetBookingList: () => axiosClient.get("customer/GetListBookingInCustomer"),
+
+  //Danh sach lich hen chi tiet
+  GetAppointmentInBooking: (bookingId: number) =>
+    axiosClient.get(`Customer/getListAppointment/${bookingId}`),
+
+  //Thông tin payment page
+  //Thông tin người dùng
+  GetInfoCustomerPay: () => axiosClient.get("/Order/GetOrderCurrent"),
+
+  //Thông tin giai đoạn điều trị
+  GetPaymentByOrderId: (order: number) =>
+    axiosClient.get(`Payment/GetPaymentByOrderId/${order}`),
+
+  //Cập nhật trạng thái của payment
+  UpdateSatatusPayment: (paymentId: number) =>
+    axiosClient.put(`Payment/UpdateStatusPayment/${paymentId}`),
+
+  //Thực hiện thanh toán ở bên thứ 3
+  ReturnVnPayPayment: () => axiosClient.get("/vnpay/return"),
+  CreateVnPayPayment: (data: {
+    orderId: number;
+    amount: number;
+    orderInfo: string;
+    returnUrl: string;
+  }) => axiosClient.post("vnpay/create", data),
+
+  //Lịch sử thanh toán
+  GetHistoryPayment: () => axiosClient.get("Payment/GetHistoryPaymentByUserId"),
+
+  //Lịch sử thanh toán detail
+  GetPaymentHistoryDetail: (paymentId: number) =>
+    axiosClient.get(`Payment/GetPaymentDetail/${paymentId}`),
 };
 
 export default UserApi;

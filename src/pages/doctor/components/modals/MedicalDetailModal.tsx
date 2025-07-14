@@ -13,6 +13,7 @@ import {
 } from "antd";
 import dayjs from "dayjs";
 import type {
+  ConsulationResult_typeTest,
   CreateMedicalRecordDetail,
   TreatmentResult_typeTest,
   treatmentRoadmap,
@@ -20,6 +21,7 @@ import type {
 
 type FormValues = CreateMedicalRecordDetail & {
   date: dayjs.Dayjs;
+  consulationResultId: number;
 };
 
 const { TextArea } = Input;
@@ -39,6 +41,9 @@ interface MedicalDetailModalProps {
   treatmentRoadmap: treatmentRoadmap[];
   /** Array of treatment result options */
   treatmentResults: TreatmentResult_typeTest[];
+
+  consulationResults: ConsulationResult_typeTest[];
+
   /** Form instance for controlling the form */
   form: FormInstance<FormValues>;
   /** Loading state of the submit button */
@@ -53,6 +58,7 @@ export function MedicalDetailModal({
   onSubmit,
   treatmentRoadmap,
   treatmentResults,
+  consulationResults,
   form,
   loading = false,
 }: MedicalDetailModalProps) {
@@ -63,6 +69,7 @@ export function MedicalDetailModal({
         ...values,
         date: dayjs(values.date).format("YYYY-MM-DD"),
       });
+      console.log("SUBMIT VALUES", values);
     } catch (error) {
       console.log("Lỗi khi submit form:", error);
       message.error("Xảy ra lỗi khi xác thực form");
@@ -94,7 +101,7 @@ export function MedicalDetailModal({
               label={
                 <span style={{ color: "#ff69b4" }}>Giai đoạn điều trị</span>
               }
-              name="road_id"
+              name="treatmentRoadmapId"
               rules={[{ required: true, message: "Vui lòng chọn bước!" }]}
             >
               <Select placeholder="Chọn bước điều trị">
@@ -112,7 +119,7 @@ export function MedicalDetailModal({
           <Col span={12}>
             <Form.Item
               label={<span style={{ color: "#ff69b4" }}>Kết quả điều trị</span>}
-              name="treatment_result_id"
+              name="treatmentResultId"
               rules={[{ required: true, message: "Vui lòng chọn kết quả!" }]}
             >
               <Select placeholder="Chọn kết quả điều trị">
@@ -127,6 +134,26 @@ export function MedicalDetailModal({
               </Select>
             </Form.Item>
           </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label={<span style={{ color: "#ff69b4" }}>Kết luận tư vấn</span>}
+              name="consulationResultId"
+              rules={[{ required: true, message: "Vui lòng chọn kết luận!" }]}
+            >
+              <Select placeholder="Chọn kết luận từ kết quả xét nghiệm">
+                {consulationResults.map((c) => (
+                  <Option
+                    key={c.consulationResultId}
+                    value={c.consulationResultId}
+                  >
+                    {`#${c.consulationResultId} - ${c.resultValue}`}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+
           <Col span={12}>
             <Form.Item
               label={<span style={{ color: "#ff69b4" }}>Loại ghi nhận</span>}
