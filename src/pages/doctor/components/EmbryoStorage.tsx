@@ -1,11 +1,20 @@
-// File: src/pages/doctor/components/EmbryoStorage.tsx
-
-import { Table, Card, Tag, Typography, Space, Badge, Tooltip } from "antd";
+import {
+  Table,
+  Card,
+  Tag,
+  Typography,
+  Space,
+  Badge,
+  Tooltip,
+  Button,
+} from "antd";
 import {
   CalendarOutlined,
   ExperimentOutlined,
   HeartOutlined,
   FileTextOutlined,
+  PlusOutlined,
+  EditOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 
@@ -16,6 +25,8 @@ const { Title, Text } = Typography;
 
 interface EmbryoStorageProps {
   embryos: Embryo[];
+  onCreateEmbryo?: () => void;
+  onUpdateEmbryo?: (embryo: Embryo) => void;
 }
 
 const getQualityColor = (quality: string) => {
@@ -39,24 +50,26 @@ const getQualityColor = (quality: string) => {
 
 const getStatusConfig = (status: string) => {
   switch (status?.toLowerCase()) {
-    case "stored":
-    case "đã lưu trữ":
-      return { color: "#52c41a", text: "Đã lưu trữ" };
-    case "used":
-    case "đã sử dụng":
-      return { color: "#1890ff", text: "Đã sử dụng" };
-    case "discarded":
-    case "đã loại bỏ":
-      return { color: "#ff4d4f", text: "Đã loại bỏ" };
-    case "transferred":
-    case "đã chuyển":
-      return { color: "#722ed1", text: "Đã chuyển" };
+    case "đạt chuẩn":
+      return { color: "#52c41a", text: "Đạt chuẩn" };
+    case "không đạt chuẩn":
+      return { color: "#ff4d4f", text: "Không đạt chuẩn" };
+    case "đã tạo phôi":
+      return { color: "#1890ff", text: "Đã tạo phôi" };
+    case "chuyển phôi thất bại":
+      return { color: "#ff7875", text: "Chuyển phôi thất bại" };
+    case "đã chuyển phôi":
+      return { color: "#722ed1", text: "Đã chuyển phôi" };
     default:
       return { color: "#d9d9d9", text: status };
   }
 };
 
-export function EmbryoStorage({ embryos }: EmbryoStorageProps) {
+export function EmbryoStorage({
+  embryos,
+  onCreateEmbryo,
+  onUpdateEmbryo,
+}: EmbryoStorageProps) {
   const columns: ColumnsType<Embryo> = [
     {
       title: (
@@ -73,9 +86,32 @@ export function EmbryoStorage({ embryos }: EmbryoStorageProps) {
           <Text strong className="text-gray-800">
             {dayjs(date).format("DD/MM/YYYY")}
           </Text>
-          <Text type="secondary" className="text-xs">
-            {dayjs(date).format("HH:mm")}
-          </Text>
+        </div>
+      ),
+    },
+    {
+      title: (
+        <Space>
+          <CalendarOutlined className="text-purple-500" />
+          <span className="font-semibold">Ngày chuyển</span>
+        </Space>
+      ),
+      dataIndex: "transferredAt",
+      key: "transferredAt",
+      width: 150,
+      render: (date) => (
+        <div className="flex flex-col">
+          {date ? (
+            <>
+              <Text strong className="text-gray-800">
+                {dayjs(date).format("DD/MM/YYYY")}
+              </Text>
+            </>
+          ) : (
+            <Text type="secondary" italic>
+              Chưa chuyển
+            </Text>
+          )}
         </div>
       ),
     },
@@ -83,12 +119,12 @@ export function EmbryoStorage({ embryos }: EmbryoStorageProps) {
       title: (
         <Space>
           <HeartOutlined className="text-red-500" />
-          <span className="font-semibold">Chất lượng</span>
+          <span className="font-semibold">Chất lượng Trứng</span>
         </Space>
       ),
       dataIndex: "quality",
       key: "quality",
-      width: 120,
+      width: 150,
       render: (quality) => (
         <Badge
           color={getQualityColor(quality)}
@@ -104,7 +140,7 @@ export function EmbryoStorage({ embryos }: EmbryoStorageProps) {
       title: (
         <Space>
           <ExperimentOutlined className="text-blue-500" />
-          <span className="font-semibold">Loại</span>
+          <span className="font-semibold">Loại Phôi</span>
         </Space>
       ),
       dataIndex: "type",
@@ -167,20 +203,60 @@ export function EmbryoStorage({ embryos }: EmbryoStorageProps) {
         </Tooltip>
       ),
     },
+    {
+      title: (
+        <Space>
+          <EditOutlined className="text-orange-500" />
+          <span className="font-semibold">Thao tác</span>
+        </Space>
+      ),
+      key: "actions",
+      width: 100,
+      fixed: "right",
+      render: (_, record) => (
+        <Button
+          type="primary"
+          size="small"
+          icon={<EditOutlined />}
+          onClick={() => onUpdateEmbryo?.(record)}
+          className="bg-blue-500 hover:bg-blue-600 border-blue-500 hover:border-blue-600"
+        >
+          Sửa
+        </Button>
+      ),
+    },
   ];
 
   return (
     <div className="bg-gradient-to-br from-pink-50 to-purple-50 p-6 rounded-2xl">
       <div className="mb-6">
-        <Title level={4} className="mb-2 text-gray-800 flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg flex items-center justify-center">
-            <ExperimentOutlined className="text-white text-sm" />
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <Title
+              level={4}
+              className="mb-2 text-gray-800 flex items-center gap-2"
+            >
+              <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg flex items-center justify-center">
+                <ExperimentOutlined className="text-white text-sm" />
+              </div>
+              Kho lưu trữ phôi thai
+            </Title>
+            <Text type="secondary" className="text-sm">
+              Quản lý và theo dõi tình trạng các phôi thai được lưu trữ
+            </Text>
           </div>
-          Kho lưu trữ phôi thai
-        </Title>
-        <Text type="secondary" className="text-sm">
-          Quản lý và theo dõi tình trạng các phôi thai được lưu trữ
-        </Text>
+          <Space>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={onCreateEmbryo}
+              className="bg-pink-500 hover:bg-pink-600 border-pink-500 hover:border-pink-600 shadow-lg"
+              size="middle"
+            >
+              Tạo mới phôi
+            </Button>
+          </Space>
+        </div>
       </div>
 
       <Card

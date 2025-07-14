@@ -1,4 +1,8 @@
-import type { CreateTreatmentResultWithTypeTest } from "../types/medicalRecord.d";
+import type {
+  CreateEmbryo,
+  CreateTreatmentResultWithTypeTest,
+  UpdateEmbryo,
+} from "../types/medicalRecord.d";
 import axiosClient from "./axiosClient";
 
 const DoctorApi = {
@@ -235,6 +239,19 @@ const DoctorApi = {
     }
   ) => {
     return axiosClient.post(`Doctor/booking/${bookingId}`, data);
+  },
+
+  //Phôi trứng
+  GetListEmbryos: (customerId: number, bookingId: number) => {
+    return axiosClient.get(`/Embryos/embryos/${customerId}/${bookingId}`);
+  },
+
+  CreateEmbryo: (bookingId: number, data: CreateEmbryo) => {
+    return axiosClient.post(`Embryos/embryo/${bookingId}`, data);
+  },
+
+  UpdateEmbryo: (embryoId: number, data: UpdateEmbryo) => {
+    return axiosClient.put(`Embryos/embryo/${embryoId}`, data);
   },
 };
 

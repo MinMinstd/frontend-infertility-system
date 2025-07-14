@@ -6,11 +6,14 @@ import { ConsulationResults } from "./components/ConsulationResults";
 import dayjs from "dayjs";
 import type {
   ConsulationResult_typeTest,
+  CreateEmbryo,
   CreateMedicalRecordDetail,
+  Embryo,
   MedicalRecordDetail,
   TreatmentResult_typeTest,
   treatmentRoadmap,
   TypeTest,
+  UpdateEmbryo,
   UpdateTreatmentResultFormValues,
 } from "../../types/medicalRecord.d";
 import { useEffect, useState } from "react";
@@ -20,6 +23,9 @@ import { TreatmentResultModal } from "./components/modals/TreatmentResultModal";
 import { MedicalDetailModal } from "./components/modals/MedicalDetailModal";
 import { TestResultModal } from "./components/modals/TestResultModal";
 import { CreateTypeTestModal } from "./components/modals/TypeTest.Modal";
+import { EmbryoStorage } from "./components/EmbryoStorage";
+import { CreateEmbryoModal } from "./components/modals/CreateEmbryoModal";
+import { UpdateEmbryoModal } from "./components/modals/UpdateEmbryoModal";
 
 interface MedicalManagementProps {
   customerId: number;
@@ -345,7 +351,9 @@ export function MedicalManagement({
     }
   };
 
-  const handleCreateMedicalRecordDetail = async (values: CreateMedicalRecordDetail) => {
+  const handleCreateMedicalRecordDetail = async (
+    values: CreateMedicalRecordDetail
+  ) => {
     if (!customerId || medicalRecordId == null) return;
 
     try {
@@ -371,7 +379,7 @@ export function MedicalManagement({
       const relatedRoadmap = treatmentRoadmap.find(
         (r) => r.treatmentRoadmapId === roadmapId
       );
-      
+
       if (!relatedRoadmap) {
         message.error("Không tìm thấy giai đoạn điều trị tương ứng");
         return;
@@ -520,6 +528,79 @@ export function MedicalManagement({
     Result: item.result,
   }));
 
+  ///hệ sinh thái Lưu trữ phôi ở đây
+  const [embryos, setEmbryos] = useState<Embryo[]>([]);
+  const [isCreateEmbryoModalVisible, setIsCreateEmbryoModalVisible] =
+    useState(false);
+  const [editingEmbryo, setEditingEmbryo] = useState<Embryo | null>(null);
+  const [isUpdateEmbryoModalVisible, setIsUpdateEmbryoModalVisible] =
+    useState(false);
+  const [updateEmbryoForm] = Form.useForm();
+  const [embryoForm] = Form.useForm();
+
+  useEffect(() => {
+    const fetchEmbryos = async () => {
+      if (customerId && bookingId) {
+        try {
+          const res = await DoctorApi.GetListEmbryos(customerId, bookingId);
+          setEmbryos(res.data);
+        } catch (error) {
+          console.log("Lỗi khi lấy danh sách phôi trứng", error);
+        }
+      }
+    };
+    fetchEmbryos();
+  }, [customerId, bookingId]);
+
+  const handleCreateEmbryo = async (value: CreateEmbryo) => {
+    if (!customerId || !bookingId) {
+      console.log("Not Have customer id or booking id");
+      return;
+    }
+
+    try {
+      const payload = {
+        ...value,
+        createAt: dayjs().format("YYYY-MM-DD"),
+      };
+      console.log("Thuoc tinh embryo gui suong backend: ", payload);
+      await DoctorApi.CreateEmbryo(bookingId, payload);
+
+      //Cap nhat lai danh sach embryo moi
+      const res = await DoctorApi.GetListEmbryos(customerId, bookingId);
+      setEmbryos(res.data);
+      setIsCreateEmbryoModalVisible(false);
+      embryoForm.resetFields();
+    } catch (error) {
+      console.log("Tao embryo moi bi loi", error);
+    }
+  };
+
+  const handleUpdateEmbryo = async (value: UpdateEmbryo) => {
+    if (!editingEmbryo) return;
+
+    try {
+      const payload = {
+        ...value,
+        transferredAt: dayjs(value.transferredAt).format("YYYY-MM-DD"),
+      };
+
+      await DoctorApi.UpdateEmbryo(editingEmbryo.embryoId, payload);
+
+      if (!customerId || !bookingId) return;
+      const res = await DoctorApi.GetListEmbryos(customerId, bookingId);
+      setEmbryos(res.data);
+
+      message.success("Cập nhật phôi thành công");
+      setIsUpdateEmbryoModalVisible(false);
+      setEditingEmbryo(null);
+      updateEmbryoForm.resetFields();
+    } catch (error) {
+      console.error("Lỗi cập nhật phôi", error);
+      message.error("Cập nhật thất bại");
+    }
+  };
+
   return (
     <div style={{ marginTop: 24 }}>
       <Alert
@@ -619,6 +700,36 @@ export function MedicalManagement({
               />
             ),
           },
+          {
+            key: "5",
+            label: (
+              <span
+                style={{
+                  color: "#ff69b4",
+                  fontWeight: "600",
+                  fontSize: "16px",
+                }}
+              >
+                📦 5. Phôi Lưu trữ (Embryo Storage)
+              </span>
+            ),
+            children: (
+              <EmbryoStorage
+                embryos={embryos}
+                onCreateEmbryo={() => setIsCreateEmbryoModalVisible(true)} // ✅ mở modal
+                onUpdateEmbryo={(embryo) => {
+                  setEditingEmbryo(embryo);
+                  setIsUpdateEmbryoModalVisible(true);
+                  updateEmbryoForm.setFieldsValue({
+                    transferredAt: dayjs(embryo.transferredAt),
+                    type: embryo.type,
+                    status: embryo.status,
+                    note: embryo.note,
+                  });
+                }}
+              />
+            ),
+          },
         ]}
       />
 
@@ -688,7 +799,6 @@ export function MedicalManagement({
             ...values,
             consulationResultId: values.consulationResultId,
             date: dayjs(values.date).format("YYYY-MM-DD"), // Đã xử lý trong hàm handle
-
           });
         }}
         treatmentRoadmap={treatmentRoadmap}
@@ -714,6 +824,25 @@ export function MedicalManagement({
         onCancel={() => setIsCreateTypeTestModalVisible(false)}
         onSubmit={handleCreateTypeTest}
         consulationResults={consulationResult_typeTest}
+      />
+
+      {/* Phôi lưu trữ */}
+      <CreateEmbryoModal
+        open={isCreateEmbryoModalVisible}
+        onCancel={() => setIsCreateEmbryoModalVisible(false)}
+        onSubmit={handleCreateEmbryo}
+        form={embryoForm}
+      />
+      <UpdateEmbryoModal
+        open={isUpdateEmbryoModalVisible}
+        onCancel={() => {
+          setIsUpdateEmbryoModalVisible(false);
+          setEditingEmbryo(null);
+          updateEmbryoForm.resetFields();
+        }}
+        onSubmit={handleUpdateEmbryo}
+        form={updateEmbryoForm}
+        embryo={editingEmbryo}
       />
     </div>
   );
