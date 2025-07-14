@@ -172,3 +172,14 @@ export interface MedicalRecord {
   status: string;
   attempt: number;
 } //Lấy danh sách mediccal record
+
+export interface Embryo {
+  embryoId: number;
+  createAt: string;
+  transferredAt?: string | null;
+  quality: string;
+  type: string;
+  status: string;
+  note?: string;
+  customerId: number;
+}
