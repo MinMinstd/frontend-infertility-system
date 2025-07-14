@@ -27,6 +27,7 @@ const ManagerApi = {
     
     GetAllTreatmentRoadMap: () => axiosClient.get<TreatmentRoadmap[]>("/TreatementRoadmap/GetAllTreatmentRoadMap"),
 
+    // GetAllOrder trả về orderDetailList gồm: orderDetailId, doctorName, serviceName, stageName, dateTreatment, timeTreatment
     GetAllOrder: () => axiosClient.get<Order[]>("/Order/GetAllOrder"),
   };
   
