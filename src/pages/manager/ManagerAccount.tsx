@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Row, Col, Statistic, Table, Typography, Space, Spin, message, Empty } from 'antd';
-import { UserOutlined, TeamOutlined, UserAddOutlined } from '@ant-design/icons';
+import { User, Users, UserPlus } from 'lucide-react';
+import { motion } from 'framer-motion';
 import ManagerApi from '../../servers/manager.api';
 import type { Account } from '../../types/manager.d';
 
@@ -9,29 +10,49 @@ const CARD_TYPES = [
     key: 'all',
     label: 'Tổng tài khoản',
     color: 'pink',
-    icon: <TeamOutlined className="text-pink-500" />,
+    icon: <Users className="text-pink-500 w-6 h-6" />,
   },
   {
     key: 'doctor',
     label: 'Tài khoản bác sĩ',
     color: 'blue',
-    icon: <UserOutlined className="text-blue-500" />,
+    icon: <User className="text-blue-500 w-6 h-6" />,
   },
   {
     key: 'customer',
     label: 'Tài khoản khách hàng',
     color: 'green',
-    icon: <UserOutlined className="text-green-500" />,
+    icon: <User className="text-green-500 w-6 h-6" />,
   },
   {
     key: 'new',
     label: 'Tài khoản mới',
     color: 'yellow',
-    icon: <UserAddOutlined className="text-yellow-500" />,
+    icon: <UserPlus className="text-yellow-500 w-6 h-6" />,
   },
 ];
 
 type CardKey = 'all' | 'doctor' | 'customer' | 'new';
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 40 },
+  visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.08, type: 'spring' as const, stiffness: 120 } }),
+};
+
+const sectionVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, type: 'spring' as const, stiffness: 100 } },
+};
+
+// SVG user/account minh họa
+const UserSVG = () => (
+  <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="32" cy="24" r="12" fill="#38bdf8"/>
+    <circle cx="32" cy="24" r="12" stroke="#0ea5e9" strokeWidth="2"/>
+    <ellipse cx="32" cy="48" rx="18" ry="10" fill="#bae6fd"/>
+    <ellipse cx="32" cy="48" rx="18" ry="10" stroke="#38bdf8" strokeWidth="2"/>
+  </svg>
+);
 
 const ManagerAccount: React.FC = () => {
   const [allAccounts, setAllAccounts] = useState<Account[]>([]);
@@ -141,54 +162,72 @@ const ManagerAccount: React.FC = () => {
 
   return (
     <div className="p-6 min-h-screen bg-gradient-to-br from-white to-gray-50">
-      <Space direction="vertical" size="large" className="w-full">
-        <div>
-          <Typography.Title level={2} className="text-pink-600 !mb-0">
-            Quản lý tài khoản
-          </Typography.Title>
-          <Typography.Text type="secondary">
-            Theo dõi và quản lý tất cả tài khoản trong hệ thống
-          </Typography.Text>
+      {/* Banner đầu trang */}
+      <div className="w-full flex items-center gap-6 bg-white rounded-2xl shadow mb-8 overflow-hidden">
+        <div className="ml-4"><UserSVG /></div>
+        <div className="flex-1">
+          <Typography.Title level={2} className="text-pink-600 !mb-1">Quản lý tài khoản</Typography.Title>
+          <Typography.Text type="secondary">Theo dõi và quản lý tất cả tài khoản trong hệ thống</Typography.Text>
         </div>
-
+        <div className="mr-6"><UserSVG /></div>
+      </div>
+      {/* End Banner */}
+      <Space direction="vertical" size="large" className="w-full">
         <Row gutter={[16, 16]}>
-          {CARD_TYPES.map(card => (
+          {CARD_TYPES.map((card, i) => (
             <Col xs={24} sm={12} md={6} key={card.key}>
-              <Card
-                className={`shadow-md hover:shadow-lg transition-shadow cursor-pointer rounded-xl border-2 ${selectedType === card.key ? `border-${card.color}-400 ring-2 ring-${card.color}-200` : 'border-transparent'}`}
-                onClick={() => handleCardClick(card.key as CardKey)}
-                style={{ borderColor: selectedType === card.key ? `var(--${card.color}-500)` : undefined }}
+              <motion.div
+                custom={i}
+                variants={cardVariants}
+                initial="hidden"
+                animate="visible"
+                whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}
               >
-                <Statistic
-                  title={<span className="text-gray-600">{card.label}{card.key === 'new' ? ' (30 ngày)' : ''}</span>}
-                  value={counts[card.key]}
-                  prefix={card.icon}
-                  valueStyle={{ color: `var(--${card.color}-600)` }}
-                />
-                <div className={`text-base font-semibold text-${card.color}-600 mt-2 text-center`}>
-                  {card.label}
-                </div>
-              </Card>
+                <Card
+                  className={`shadow-md hover:shadow-lg transition-shadow cursor-pointer rounded-xl border-2 ${selectedType === card.key ? `border-${card.color}-400 ring-2 ring-${card.color}-200` : 'border-transparent'} relative`}
+                  onClick={() => handleCardClick(card.key as CardKey)}
+                  style={{ borderColor: selectedType === card.key ? `var(--${card.color}-500)` : undefined, minHeight: 120 }}
+                >
+                  {/* SVG user nhỏ góc phải card */}
+                  <div className="absolute right-4 bottom-4 opacity-10 pointer-events-none select-none"><UserSVG /></div>
+                  <Statistic
+                    title={<span className="text-gray-600">{card.label}{card.key === 'new' ? ' (30 ngày)' : ''}</span>}
+                    value={counts[card.key]}
+                    prefix={card.icon}
+                    valueStyle={{ color: `var(--${card.color}-600)` }}
+                  />
+                  <div className={`text-base font-semibold text-${card.color}-600 mt-2 text-center`}>
+                    {card.label}
+                  </div>
+                </Card>
+              </motion.div>
             </Col>
           ))}
         </Row>
-
-        <Card className="shadow-lg mt-6 rounded-xl">
-          {loading ? (
-            <div className="flex justify-center items-center py-10">
-              <Spin size="large" />
-            </div>
-          ) : (
-            <Table
-              columns={columns}
-              dataSource={displayAccounts}
-              rowKey="id"
-              className="rounded-lg overflow-hidden"
-              pagination={{ pageSize: 5 }}
-              locale={{ emptyText: <Empty description="Không có dữ liệu tài khoản" /> }}
-            />
-          )}
-        </Card>
+        <motion.div
+          variants={sectionVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <Card className="bg-white rounded-2xl shadow-lg p-6 mt-6 relative">
+            {/* SVG user nhỏ góc phải card/table */}
+            <div className="absolute right-6 bottom-6 opacity-10 pointer-events-none select-none"><UserSVG /></div>
+            {loading ? (
+              <div className="flex justify-center items-center py-16">
+                <Spin size="large" />
+              </div>
+            ) : (
+              <Table
+                columns={columns}
+                dataSource={displayAccounts}
+                rowKey="accountId"
+                className="rounded-xl overflow-hidden shadow"
+                pagination={{ pageSize: 10 }}
+                locale={{ emptyText: <Empty image={<UserSVG />} description={<span>Chưa có tài khoản nào</span>} /> }}
+              />
+            )}
+          </Card>
+        </motion.div>
       </Space>
     </div>
   );

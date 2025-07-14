@@ -6,14 +6,11 @@ import {
   Col,
   Typography,
   Statistic,
-  DatePicker,
-  Space,
-  Spin,
   message,
+  Empty,
 } from 'antd';
-import { DollarOutlined, UserOutlined, MedicineBoxOutlined, MessageOutlined, TeamOutlined, CalendarOutlined } from '@ant-design/icons';
-import type { ColumnsType } from 'antd/es/table';
-import dayjs from 'dayjs';
+import { Users, User, FileText, MessageCircle, Calendar } from 'lucide-react';
+import { motion } from 'framer-motion';
 import ManagerApi from '../../servers/manager.api';
 import type { Order } from '../../types/manager.d';
 
@@ -26,11 +23,24 @@ interface ServiceStats {
   revenue: number;
 }
 
+const tableVariants = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, type: 'spring' as const, stiffness: 120 } },
+};
+
+// SVG report/chart minh họa
+const ReportSVG = () => (
+  <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="10" y="18" width="44" height="32" rx="8" fill="#f472b6"/>
+    <rect x="10" y="18" width="44" height="32" rx="8" stroke="#ec4899" strokeWidth="2"/>
+    <rect x="20" y="38" width="6" height="8" rx="2" fill="#fff"/>
+    <rect x="30" y="32" width="6" height="14" rx="2" fill="#fff"/>
+    <rect x="40" y="26" width="6" height="20" rx="2" fill="#fff"/>
+  </svg>
+);
+
 const ManagerReport: React.FC = () => {
-  const [currentMonth, setCurrentMonth] = useState(dayjs());
   const [loading, setLoading] = useState(true);
-  // Tổng hợp số liệu
-  const [totalRevenue, setTotalRevenue] = useState(0);
   const [totalAccounts, setTotalAccounts] = useState(0);
   const [newAccounts, setNewAccounts] = useState(0);
   const [totalDoctors, setTotalDoctors] = useState(0);
@@ -59,20 +69,12 @@ const ManagerReport: React.FC = () => {
         feedbacksRes,
         ordersRes,
       ]) => {
-        // Tổng tài khoản
         setTotalAccounts(Array.isArray(totalAccRes.data) ? totalAccRes.data.length : (typeof totalAccRes.data === 'number' ? totalAccRes.data : 0));
-        // Tài khoản mới
         setNewAccounts(Array.isArray(newAccRes.data) ? newAccRes.data.length : (typeof newAccRes.data === 'number' ? newAccRes.data : 0));
-        // Tổng bác sĩ
         setTotalDoctors(Array.isArray(doctorsRes.data) ? doctorsRes.data.length : 0);
-        // Tổng lịch hẹn
         setTotalAppointments(Array.isArray(appointmentsRes.data) ? appointmentsRes.data.length : 0);
-        // Tổng dịch vụ
         setTotalServices(Array.isArray(servicesRes.data) ? servicesRes.data.length : 0);
-        // Tổng phản hồi
         setTotalFeedbacks(Array.isArray(feedbacksRes.data) ? feedbacksRes.data.length : 0);
-        // Tổng doanh thu từ đơn hàng
-        let revenue = 0;
         const serviceMap: Record<string, { usageCount: number; revenue: number }> = {};
         if (Array.isArray(ordersRes.data)) {
           ordersRes.data.forEach((order: Order) => {
@@ -80,7 +82,6 @@ const ManagerReport: React.FC = () => {
               order.orderDetailList.forEach((detail: { serviceName?: string; price?: number }) => {
                 const name = detail.serviceName || 'Khác';
                 const price = detail.price || 0;
-                revenue += price;
                 if (!serviceMap[name]) serviceMap[name] = { usageCount: 0, revenue: 0 };
                 serviceMap[name].usageCount += 1;
                 serviceMap[name].revenue += price;
@@ -88,8 +89,6 @@ const ManagerReport: React.FC = () => {
             }
           });
         }
-        setTotalRevenue(revenue);
-        // Chuyển sang mảng cho Table
         setServiceStats(
           Object.entries(serviceMap).map(([serviceName, stat], idx) => ({
             key: String(idx + 1),
@@ -105,7 +104,7 @@ const ManagerReport: React.FC = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  const columns: ColumnsType<ServiceStats> = [
+  const columns = [
     {
       title: <span className="text-pink-600 font-semibold">Tên dịch vụ</span>,
       dataIndex: 'serviceName',
@@ -132,117 +131,146 @@ const ManagerReport: React.FC = () => {
   ];
 
   return (
-    <div className="p-6">
-      <Space direction="vertical" size="large" className="w-full">
-        <div>
-          <Title level={2} className="text-pink-600 !mb-0">
-            Báo cáo thống kê
-          </Title>
-          <Text type="secondary">
-            Theo dõi và phân tích dữ liệu hệ thống
-          </Text>
+    <div className="p-6 min-h-screen bg-gradient-to-br from-white to-gray-50">
+      {/* Banner đầu trang */}
+      <div className="w-full flex items-center gap-6 bg-white rounded-2xl shadow mb-8 overflow-hidden">
+        <div className="ml-4"><ReportSVG /></div>
+        <div className="flex-1">
+          <Title level={2} className="text-pink-600 !mb-1">Báo cáo thống kê</Title>
+          <Text type="secondary">Theo dõi và phân tích dữ liệu hệ thống</Text>
         </div>
-        <Row justify="space-between" align="middle">
-          <Col>
-            <DatePicker
-              picker="month"
-              value={currentMonth}
-              onChange={(date) => date && setCurrentMonth(date)}
-              className="rounded-lg"
-            />
-          </Col>
-        </Row>
-        {loading ? (
-          <div className="flex justify-center items-center py-16">
-            <Spin size="large" />
-          </div>
-        ) : (
-          <Row gutter={[16, 16]}>
-            <Col xs={24} sm={12} md={6}>
-              <Card className="shadow-md hover:shadow-lg transition-shadow">
-                <Statistic
-                  title={<span className="text-gray-600">Tổng tài khoản</span>}
-                  value={totalAccounts}
-                  prefix={<TeamOutlined className="text-blue-500" />}
-                  valueStyle={{ color: '#3b82f6' }}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Card className="shadow-md hover:shadow-lg transition-shadow">
-                <Statistic
-                  title={<span className="text-gray-600">Tài khoản mới</span>}
-                  value={newAccounts}
-                  prefix={<UserOutlined className="text-blue-500" />}
-                  valueStyle={{ color: '#3b82f6' }}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Card className="shadow-md hover:shadow-lg transition-shadow">
-                <Statistic
-                  title={<span className="text-gray-600">Tổng bác sĩ</span>}
-                  value={totalDoctors}
-                  prefix={<MedicineBoxOutlined className="text-purple-500" />}
-                  valueStyle={{ color: '#a855f7' }}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Card className="shadow-md hover:shadow-lg transition-shadow">
-                <Statistic
-                  title={<span className="text-gray-600">Tổng lịch hẹn</span>}
-                  value={totalAppointments}
-                  prefix={<CalendarOutlined className="text-pink-500" />}
-                  valueStyle={{ color: '#ec4899' }}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Card className="shadow-md hover:shadow-lg transition-shadow">
-                <Statistic
-                  title={<span className="text-gray-600">Tổng dịch vụ</span>}
-                  value={totalServices}
-                  prefix={<MedicineBoxOutlined className="text-purple-500" />}
-                  valueStyle={{ color: '#a855f7' }}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Card className="shadow-md hover:shadow-lg transition-shadow">
-                <Statistic
-                  title={<span className="text-gray-600">Tổng phản hồi</span>}
-                  value={totalFeedbacks}
-                  prefix={<MessageOutlined className="text-pink-500" />}
-                  valueStyle={{ color: '#ec4899' }}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Card className="shadow-md hover:shadow-lg transition-shadow">
-                <Statistic
-                  title={<span className="text-gray-600">Tổng doanh thu</span>}
-                  value={totalRevenue}
-                  prefix={<DollarOutlined className="text-emerald-500" />}
-                  suffix="VNĐ"
-                  valueStyle={{ color: '#10b981' }}
-                />
-              </Card>
-            </Col>
-          </Row>
-        )}
-        <Card className="shadow-lg">
-          <Title level={4} className="text-pink-600 !mb-4">
-            Thống kê dịch vụ
-          </Title>
-          <Table
-            columns={columns}
-            dataSource={serviceStats}
-            pagination={false}
-            className="rounded-lg overflow-hidden"
-          />
-        </Card>
-      </Space>
+        <div className="mr-6"><ReportSVG /></div>
+      </div>
+      {/* End Banner */}
+      <Row gutter={[16, 16]} className="mt-4">
+        <Col xs={24} sm={12} md={4}>
+          <motion.div
+            variants={tableVariants}
+            initial="hidden"
+            animate="visible"
+            whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}
+          >
+            <Card className="shadow-md hover:shadow-lg transition-shadow rounded-xl border-0 bg-gradient-to-br from-blue-100 to-white relative">
+              {/* SVG report nhỏ góc phải card */}
+              <div className="absolute right-4 bottom-4 opacity-10 pointer-events-none select-none"><ReportSVG /></div>
+              <Statistic
+                title={<span className="text-blue-600">Tổng tài khoản</span>}
+                value={totalAccounts}
+                prefix={<Users className="w-6 h-6 text-blue-500" />}
+                valueStyle={{ color: '#3b82f6', fontWeight: 700, fontSize: 20 }}
+              />
+            </Card>
+          </motion.div>
+        </Col>
+        <Col xs={24} sm={12} md={4}>
+          <motion.div
+            variants={tableVariants}
+            initial="hidden"
+            animate="visible"
+            whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}
+          >
+            <Card className="shadow-md hover:shadow-lg transition-shadow rounded-xl border-0 bg-gradient-to-br from-green-100 to-white relative">
+              {/* SVG report nhỏ góc phải card */}
+              <div className="absolute right-4 bottom-4 opacity-10 pointer-events-none select-none"><ReportSVG /></div>
+              <Statistic
+                title={<span className="text-green-600">Tài khoản mới</span>}
+                value={newAccounts}
+                prefix={<User className="w-6 h-6 text-green-500" />}
+                valueStyle={{ color: '#22c55e', fontWeight: 700, fontSize: 20 }}
+              />
+            </Card>
+          </motion.div>
+        </Col>
+        <Col xs={24} sm={12} md={4}>
+          <motion.div
+            variants={tableVariants}
+            initial="hidden"
+            animate="visible"
+            whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}
+          >
+            <Card className="shadow-md hover:shadow-lg transition-shadow rounded-xl border-0 bg-gradient-to-br from-pink-100 to-white relative">
+              {/* SVG report nhỏ góc phải card */}
+              <div className="absolute right-4 bottom-4 opacity-10 pointer-events-none select-none"><ReportSVG /></div>
+              <Statistic
+                title={<span className="text-pink-600">Bác sĩ</span>}
+                value={totalDoctors}
+                prefix={<User className="w-6 h-6 text-pink-500" />}
+                valueStyle={{ color: '#ec4899', fontWeight: 700, fontSize: 20 }}
+              />
+            </Card>
+          </motion.div>
+        </Col>
+        <Col xs={24} sm={12} md={4}>
+          <motion.div
+            variants={tableVariants}
+            initial="hidden"
+            animate="visible"
+            whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}
+          >
+            <Card className="shadow-md hover:shadow-lg transition-shadow rounded-xl border-0 bg-gradient-to-br from-orange-100 to-white relative">
+              {/* SVG report nhỏ góc phải card */}
+              <div className="absolute right-4 bottom-4 opacity-10 pointer-events-none select-none"><ReportSVG /></div>
+              <Statistic
+                title={<span className="text-orange-600">Lịch hẹn</span>}
+                value={totalAppointments}
+                prefix={<Calendar className="w-6 h-6 text-orange-500" />}
+                valueStyle={{ color: '#f59e42', fontWeight: 700, fontSize: 20 }}
+              />
+            </Card>
+          </motion.div>
+        </Col>
+        <Col xs={24} sm={12} md={4}>
+          <motion.div
+            variants={tableVariants}
+            initial="hidden"
+            animate="visible"
+            whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}
+          >
+            <Card className="shadow-md hover:shadow-lg transition-shadow rounded-xl border-0 bg-gradient-to-br from-purple-100 to-white relative">
+              {/* SVG report nhỏ góc phải card */}
+              <div className="absolute right-4 bottom-4 opacity-10 pointer-events-none select-none"><ReportSVG /></div>
+              <Statistic
+                title={<span className="text-purple-600">Dịch vụ</span>}
+                value={totalServices}
+                prefix={<FileText className="w-6 h-6 text-purple-500" />}
+                valueStyle={{ color: '#a855f7', fontWeight: 700, fontSize: 20 }}
+              />
+            </Card>
+          </motion.div>
+        </Col>
+        <Col xs={24} sm={12} md={4}>
+          <motion.div
+            variants={tableVariants}
+            initial="hidden"
+            animate="visible"
+            whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}
+          >
+            <Card className="shadow-md hover:shadow-lg transition-shadow rounded-xl border-0 bg-gradient-to-br from-indigo-100 to-white relative">
+              {/* SVG report nhỏ góc phải card */}
+              <div className="absolute right-4 bottom-4 opacity-10 pointer-events-none select-none"><ReportSVG /></div>
+              <Statistic
+                title={<span className="text-indigo-600">Phản hồi</span>}
+                value={totalFeedbacks}
+                prefix={<MessageCircle className="w-6 h-6 text-indigo-500" />}
+                valueStyle={{ color: '#6366f1', fontWeight: 700, fontSize: 20 }}
+              />
+            </Card>
+          </motion.div>
+        </Col>
+      </Row>
+      <Card className="bg-white rounded-2xl shadow-lg p-6 mt-6 relative">
+        {/* SVG report nhỏ góc phải card/table */}
+        <div className="absolute right-6 bottom-6 opacity-10 pointer-events-none select-none"><ReportSVG /></div>
+        <Table
+          columns={columns}
+          dataSource={serviceStats}
+          rowKey="key"
+          className="rounded-xl overflow-hidden shadow"
+          pagination={{ pageSize: 10 }}
+          locale={{ emptyText: <Empty image={<ReportSVG />} description={<span>Chưa có dữ liệu báo cáo</span>} /> }}
+          loading={loading}
+        />
+      </Card>
     </div>
   );
 };

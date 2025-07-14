@@ -63,6 +63,9 @@ export interface OrderDetail {
     orderDetailId: number;
     doctorName: string;
     serviceName: string;
+    stageName: string | null;
+    dateTreatment: string | null;
+    timeTreatment: string | null;
 }
 
 export interface Order {

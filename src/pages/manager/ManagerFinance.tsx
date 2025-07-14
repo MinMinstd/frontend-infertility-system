@@ -12,16 +12,11 @@ import {
   Button,
   Modal,
   Divider,
+  Spin,
+  Empty,
 } from 'antd';
-import { 
-  ArrowUpOutlined, 
-  ArrowDownOutlined, 
-  EyeOutlined,
-  DollarOutlined,
-  UserOutlined,
-  MedicineBoxOutlined,
-} from '@ant-design/icons';
-import type { ColumnsType } from 'antd/es/table';
+import { Eye, DollarSign, User, FileText } from 'lucide-react';
+import { motion } from 'framer-motion';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
@@ -42,6 +37,26 @@ interface DetailedRevenueData {
   date: string;
   status: 'completed' | 'pending' | 'cancelled';
 }
+
+const sectionVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, type: 'spring' as const, stiffness: 100 } },
+};
+
+const tableVariants = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, type: 'spring' as const, stiffness: 120 } },
+};
+
+// SVG finance/money minh họa
+const FinanceSVG = () => (
+  <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="10" y="22" width="44" height="24" rx="8" fill="#34d399"/>
+    <rect x="10" y="22" width="44" height="24" rx="8" stroke="#059669" strokeWidth="2"/>
+    <circle cx="32" cy="34" r="8" fill="#fff"/>
+    <text x="32" y="38" textAnchor="middle" fontSize="16" fill="#34d399" fontWeight="bold">₫</text>
+  </svg>
+);
 
 const ManagerFinance: React.FC = () => {
   const [selectedMonth, setSelectedMonth] = useState(dayjs());
@@ -124,9 +139,9 @@ const ManagerFinance: React.FC = () => {
     setIsModalVisible(true);
   };
 
-  const columns: ColumnsType<RevenueData> = [
+  const columns = [
     {
-      title: 'Tháng',
+      title: <span className="text-pink-600 font-semibold">Tháng</span>,
       dataIndex: 'month',
       key: 'month',
       render: (text: string) => (
@@ -134,7 +149,7 @@ const ManagerFinance: React.FC = () => {
       ),
     },
     {
-      title: 'Doanh thu',
+      title: <span className="text-pink-600 font-semibold">Doanh thu</span>,
       dataIndex: 'revenue',
       key: 'revenue',
       render: (value: number) => (
@@ -144,7 +159,7 @@ const ManagerFinance: React.FC = () => {
       ),
     },
     {
-      title: 'Số bệnh nhân',
+      title: <span className="text-pink-600 font-semibold">Số bệnh nhân</span>,
       dataIndex: 'patients',
       key: 'patients',
       render: (value: number) => (
@@ -152,7 +167,7 @@ const ManagerFinance: React.FC = () => {
       ),
     },
     {
-      title: 'Số ca điều trị',
+      title: <span className="text-pink-600 font-semibold">Số ca điều trị</span>,
       dataIndex: 'treatments',
       key: 'treatments',
       render: (value: number) => (
@@ -160,17 +175,14 @@ const ManagerFinance: React.FC = () => {
       ),
     },
     {
-      title: 'Chi tiết',
+      title: <span className="text-pink-600 font-semibold">Chi tiết</span>,
       key: 'action',
       render: (_, record) => (
         <Button
           type="primary"
-          icon={<EyeOutlined />}
+          icon={<Eye className="w-4 h-4" />}
           onClick={() => handleViewDetails(record)}
-          style={{ 
-            backgroundColor: '#1890ff',
-            borderColor: '#1890ff',
-          }}
+          style={{ backgroundColor: '#1890ff', borderColor: '#1890ff' }}
         >
           Xem chi tiết
         </Button>
@@ -178,22 +190,25 @@ const ManagerFinance: React.FC = () => {
     },
   ];
 
-  const detailedColumns: ColumnsType<DetailedRevenueData> = [
+  const detailedColumns = [
     {
-      title: 'Tên khách hàng',
+      title: <span className="text-pink-600 font-semibold">Tên khách hàng</span>,
       dataIndex: 'customerName',
       key: 'customerName',
       render: (text: string) => (
-        <Text strong>{text}</Text>
+        <span className="flex items-center gap-2"><User className="w-4 h-4 text-blue-500" />{text}</span>
       ),
     },
     {
-      title: 'Dịch vụ',
+      title: <span className="text-pink-600 font-semibold">Dịch vụ</span>,
       dataIndex: 'serviceName',
       key: 'serviceName',
+      render: (service: string) => (
+        <span className="flex items-center gap-2"><FileText className="w-4 h-4 text-purple-500" />{service}</span>
+      ),
     },
     {
-      title: 'Số tiền',
+      title: <span className="text-pink-600 font-semibold">Số tiền</span>,
       dataIndex: 'amount',
       key: 'amount',
       render: (value: number) => (
@@ -203,167 +218,149 @@ const ManagerFinance: React.FC = () => {
       ),
     },
     {
-      title: 'Ngày',
+      title: <span className="text-pink-600 font-semibold">Ngày</span>,
       dataIndex: 'date',
       key: 'date',
+      render: (date: string) => dayjs(date).format('DD/MM/YYYY'),
     },
     {
-      title: 'Trạng thái',
+      title: <span className="text-pink-600 font-semibold">Trạng thái</span>,
       dataIndex: 'status',
       key: 'status',
       render: (status: string) => {
-        const statusConfig = {
-          completed: { color: 'success', text: 'Hoàn thành' },
-          pending: { color: 'warning', text: 'Đang xử lý' },
-          cancelled: { color: 'error', text: 'Đã hủy' },
-        };
-        const config = statusConfig[status as keyof typeof statusConfig];
-        return <Tag color={config.color}>{config.text}</Tag>;
+        const color = status === 'completed' ? 'green' : status === 'pending' ? 'orange' : 'red';
+        const text = status === 'completed' ? 'Hoàn thành' : status === 'pending' ? 'Chờ xử lý' : 'Đã huỷ';
+        return <Tag color={color}>{text}</Tag>;
       },
     },
   ];
 
   return (
-    <div style={{ padding: '24px', backgroundColor: '#f0f2f5', minHeight: '100vh' }}>
-      <Card style={{ marginBottom: '24px', borderRadius: '8px' }}>
-        <Title level={2} style={{ margin: 0, color: '#1890ff' }}>
-          Quản lý doanh thu
-        </Title>
-        <Divider style={{ margin: '16px 0' }} />
-        
-        <Space direction="vertical" size="large" style={{ width: '100%' }}>
-          <DatePicker
-            picker="month"
-            value={selectedMonth}
-            onChange={(date) => date && setSelectedMonth(date)}
-            style={{ 
-              marginBottom: '16px',
-              width: '200px',
-            }}
-          />
-
-          <Row gutter={[24, 24]}>
-            <Col xs={24} sm={8}>
-              <Card 
-                bordered={false}
-                style={{ 
-                  borderRadius: '8px',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                }}
-              >
-                <Statistic
-                  title={
-                    <Space>
-                      <DollarOutlined style={{ color: '#1890ff' }} />
-                      <Text strong>Doanh thu tháng này</Text>
-                    </Space>
-                  }
-                  value={currentMonthStats.totalRevenue}
-                  precision={0}
-                  valueStyle={{ color: '#1890ff', fontSize: '24px' }}
-                  prefix="VNĐ"
-                  suffix={
-                    <span style={{ fontSize: '14px', color: currentMonthStats.previousMonthComparison > 0 ? '#52c41a' : '#f5222d' }}>
-                      {currentMonthStats.previousMonthComparison > 0 ? (
-                        <ArrowUpOutlined />
-                      ) : (
-                        <ArrowDownOutlined />
-                      )}
-                      {Math.abs(currentMonthStats.previousMonthComparison)}%
-                    </span>
-                  }
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={8}>
-              <Card 
-                bordered={false}
-                style={{ 
-                  borderRadius: '8px',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                }}
-              >
-                <Statistic
-                  title={
-                    <Space>
-                      <UserOutlined style={{ color: '#1890ff' }} />
-                      <Text strong>Số bệnh nhân</Text>
-                    </Space>
-                  }
-                  value={currentMonthStats.totalPatients}
-                  valueStyle={{ color: '#1890ff', fontSize: '24px' }}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={8}>
-              <Card 
-                bordered={false}
-                style={{ 
-                  borderRadius: '8px',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                }}
-              >
-                <Statistic
-                  title={
-                    <Space>
-                      <MedicineBoxOutlined style={{ color: '#1890ff' }} />
-                      <Text strong>Số ca điều trị</Text>
-                    </Space>
-                  }
-                  value={currentMonthStats.totalTreatments}
-                  valueStyle={{ color: '#1890ff', fontSize: '24px' }}
-                />
-              </Card>
-            </Col>
-          </Row>
-        </Space>
-      </Card>
-
-      <Card 
-        title={
-          <Space>
-            <DollarOutlined style={{ color: '#1890ff' }} />
-            <Text strong>Lịch sử doanh thu</Text>
-          </Space>
-        }
-        style={{ 
-          borderRadius: '8px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        }}
+    <div className="p-6 min-h-screen bg-gradient-to-br from-white to-gray-50">
+      {/* Banner đầu trang */}
+      <div className="w-full flex items-center gap-6 bg-white rounded-2xl shadow mb-8 overflow-hidden">
+        <div className="ml-4"><FinanceSVG /></div>
+        <div className="flex-1">
+          <Title level={2} className="text-pink-600 !mb-1">Quản lý tài chính</Title>
+          <Text type="secondary">Theo dõi doanh thu, bệnh nhân, điều trị và chi tiết từng tháng</Text>
+        </div>
+        <div className="mr-6"><FinanceSVG /></div>
+      </div>
+      {/* End Banner */}
+      <Row gutter={[16, 16]} className="mt-4">
+        <Col xs={24} sm={12} md={6}>
+          <motion.div
+            variants={tableVariants}
+            initial="hidden"
+            animate="visible"
+            whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}
+          >
+            <Card className="shadow-md hover:shadow-lg transition-shadow rounded-xl border-0 bg-gradient-to-br from-blue-100 to-white relative">
+              {/* SVG finance nhỏ góc phải card */}
+              <div className="absolute right-4 bottom-4 opacity-10 pointer-events-none select-none"><FinanceSVG /></div>
+              <Statistic
+                title={<span className="text-blue-600">Tổng doanh thu</span>}
+                value={currentMonthStats.totalRevenue}
+                prefix={<DollarSign className="w-6 h-6 text-blue-500" />}
+                valueStyle={{ color: '#3b82f6', fontWeight: 700, fontSize: 24 }}
+                suffix="VNĐ"
+              />
+            </Card>
+          </motion.div>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <motion.div
+            variants={tableVariants}
+            initial="hidden"
+            animate="visible"
+            whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}
+          >
+            <Card className="shadow-md hover:shadow-lg transition-shadow rounded-xl border-0 bg-gradient-to-br from-green-100 to-white">
+              <Statistic
+                title={<span className="text-green-600">Bệnh nhân</span>}
+                value={currentMonthStats.totalPatients}
+                prefix={<User className="w-6 h-6 text-green-500" />}
+                valueStyle={{ color: '#22c55e', fontWeight: 700, fontSize: 24 }}
+              />
+            </Card>
+          </motion.div>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <motion.div
+            variants={tableVariants}
+            initial="hidden"
+            animate="visible"
+            whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}
+          >
+            <Card className="shadow-md hover:shadow-lg transition-shadow rounded-xl border-0 bg-gradient-to-br from-pink-100 to-white">
+              <Statistic
+                title={<span className="text-pink-600">Ca điều trị</span>}
+                value={currentMonthStats.totalTreatments}
+                prefix={<FileText className="w-6 h-6 text-pink-500" />}
+                valueStyle={{ color: '#ec4899', fontWeight: 700, fontSize: 24 }}
+              />
+            </Card>
+          </motion.div>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <motion.div
+            variants={tableVariants}
+            initial="hidden"
+            animate="visible"
+            whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}
+          >
+            <Card className="shadow-md hover:shadow-lg transition-shadow rounded-xl border-0 bg-gradient-to-br from-orange-100 to-white">
+              <Statistic
+                title={<span className="text-orange-600">So với tháng trước</span>}
+                value={currentMonthStats.previousMonthComparison}
+                suffix="%"
+                valueStyle={{ color: '#f59e42', fontWeight: 700, fontSize: 24 }}
+              />
+            </Card>
+          </motion.div>
+        </Col>
+      </Row>
+      <motion.div
+        variants={sectionVariants}
+        initial="hidden"
+        animate="visible"
+        className="mt-8"
       >
-        <Table
-          columns={columns}
-          dataSource={revenueData}
-          pagination={{ 
-            pageSize: 5,
-            showSizeChanger: true,
-            showTotal: (total) => `Tổng số ${total} tháng`,
-          }}
-        />
-      </Card>
-
+        <Card className="bg-white rounded-2xl shadow-lg p-6 mt-6 relative">
+          {/* SVG finance nhỏ góc phải card/table */}
+          <div className="absolute right-6 bottom-6 opacity-10 pointer-events-none select-none"><FinanceSVG /></div>
+          <Table
+            columns={columns}
+            dataSource={revenueData}
+            rowKey="key"
+            className="rounded-xl overflow-hidden shadow"
+            pagination={{ pageSize: 10 }}
+            locale={{ emptyText: <Empty image={<FinanceSVG />} description={<span>Chưa có dữ liệu tài chính</span>} /> }}
+          />
+        </Card>
+      </motion.div>
       <Modal
-        title={
-          <Space>
-            <DollarOutlined style={{ color: '#1890ff' }} />
-            <Text strong>Chi tiết doanh thu - {selectedMonthData?.month}</Text>
-          </Space>
-        }
+        title={<span className="text-pink-600 font-semibold">Chi tiết doanh thu tháng {selectedMonthData?.month}</span>}
         open={isModalVisible}
         onCancel={() => setIsModalVisible(false)}
-        width={1000}
         footer={null}
-        style={{ top: 20 }}
+        width={800}
       >
-        <Table
-          columns={detailedColumns}
-          dataSource={detailedRevenueData}
-          pagination={{ 
-            pageSize: 5,
-            showSizeChanger: true,
-            showTotal: (total) => `Tổng số ${total} giao dịch`,
-          }}
-        />
+        <Divider />
+        <motion.div
+          variants={tableVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <Table
+            columns={detailedColumns}
+            dataSource={detailedRevenueData}
+            rowKey="key"
+            className="rounded-xl overflow-hidden shadow"
+            pagination={{ pageSize: 5 }}
+            locale={{ emptyText: <Empty image={<FinanceSVG />} description={<span>Chưa có chi tiết doanh thu</span>} /> }}
+          />
+        </motion.div>
       </Modal>
     </div>
   );
