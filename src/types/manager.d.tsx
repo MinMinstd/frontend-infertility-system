@@ -75,3 +75,27 @@ export interface Order {
     husband: string;
     orderDetailList: OrderDetail[];
 }
+
+export interface TreatmentRoadmapWithPayment {
+  treatmentRoadmapId: number;
+  stage: string;
+  cost: number;
+  listPayment: PaymentDetail[];
+}
+
+export interface CustomerWithPayment {
+  userId: number;
+  customerId: number;
+  fullName: string;
+  totalPayment: number;
+  listPayment: PaymentDetail[];
+}
+
+export interface PaymentDetail {
+  paymentId: number;
+  customerName: string;
+  serviceName: string;
+  date: string;
+  priceByTreatment: number;
+  status: string;
+}
