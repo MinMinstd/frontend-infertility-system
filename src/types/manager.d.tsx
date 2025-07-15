@@ -22,7 +22,7 @@ export interface Account {
   export interface Appointment {
     customerName: string;
     doctorName: string;
-    note: string;
+    type: string;
     date: string;
     time: string;
     status: string;

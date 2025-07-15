@@ -69,13 +69,13 @@ const ManagerAppointments = () => {
       ),
     },
     {
-      title: <span className="text-pink-600 font-semibold">Dịch vụ</span>,
-      dataIndex: "note",
-      key: "note",
-      render: (note) => (
+      title: <span className="text-pink-600 font-semibold">Loại dịch vụ</span>,
+      dataIndex: "type",
+      key: "type",
+      render: (type) => (
         <div className="flex items-center gap-2">
           <FileText className="w-4 h-4 text-purple-500" />
-          {note}
+          {type}
         </div>
       ),
     },
