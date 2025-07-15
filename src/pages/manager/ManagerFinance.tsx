@@ -1,52 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Card,
   Table,
   DatePicker,
-  Row,
-  Col,
-  Statistic,
   Typography,
-  Space,
   Tag,
   Button,
   Modal,
   Divider,
-  Spin,
   Empty,
+  Tabs,
 } from 'antd';
-import { Eye, DollarSign, User, FileText } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Eye, User, FileText, DollarSign } from 'lucide-react';
 import dayjs from 'dayjs';
+import ManagerApi from '../../servers/manager.api';
+import type { TreatmentRoadmapWithPayment, CustomerWithPayment, PaymentDetail } from '../../types/manager.d';
 
 const { Title, Text } = Typography;
-
-interface RevenueData {
-  key: string;
-  month: string;
-  revenue: number;
-  patients: number;
-  treatments: number;
-}
-
-interface DetailedRevenueData {
-  key: string;
-  customerName: string;
-  serviceName: string;
-  amount: number;
-  date: string;
-  status: 'completed' | 'pending' | 'cancelled';
-}
-
-const sectionVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, type: 'spring' as const, stiffness: 100 } },
-};
-
-const tableVariants = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, type: 'spring' as const, stiffness: 120 } },
-};
 
 // SVG finance/money minh họa
 const FinanceSVG = () => (
@@ -60,162 +29,121 @@ const FinanceSVG = () => (
 
 const ManagerFinance: React.FC = () => {
   const [selectedMonth, setSelectedMonth] = useState(dayjs());
-  const [revenueData, setRevenueData] = useState<RevenueData[]>([]);
-  const [detailedRevenueData, setDetailedRevenueData] = useState<DetailedRevenueData[]>([]);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [selectedMonthData, setSelectedMonthData] = useState<RevenueData | null>(null);
-  const [currentMonthStats, setCurrentMonthStats] = useState({
-    totalRevenue: 0,
-    totalPatients: 0,
-    totalTreatments: 0,
-    previousMonthComparison: 0,
-  });
+  const [roadmapRevenue, setRoadmapRevenue] = useState<TreatmentRoadmapWithPayment[]>([]);
+  const [loadingRoadmap, setLoadingRoadmap] = useState(false);
+  const [customerPayments, setCustomerPayments] = useState<CustomerWithPayment[]>([]);
+  const [loadingCustomer, setLoadingCustomer] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState<CustomerWithPayment | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
-  // Mock data - Replace with actual API call
+  // Lấy doanh thu theo dịch vụ/tháng
   useEffect(() => {
-    const mockData: RevenueData[] = [
-      {
-        key: '1',
-        month: 'January 2024',
-        revenue: 15000000,
-        patients: 45,
-        treatments: 60,
-      },
-      {
-        key: '2',
-        month: 'February 2024',
-        revenue: 18000000,
-        patients: 52,
-        treatments: 75,
-      },
-      {
-        key: '3',
-        month: 'March 2024',
-        revenue: 16500000,
-        patients: 48,
-        treatments: 68,
-      },
-    ];
+    const fetchRoadmap = async () => {
+      setLoadingRoadmap(true);
+      try {
+        const res = await ManagerApi.GetTreatmentRoadmapWithPayment(selectedMonth.month() + 1, selectedMonth.year());
+        setRoadmapRevenue(res.data);
+      } catch {
+        setRoadmapRevenue([]);
+      } finally {
+        setLoadingRoadmap(false);
+      }
+    };
+    fetchRoadmap();
+  }, [selectedMonth]);
 
-    const mockDetailedData: DetailedRevenueData[] = [
-      {
-        key: '1',
-        customerName: 'Nguyễn Văn A',
-        serviceName: 'Khám tổng quát',
-        amount: 500000,
-        date: '2024-03-15',
-        status: 'completed',
-      },
-      {
-        key: '2',
-        customerName: 'Trần Thị B',
-        serviceName: 'Điều trị IVF',
-        amount: 15000000,
-        date: '2024-03-16',
-        status: 'completed',
-      },
-      {
-        key: '3',
-        customerName: 'Lê Văn C',
-        serviceName: 'Siêu âm',
-        amount: 800000,
-        date: '2024-03-17',
-        status: 'pending',
-      },
-    ];
-
-    setRevenueData(mockData);
-    setDetailedRevenueData(mockDetailedData);
-    setCurrentMonthStats({
-      totalRevenue: 16500000,
-      totalPatients: 48,
-      totalTreatments: 68,
-      previousMonthComparison: 8.33,
-    });
+  // Lấy danh sách thanh toán khách hàng
+  useEffect(() => {
+    const fetchCustomer = async () => {
+      setLoadingCustomer(true);
+      try {
+        const res = await ManagerApi.GetCustomerWithPayment();
+        setCustomerPayments(res.data);
+      } catch {
+        setCustomerPayments([]);
+      } finally {
+        setLoadingCustomer(false);
+      }
+    };
+    fetchCustomer();
   }, []);
 
-  const handleViewDetails = (record: RevenueData) => {
-    setSelectedMonthData(record);
-    setIsModalVisible(true);
-  };
+  // Tính tổng giao dịch và tổng doanh thu của tháng đang chọn
+  const totalTransactions = roadmapRevenue.reduce((sum, r) => sum + (r.listPayment?.length || 0), 0);
+  const totalRevenue = roadmapRevenue.reduce((sum, r) => sum + (r.cost || 0), 0);
+  // Tính số khách hàng đã giao dịch trong tháng này
+  const monthStr = selectedMonth.format('YYYY-MM');
+  const customersInMonth = customerPayments.filter(c => c.listPayment.some(p => p.date.startsWith(monthStr)));
+  const totalCustomersInMonth = customersInMonth.length;
 
-  const columns = [
+  // Bảng doanh thu theo dịch vụ/tháng
+  const roadmapColumns = [
     {
-      title: <span className="text-pink-600 font-semibold">Tháng</span>,
-      dataIndex: 'month',
-      key: 'month',
-      render: (text: string) => (
-        <Text strong>{text}</Text>
-      ),
+      title: <span className="text-pink-600 font-semibold">ID</span>,
+      dataIndex: 'treatmentRoadmapId',
+      key: 'treatmentRoadmapId',
+      width: 80,
     },
     {
-      title: <span className="text-pink-600 font-semibold">Doanh thu</span>,
-      dataIndex: 'revenue',
-      key: 'revenue',
-      render: (value: number) => (
-        <Text strong style={{ color: '#1890ff' }}>
-          {value.toLocaleString('vi-VN')} VNĐ
-        </Text>
-      ),
+      title: <span className="text-pink-600 font-semibold">Giai đoạn</span>,
+      dataIndex: 'stage',
+      key: 'stage',
+      width: 200,
     },
     {
-      title: <span className="text-pink-600 font-semibold">Số bệnh nhân</span>,
-      dataIndex: 'patients',
-      key: 'patients',
-      render: (value: number) => (
-        <Text>{value} bệnh nhân</Text>
-      ),
+      title: <span className="text-pink-600 font-semibold">Tổng thu (VNĐ)</span>,
+      dataIndex: 'cost',
+      key: 'cost',
+      width: 180,
+      render: (cost: number) => cost?.toLocaleString('vi-VN'),
     },
     {
-      title: <span className="text-pink-600 font-semibold">Số ca điều trị</span>,
-      dataIndex: 'treatments',
-      key: 'treatments',
-      render: (value: number) => (
-        <Text>{value} ca</Text>
-      ),
+      title: <span className="text-pink-600 font-semibold">Số giao dịch</span>,
+      dataIndex: 'listPayment',
+      key: 'listPayment',
+      width: 120,
+      render: (list: PaymentDetail[]) => list.length,
+    },
+  ];
+
+  // Bảng quản lý thanh toán khách hàng
+  const customerColumns = [
+    {
+      title: <span className="text-pink-600 font-semibold">Tên khách hàng</span>,
+      dataIndex: 'fullName',
+      key: 'fullName',
+      render: (name: string) => <span className="flex items-center gap-2"><User className="w-4 h-4 text-blue-500" />{name}</span>,
+    },
+    {
+      title: <span className="text-pink-600 font-semibold">Tổng thanh toán (VNĐ)</span>,
+      dataIndex: 'totalPayment',
+      key: 'totalPayment',
+      render: (value: number) => value?.toLocaleString('vi-VN'),
+    },
+    {
+      title: <span className="text-pink-600 font-semibold">Số giao dịch</span>,
+      dataIndex: 'listPayment',
+      key: 'listPayment',
+      render: (list: PaymentDetail[]) => list.length,
     },
     {
       title: <span className="text-pink-600 font-semibold">Chi tiết</span>,
       key: 'action',
-      render: (_, record) => (
-        <Button
-          type="primary"
-          icon={<Eye className="w-4 h-4" />}
-          onClick={() => handleViewDetails(record)}
-          style={{ backgroundColor: '#1890ff', borderColor: '#1890ff' }}
-        >
+      render: (_: unknown, record: CustomerWithPayment) => (
+        <Button type="primary" icon={<Eye className="w-4 h-4" />} onClick={() => { setSelectedCustomer(record); setModalVisible(true); }}>
           Xem chi tiết
         </Button>
       ),
     },
   ];
 
-  const detailedColumns = [
-    {
-      title: <span className="text-pink-600 font-semibold">Tên khách hàng</span>,
-      dataIndex: 'customerName',
-      key: 'customerName',
-      render: (text: string) => (
-        <span className="flex items-center gap-2"><User className="w-4 h-4 text-blue-500" />{text}</span>
-      ),
-    },
+  // Bảng chi tiết thanh toán của khách hàng
+  const paymentColumns = [
     {
       title: <span className="text-pink-600 font-semibold">Dịch vụ</span>,
       dataIndex: 'serviceName',
       key: 'serviceName',
-      render: (service: string) => (
-        <span className="flex items-center gap-2"><FileText className="w-4 h-4 text-purple-500" />{service}</span>
-      ),
-    },
-    {
-      title: <span className="text-pink-600 font-semibold">Số tiền</span>,
-      dataIndex: 'amount',
-      key: 'amount',
-      render: (value: number) => (
-        <Text strong style={{ color: '#1890ff' }}>
-          {value.toLocaleString('vi-VN')} VNĐ
-        </Text>
-      ),
+      render: (service: string) => <span className="flex items-center gap-2"><FileText className="w-4 h-4 text-purple-500" />{service}</span>,
     },
     {
       title: <span className="text-pink-600 font-semibold">Ngày</span>,
@@ -224,13 +152,18 @@ const ManagerFinance: React.FC = () => {
       render: (date: string) => dayjs(date).format('DD/MM/YYYY'),
     },
     {
+      title: <span className="text-pink-600 font-semibold">Số tiền</span>,
+      dataIndex: 'priceByTreatment',
+      key: 'priceByTreatment',
+      render: (value: number) => value?.toLocaleString('vi-VN'),
+    },
+    {
       title: <span className="text-pink-600 font-semibold">Trạng thái</span>,
       dataIndex: 'status',
       key: 'status',
       render: (status: string) => {
-        const color = status === 'completed' ? 'green' : status === 'pending' ? 'orange' : 'red';
-        const text = status === 'completed' ? 'Hoàn thành' : status === 'pending' ? 'Chờ xử lý' : 'Đã huỷ';
-        return <Tag color={color}>{text}</Tag>;
+        const color = status === 'Đã thanh toán' ? 'green' : 'orange';
+        return <Tag color={color}>{status}</Tag>;
       },
     },
   ];
@@ -242,125 +175,103 @@ const ManagerFinance: React.FC = () => {
         <div className="ml-4"><FinanceSVG /></div>
         <div className="flex-1">
           <Title level={2} className="text-pink-600 !mb-1">Quản lý tài chính</Title>
-          <Text type="secondary">Theo dõi doanh thu, bệnh nhân, điều trị và chi tiết từng tháng</Text>
+          <Text type="secondary">Theo dõi doanh thu theo dịch vụ/tháng và quản lý thanh toán khách hàng</Text>
         </div>
         <div className="mr-6"><FinanceSVG /></div>
       </div>
-      {/* End Banner */}
-      <Row gutter={[16, 16]} className="mt-4">
-        <Col xs={24} sm={12} md={6}>
-          <motion.div
-            variants={tableVariants}
-            initial="hidden"
-            animate="visible"
-            whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}
-          >
-            <Card className="shadow-md hover:shadow-lg transition-shadow rounded-xl border-0 bg-gradient-to-br from-blue-100 to-white relative">
-              {/* SVG finance nhỏ góc phải card */}
-              <div className="absolute right-4 bottom-4 opacity-10 pointer-events-none select-none"><FinanceSVG /></div>
-              <Statistic
-                title={<span className="text-blue-600">Tổng doanh thu</span>}
-                value={currentMonthStats.totalRevenue}
-                prefix={<DollarSign className="w-6 h-6 text-blue-500" />}
-                valueStyle={{ color: '#3b82f6', fontWeight: 700, fontSize: 24 }}
-                suffix="VNĐ"
+      {/* Thống kê tổng giao dịch, tổng doanh thu, số khách hàng giao dịch */}
+      <div className="flex flex-wrap gap-6 mb-8">
+        <div className="flex-1 min-w-[220px] bg-gradient-to-br from-blue-100 to-white rounded-2xl shadow-md p-6 flex items-center gap-4 hover:shadow-lg transition-shadow">
+          <div className="bg-blue-500 rounded-full p-3 flex items-center justify-center">
+            <FileText className="w-8 h-8 text-white" />
+          </div>
+          <div className="flex-1 text-center">
+            <div className="text-blue-600 font-semibold text-lg">Tổng giao dịch tháng {selectedMonth.format('MM/YYYY')}</div>
+            <div className="text-3xl font-bold text-blue-700 mt-1">{totalTransactions}</div>
+          </div>
+        </div>
+        <div className="flex-1 min-w-[220px] bg-gradient-to-br from-green-100 to-white rounded-2xl shadow-md p-6 flex items-center gap-4 hover:shadow-lg transition-shadow">
+          <div className="bg-green-500 rounded-full p-3 flex items-center justify-center">
+            <DollarSign className="w-8 h-8 text-white" />
+          </div>
+          <div className="flex-1 text-center">
+            <div className="text-green-600 font-semibold text-lg">Tổng doanh thu tháng {selectedMonth.format('MM/YYYY')}</div>
+            <div className="text-3xl font-bold text-green-700 mt-1">{totalRevenue.toLocaleString('vi-VN')} <span className="text-base font-medium">VNĐ</span></div>
+          </div>
+        </div>
+        <div className="flex-1 min-w-[220px] bg-gradient-to-br from-pink-100 to-white rounded-2xl shadow-md p-6 flex items-center gap-4 hover:shadow-lg transition-shadow">
+          <div className="bg-pink-500 rounded-full p-3 flex items-center justify-center">
+            <User className="w-8 h-8 text-white" />
+          </div>
+          <div className="flex-1 text-center">
+            <div className="text-pink-600 font-semibold text-lg">Khách hàng giao dịch tháng {selectedMonth.format('MM/YYYY')}</div>
+            <div className="text-3xl font-bold text-pink-700 mt-1">{totalCustomersInMonth}</div>
+          </div>
+        </div>
+      </div>
+      {/* Tabs cho 2 phần */}
+      <Tabs
+        defaultActiveKey="revenue"
+        className="bg-white rounded-2xl shadow-lg p-6"
+        items={[{
+          key: 'revenue',
+          label: <span className="text-blue-600 font-semibold">Doanh thu theo dịch vụ/tháng</span>,
+          children: (
+            <div>
+              <div className="flex justify-end mb-4">
+                <DatePicker
+                  picker="month"
+                  value={selectedMonth}
+                  onChange={v => v && setSelectedMonth(v)}
+                  format="MM/YYYY"
+                  allowClear={false}
+                />
+              </div>
+              <Table
+                columns={roadmapColumns}
+                dataSource={roadmapRevenue}
+                rowKey="treatmentRoadmapId"
+                loading={loadingRoadmap}
+                className="rounded-xl overflow-hidden shadow"
+                pagination={{ pageSize: 8 }}
+                locale={{ emptyText: <Empty image={<FinanceSVG />} description={<span>Chưa có dữ liệu doanh thu</span>} /> }}
               />
-            </Card>
-          </motion.div>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <motion.div
-            variants={tableVariants}
-            initial="hidden"
-            animate="visible"
-            whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}
-          >
-            <Card className="shadow-md hover:shadow-lg transition-shadow rounded-xl border-0 bg-gradient-to-br from-green-100 to-white">
-              <Statistic
-                title={<span className="text-green-600">Bệnh nhân</span>}
-                value={currentMonthStats.totalPatients}
-                prefix={<User className="w-6 h-6 text-green-500" />}
-                valueStyle={{ color: '#22c55e', fontWeight: 700, fontSize: 24 }}
+            </div>
+          )
+        }, {
+          key: 'customer',
+          label: <span className="text-green-600 font-semibold">Quản lý thanh toán khách hàng</span>,
+          children: (
+            <div>
+              <Table
+                columns={customerColumns}
+                dataSource={customerPayments}
+                rowKey="customerId"
+                loading={loadingCustomer}
+                className="rounded-xl overflow-hidden shadow"
+                pagination={{ pageSize: 8 }}
+                locale={{ emptyText: <Empty image={<FinanceSVG />} description={<span>Chưa có dữ liệu khách hàng</span>} /> }}
               />
-            </Card>
-          </motion.div>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <motion.div
-            variants={tableVariants}
-            initial="hidden"
-            animate="visible"
-            whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}
-          >
-            <Card className="shadow-md hover:shadow-lg transition-shadow rounded-xl border-0 bg-gradient-to-br from-pink-100 to-white">
-              <Statistic
-                title={<span className="text-pink-600">Ca điều trị</span>}
-                value={currentMonthStats.totalTreatments}
-                prefix={<FileText className="w-6 h-6 text-pink-500" />}
-                valueStyle={{ color: '#ec4899', fontWeight: 700, fontSize: 24 }}
-              />
-            </Card>
-          </motion.div>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <motion.div
-            variants={tableVariants}
-            initial="hidden"
-            animate="visible"
-            whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}
-          >
-            <Card className="shadow-md hover:shadow-lg transition-shadow rounded-xl border-0 bg-gradient-to-br from-orange-100 to-white">
-              <Statistic
-                title={<span className="text-orange-600">So với tháng trước</span>}
-                value={currentMonthStats.previousMonthComparison}
-                suffix="%"
-                valueStyle={{ color: '#f59e42', fontWeight: 700, fontSize: 24 }}
-              />
-            </Card>
-          </motion.div>
-        </Col>
-      </Row>
-      <motion.div
-        variants={sectionVariants}
-        initial="hidden"
-        animate="visible"
-        className="mt-8"
-      >
-        <Card className="bg-white rounded-2xl shadow-lg p-6 mt-6 relative">
-          {/* SVG finance nhỏ góc phải card/table */}
-          <div className="absolute right-6 bottom-6 opacity-10 pointer-events-none select-none"><FinanceSVG /></div>
-          <Table
-            columns={columns}
-            dataSource={revenueData}
-            rowKey="key"
-            className="rounded-xl overflow-hidden shadow"
-            pagination={{ pageSize: 10 }}
-            locale={{ emptyText: <Empty image={<FinanceSVG />} description={<span>Chưa có dữ liệu tài chính</span>} /> }}
-          />
-        </Card>
-      </motion.div>
+            </div>
+          )
+        }]}
+      />
       <Modal
-        title={<span className="text-pink-600 font-semibold">Chi tiết doanh thu tháng {selectedMonthData?.month}</span>}
-        open={isModalVisible}
-        onCancel={() => setIsModalVisible(false)}
+        title={<span className="text-pink-600 font-semibold">Chi tiết thanh toán: {selectedCustomer?.fullName}</span>}
+        open={modalVisible}
+        onCancel={() => setModalVisible(false)}
         footer={null}
-        width={800}
+        width={700}
       >
         <Divider />
-        <motion.div
-          variants={tableVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <Table
-            columns={detailedColumns}
-            dataSource={detailedRevenueData}
-            rowKey="key"
-            className="rounded-xl overflow-hidden shadow"
-            pagination={{ pageSize: 5 }}
-            locale={{ emptyText: <Empty image={<FinanceSVG />} description={<span>Chưa có chi tiết doanh thu</span>} /> }}
-          />
-        </motion.div>
+        <Table
+          columns={paymentColumns}
+          dataSource={selectedCustomer?.listPayment || []}
+          rowKey="paymentId"
+          className="rounded-xl overflow-hidden shadow"
+          pagination={{ pageSize: 6 }}
+          locale={{ emptyText: <Empty image={<FinanceSVG />} description={<span>Chưa có giao dịch nào</span>} /> }}
+        />
       </Modal>
     </div>
   );

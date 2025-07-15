@@ -1,4 +1,4 @@
-import type { Feedback, Account, Appointment, Doctor, DaySchedule, Service, TreatmentRoadmap, Order } from "../types/manager.d";
+import type { Feedback, Account, Appointment, Doctor, DaySchedule, Service, TreatmentRoadmap, Order, TreatmentRoadmapWithPayment, CustomerWithPayment } from "../types/manager.d";
 import axiosClient from "./axiosClient";
 const ManagerApi = {
     
@@ -29,6 +29,8 @@ const ManagerApi = {
 
     // GetAllOrder trả về orderDetailList gồm: orderDetailId, doctorName, serviceName, stageName, dateTreatment, timeTreatment
     GetAllOrder: () => axiosClient.get<Order[]>("/Order/GetAllOrder"),
+    GetTreatmentRoadmapWithPayment: (month: number, year: number) => axiosClient.get<TreatmentRoadmapWithPayment[]>(`/TreatementRoadmap/GetTreatementRoadmapWithPayment?month=${month}&year=${year}`),
+    GetCustomerWithPayment: () => axiosClient.get<CustomerWithPayment[]>("/Customer/GetCustomerWithPayment"),
   };
   
   export default ManagerApi;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, message, Spin, Empty, Card, Typography, Radio } from 'antd';
+import { Table, message, Spin, Empty, Card, Typography, Radio, Modal, Form, Input, InputNumber, Button } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { motion } from 'framer-motion';
 import { FileText } from 'lucide-react';
@@ -29,7 +29,11 @@ const ServiceSVG = () => (
 const ManagerServices: React.FC = () => {
   const [roadmaps, setRoadmaps] = useState<RoadmapWithId[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'ALL' | 'IVF' | 'IUI'>('ALL');
+  // const [filter, setFilter] = useState<'ALL' | 'IVF' | 'IUI'>('ALL');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
+  const [editingRoadmap, setEditingRoadmap] = useState<RoadmapWithId | null>(null);
+  const [form] = Form.useForm();
 
   useEffect(() => {
     const fetchRoadmaps = async () => {
@@ -47,9 +51,40 @@ const ManagerServices: React.FC = () => {
     fetchRoadmaps();
   }, []);
 
-  const filteredRoadmaps = filter === 'ALL'
-    ? roadmaps
-    : roadmaps.filter(r => r.serviceName.toLowerCase().includes(filter.toLowerCase()));
+  const iuiRoadmaps = roadmaps.filter(r => r.serviceName.toLowerCase().includes('iui'));
+  const ivfRoadmaps = roadmaps.filter(r => r.serviceName.toLowerCase().includes('ivf'));
+
+  const handleAdd = () => {
+    setModalMode('add');
+    setEditingRoadmap(null);
+    form.resetFields();
+    setModalOpen(true);
+  };
+
+  const handleEdit = (record: RoadmapWithId) => {
+    setModalMode('edit');
+    setEditingRoadmap(record);
+    form.setFieldsValue(record);
+    setModalOpen(true);
+  };
+
+  const handleModalOk = () => {
+    form.validateFields().then(values => {
+      if (modalMode === 'add') {
+        const newId = roadmaps.length > 0 ? Math.max(...roadmaps.map(r => r.id)) + 1 : 1;
+        setRoadmaps([...roadmaps, { ...values, id: newId }]);
+        message.success('Thêm dịch vụ thành công!');
+      } else if (modalMode === 'edit' && editingRoadmap) {
+        setRoadmaps(roadmaps.map(r => r.id === editingRoadmap.id ? { ...editingRoadmap, ...values } : r));
+        message.success('Cập nhật dịch vụ thành công!');
+      }
+      setModalOpen(false);
+    });
+  };
+
+  const handleModalCancel = () => {
+    setModalOpen(false);
+  };
 
   const columns: ColumnsType<RoadmapWithId> = [
     {
@@ -92,6 +127,16 @@ const ManagerServices: React.FC = () => {
       width: 150,
       render: (price: number) => price.toLocaleString('vi-VN'),
     },
+    {
+      title: <span className="text-pink-600 font-semibold">Thao tác</span>,
+      key: 'action',
+      width: 120,
+      render: (_, record) => (
+        <Button type="link" onClick={() => handleEdit(record)}>
+          Cập nhật
+        </Button>
+      ),
+    },
   ];
 
   return (
@@ -108,18 +153,11 @@ const ManagerServices: React.FC = () => {
         </div>
         {/* End Banner */}
         <Card className="bg-white rounded-2xl shadow-lg p-6 mt-6 relative">
-          {/* Bộ lọc dịch vụ */}
+          {/* Nút thêm mới */}
           <div className="mb-4 flex justify-end">
-            <Radio.Group
-              value={filter}
-              onChange={e => setFilter(e.target.value)}
-              optionType="button"
-              buttonStyle="solid"
-            >
-              <Radio.Button value="ALL">Tất cả</Radio.Button>
-              <Radio.Button value="IVF">IVF</Radio.Button>
-              <Radio.Button value="IUI">IUI</Radio.Button>
-            </Radio.Group>
+            <Button type="primary" onClick={handleAdd} className="bg-purple-500 hover:bg-purple-600">
+              Thêm dịch vụ mới
+            </Button>
           </div>
           {/* SVG dịch vụ nhỏ góc phải card */}
           <div className="absolute right-6 bottom-6 opacity-10 pointer-events-none select-none"><ServiceSVG /></div>
@@ -128,21 +166,76 @@ const ManagerServices: React.FC = () => {
               <Spin size="large" />
             </div>
           ) : (
-            <motion.div
-              variants={tableVariants}
-              initial="hidden"
-              animate="visible"
-            >
-              <Table
-                columns={columns}
-                dataSource={filteredRoadmaps}
-                rowKey="id"
-                className="rounded-xl overflow-hidden shadow"
-                pagination={{ pageSize: 10 }}
-                locale={{ emptyText: <Empty image={<ServiceSVG />} description={<span>Chưa có dịch vụ nào</span>} /> }}
-              />
-            </motion.div>
+            <>
+              <motion.div
+                variants={tableVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                <Title level={4} className="text-purple-600 mt-4 mb-2">Dịch vụ IUI</Title>
+                <Table
+                  columns={columns}
+                  dataSource={iuiRoadmaps}
+                  rowKey="id"
+                  className="rounded-xl overflow-hidden shadow mb-8"
+                  pagination={{ pageSize: 10 }}
+                  locale={{ emptyText: <Empty image={<ServiceSVG />} description={<span>Chưa có dịch vụ IUI</span>} /> }}
+                />
+              </motion.div>
+              <motion.div
+                variants={tableVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                <Title level={4} className="text-pink-600 mt-8 mb-2">Dịch vụ IVF</Title>
+                <Table
+                  columns={columns}
+                  dataSource={ivfRoadmaps}
+                  rowKey="id"
+                  className="rounded-xl overflow-hidden shadow"
+                  pagination={{ pageSize: 10 }}
+                  locale={{ emptyText: <Empty image={<ServiceSVG />} description={<span>Chưa có dịch vụ IVF</span>} /> }}
+                />
+              </motion.div>
+            </>
           )}
+          <Modal
+            title={modalMode === 'add' ? 'Thêm dịch vụ mới' : 'Cập nhật dịch vụ'}
+            open={modalOpen}
+            onOk={handleModalOk}
+            onCancel={handleModalCancel}
+            okText={modalMode === 'add' ? 'Thêm mới' : 'Cập nhật'}
+            cancelText="Hủy"
+            destroyOnClose
+          >
+            <Form
+              form={form}
+              layout="vertical"
+              initialValues={editingRoadmap || {}}
+            >
+              <Form.Item name="serviceNameType" label="Loại dịch vụ" rules={[{ required: true, message: 'Chọn loại dịch vụ' }]}> 
+                <Radio.Group>
+                  <Radio value="IUI">IUI</Radio>
+                  <Radio value="IVF">IVF</Radio>
+                </Radio.Group>
+              </Form.Item>
+              <Form.Item name="serviceName" label="Tên dịch vụ" rules={[{ required: true, message: 'Nhập tên dịch vụ' }]}> 
+                <Input />
+              </Form.Item>
+              <Form.Item name="stage" label="Giai đoạn" rules={[{ required: true, message: 'Nhập giai đoạn' }]}> 
+                <Input />
+              </Form.Item>
+              <Form.Item name="description" label="Mô tả" rules={[{ required: true, message: 'Nhập mô tả' }]}> 
+                <Input.TextArea rows={3} />
+              </Form.Item>
+              <Form.Item name="durationDay" label="Số ngày" rules={[{ required: true, message: 'Nhập số ngày' }]}> 
+                <InputNumber min={1} className="w-full" />
+              </Form.Item>
+              <Form.Item name="price" label="Giá (VNĐ)" rules={[{ required: true, message: 'Nhập giá' }]}> 
+                <InputNumber min={0} className="w-full" step={1000} />
+              </Form.Item>
+            </Form>
+          </Modal>
         </Card>
       </div>
     </div>

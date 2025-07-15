@@ -48,12 +48,21 @@ const ManagerReport: React.FC = () => {
   const [totalServices, setTotalServices] = useState(0);
   const [totalFeedbacks, setTotalFeedbacks] = useState(0);
   const [serviceStats, setServiceStats] = useState<ServiceStats[]>([]);
+  // Thêm các state mới
+  const [totalDoctorAccounts, setTotalDoctorAccounts] = useState(0);
+  const [totalCustomerAccounts, setTotalCustomerAccounts] = useState(0);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
+  const [topDoctors, setTopDoctors] = useState<{ name: string; count: number }[]>([]);
 
   useEffect(() => {
     setLoading(true);
     Promise.all([
       ManagerApi.GetCountTotalAccounts(),
       ManagerApi.GetCountNewAccount(),
+      ManagerApi.GetCountDoctorsAccount(),
+      ManagerApi.GetCountCustomerAccount(),
       ManagerApi.GetAllDoctors(),
       ManagerApi.GetAllAppointments(),
       ManagerApi.GetAllTreatmentRoadMap(),
@@ -63,6 +72,8 @@ const ManagerReport: React.FC = () => {
       .then(([
         totalAccRes,
         newAccRes,
+        doctorAccRes,
+        customerAccRes,
         doctorsRes,
         appointmentsRes,
         servicesRes,
@@ -71,12 +82,18 @@ const ManagerReport: React.FC = () => {
       ]) => {
         setTotalAccounts(Array.isArray(totalAccRes.data) ? totalAccRes.data.length : (typeof totalAccRes.data === 'number' ? totalAccRes.data : 0));
         setNewAccounts(Array.isArray(newAccRes.data) ? newAccRes.data.length : (typeof newAccRes.data === 'number' ? newAccRes.data : 0));
+        setTotalDoctorAccounts(Array.isArray(doctorAccRes.data) ? doctorAccRes.data.length : (typeof doctorAccRes.data === 'number' ? doctorAccRes.data : 0));
+        setTotalCustomerAccounts(Array.isArray(customerAccRes.data) ? customerAccRes.data.length : (typeof customerAccRes.data === 'number' ? customerAccRes.data : 0));
         setTotalDoctors(Array.isArray(doctorsRes.data) ? doctorsRes.data.length : 0);
         setTotalAppointments(Array.isArray(appointmentsRes.data) ? appointmentsRes.data.length : 0);
         setTotalServices(Array.isArray(servicesRes.data) ? servicesRes.data.length : 0);
         setTotalFeedbacks(Array.isArray(feedbacksRes.data) ? feedbacksRes.data.length : 0);
+        // Tổng hợp dịch vụ
         const serviceMap: Record<string, { usageCount: number; revenue: number }> = {};
+        let revenue = 0;
         if (Array.isArray(ordersRes.data)) {
+          setTotalOrders(ordersRes.data.length);
+          setRecentOrders(ordersRes.data.slice(-5).reverse());
           ordersRes.data.forEach((order: Order) => {
             if (order.orderDetailList && Array.isArray(order.orderDetailList)) {
               order.orderDetailList.forEach((detail: { serviceName?: string; price?: number }) => {
@@ -85,10 +102,12 @@ const ManagerReport: React.FC = () => {
                 if (!serviceMap[name]) serviceMap[name] = { usageCount: 0, revenue: 0 };
                 serviceMap[name].usageCount += 1;
                 serviceMap[name].revenue += price;
+                revenue += price;
               });
             }
           });
         }
+        setTotalRevenue(revenue);
         setServiceStats(
           Object.entries(serviceMap).map(([serviceName, stat], idx) => ({
             key: String(idx + 1),
@@ -97,6 +116,17 @@ const ManagerReport: React.FC = () => {
             revenue: stat.revenue,
           }))
         );
+        // Top bác sĩ nhiều lịch hẹn nhất
+        if (Array.isArray(appointmentsRes.data)) {
+          const doctorMap: Record<string, { name: string; count: number }> = {};
+          appointmentsRes.data.forEach((a: import('../../types/manager.d').Appointment) => {
+            if (a.doctorName) {
+              if (!doctorMap[a.doctorName]) doctorMap[a.doctorName] = { name: a.doctorName, count: 0 };
+              doctorMap[a.doctorName].count += 1;
+            }
+          });
+          setTopDoctors(Object.values(doctorMap).sort((a, b) => b.count - a.count).slice(0, 5));
+        }
       })
       .catch(() => {
         message.error('Lỗi khi tải dữ liệu tổng hợp!');
@@ -256,6 +286,83 @@ const ManagerReport: React.FC = () => {
               />
             </Card>
           </motion.div>
+        </Col>
+      </Row>
+      {/* Card thống kê mở rộng */}
+      <Row gutter={[16, 16]} className="mt-2">
+        <Col xs={24} sm={12} md={4}>
+          <Card className="shadow-md rounded-xl border-0 bg-gradient-to-br from-blue-200 to-white">
+            <Statistic
+              title={<span className="text-blue-700">Tài khoản bác sĩ</span>}
+              value={totalDoctorAccounts}
+              valueStyle={{ color: '#2563eb', fontWeight: 700, fontSize: 18 }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={4}>
+          <Card className="shadow-md rounded-xl border-0 bg-gradient-to-br from-green-200 to-white">
+            <Statistic
+              title={<span className="text-green-700">Tài khoản khách hàng</span>}
+              value={totalCustomerAccounts}
+              valueStyle={{ color: '#16a34a', fontWeight: 700, fontSize: 18 }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={4}>
+          <Card className="shadow-md rounded-xl border-0 bg-gradient-to-br from-pink-200 to-white">
+            <Statistic
+              title={<span className="text-pink-700">Tổng đơn hàng</span>}
+              value={totalOrders}
+              valueStyle={{ color: '#db2777', fontWeight: 700, fontSize: 18 }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={4}>
+          <Card className="shadow-md rounded-xl border-0 bg-gradient-to-br from-yellow-200 to-white">
+            <Statistic
+              title={<span className="text-yellow-700">Tổng doanh thu</span>}
+              value={totalRevenue.toLocaleString('vi-VN') + ' VNĐ'}
+              valueStyle={{ color: '#eab308', fontWeight: 700, fontSize: 18 }}
+            />
+          </Card>
+        </Col>
+      </Row>
+      {/* Bảng top bác sĩ và đơn hàng gần đây */}
+      <Row gutter={[16, 16]} className="mt-6">
+        <Col xs={24} md={12}>
+          <Card className="rounded-2xl shadow-lg p-4">
+            <Title level={4} className="text-pink-600">Top 5 bác sĩ có nhiều lịch hẹn nhất</Title>
+            <Table
+              columns={[
+                { title: 'Bác sĩ', dataIndex: 'name', key: 'name' },
+                { title: 'Số lịch hẹn', dataIndex: 'count', key: 'count' },
+              ]}
+              dataSource={topDoctors.map((d, i) => ({ ...d, key: i }))}
+              pagination={false}
+              size="small"
+              loading={loading}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} md={12}>
+          <Card className="rounded-2xl shadow-lg p-4">
+            <Title level={4} className="text-pink-600">5 đơn hàng gần nhất</Title>
+            <Table
+              columns={[
+                { title: 'Mã đơn', dataIndex: 'orderId', key: 'orderId' },
+                { title: 'Khách hàng', dataIndex: 'customer', key: 'customer' },
+                // Không có createdAt, thay bằng orderId hoặc để trống
+              ]}
+              dataSource={recentOrders.map((order, i) => ({
+                key: order.orderId || i,
+                orderId: order.orderId,
+                customer: `${order.wife}${order.husband ? ' & ' + order.husband : ''}`,
+              }))}
+              pagination={false}
+              size="small"
+              loading={loading}
+            />
+          </Card>
         </Col>
       </Row>
       <Card className="bg-white rounded-2xl shadow-lg p-6 mt-6 relative">
