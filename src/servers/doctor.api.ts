@@ -216,6 +216,22 @@ const DoctorApi = {
     return axiosClient.post(`Doctor/CreateMedicalRecord/${customerId}`, data);
   },
 
+  UpdateMedicalRecord(
+    medicalRecordId: number,
+    data: {
+      endDate: string;
+      stage: string;
+      diagnosis: string;
+      status: string;
+      attempt: number;
+    }
+  ) {
+    return axiosClient.put(
+      `Doctor/UpdateMedicalRecord/${medicalRecordId}`,
+      data
+    );
+  },
+
   ////////////////////////////////////////////////////////
   //Appointment
 
