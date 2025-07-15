@@ -1,6 +1,7 @@
 import type {
   CreateEmbryo,
   CreateTreatmentResultWithTypeTest,
+  UpdateConsulation,
   UpdateEmbryo,
 } from "../types/medicalRecord.d";
 import axiosClient from "./axiosClient";
@@ -165,6 +166,17 @@ const DoctorApi = {
   ) => {
     return axiosClient.post(
       `Doctor/consultationResult-typeTest/${customerId}/${bookingId}`,
+      data
+    );
+  },
+
+  //Cập nhật consulation result - type test
+  UpdateConsulationResult_TypeTest: (
+    consulationResultId: number,
+    data: UpdateConsulation
+  ) => {
+    return axiosClient.put(
+      `Doctor/consultationResult-typeTest/${consulationResultId}`,
       data
     );
   },

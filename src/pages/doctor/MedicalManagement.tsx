@@ -13,6 +13,7 @@ import type {
   TreatmentResult_typeTest,
   treatmentRoadmap,
   TypeTest,
+  UpdateConsulation,
   UpdateEmbryo,
   UpdateTreatmentResultFormValues,
 } from "../../types/medicalRecord.d";
@@ -26,6 +27,7 @@ import { CreateTypeTestModal } from "./components/modals/TypeTest.Modal";
 import { EmbryoStorage } from "./components/EmbryoStorage";
 import { CreateEmbryoModal } from "./components/modals/CreateEmbryoModal";
 import { UpdateEmbryoModal } from "./components/modals/UpdateEmbryoModal";
+import { UpdateConsulationResultModal } from "./components/modals/UpdateConsulationReultModal";
 
 interface MedicalManagementProps {
   customerId: number;
@@ -89,6 +91,10 @@ export function MedicalManagement({
     ConsulationResult_typeTest[]
   >([]);
   const [isTestModalVisible, setIsTestModalVisible] = useState(false);
+  const [isEditConsulationModalVisible, setIsEditConsulationModalVisible] =
+    useState(false);
+  const [editConsulationResult, setEditConsulationResult] =
+    useState<ConsulationResult_typeTest | null>(null);
   const [testResults, setTestResults] = useState<TypeTest[]>([]);
   const [consulationResultForm] = Form.useForm();
 
@@ -429,9 +435,19 @@ export function MedicalManagement({
   }, [customerId, bookingId]);
 
   const showAddConsulationR_typeTest = () => {
-    console.log("Đã vào hàm này hiển thị consulation result");
     setIsTestModalVisible(true);
     consulationResultForm.resetFields();
+  };
+
+  const showEditConsulationModal = (record: ConsulationResult_typeTest) => {
+    setEditConsulationResult(record);
+    setIsEditConsulationModalVisible(true);
+    consulationResultForm.setFieldsValue({
+      date: dayjs(record.date),
+      resultValue: record.resultValue,
+      note: record.note,
+      typeTest: record.typeTests ?? [],
+    });
   };
 
   const handleCreateConSulationR_typeT = async (values: {
@@ -485,6 +501,41 @@ export function MedicalManagement({
     } catch (error) {
       console.error("Lỗi khi tạo mới kết quả xét nghiệm:", error);
       message.error("Tạo mới thất bại");
+    }
+  };
+
+  const handleUpdateConsulationResult = async (values: UpdateConsulation) => {
+    if (!editConsulationResult) return;
+
+    try {
+      // 1️⃣ Chuẩn hóa payload
+      const payload = {
+        date: dayjs(values.date).format("YYYY-MM-DD"),
+        resultValue: values.resultValue,
+        note: values.note,
+        typeTest: values.typeTest,
+      };
+
+      // 2️⃣ Gọi API update
+      await DoctorApi.UpdateConsulationResult_TypeTest(
+        editConsulationResult.consulationResultId,
+        payload
+      );
+
+      // 3️⃣ Refresh danh sách
+      const res = await DoctorApi.GetConsultaionResult_TypeTests(
+        customerId,
+        bookingId!
+      );
+      setConsultationResult_TypeTest(res.data);
+
+      // 4️⃣ UI feedback + đóng modal
+      message.success("Cập nhật kết quả khám thành công");
+      setEditConsulationResult(null);
+      setIsEditConsulationModalVisible(false);
+    } catch (err) {
+      console.error("Lỗi khi cập nhật:", err);
+      message.error("Cập nhật thất bại");
     }
   };
 
@@ -676,6 +727,7 @@ export function MedicalManagement({
                 consulationResults={consulationResult_typeTest}
                 onAddTest={showAddConsulationR_typeTest}
                 onAddTypeTest={() => setIsCreateTypeTestModalVisible(true)}
+                onUpdateConsulationResult={showEditConsulationModal}
               />
             ),
           },
@@ -808,16 +860,42 @@ export function MedicalManagement({
         isEditing={false}
       />
 
-      {/* Consulation result - type test */}
+      {/* Consulation result - type test  (tạo mới) + (cập nhật)*/}
       <TestResultModal
         visible={isTestModalVisible}
         onCancel={() => setIsTestModalVisible(false)}
         onCreateConsulation={handleCreateConSulationR_typeT}
         treatmentResults={mappedTreatmentResults}
         medicalRecordDetails={medicalRecordDetail}
-        form={treatmentResultForm}
+        form={consulationResultForm}
+      />
+      <UpdateConsulationResultModal
+        open={isEditConsulationModalVisible}
+        onCancel={() => {
+          setIsEditConsulationModalVisible(false);
+          setEditConsulationResult(null);
+        }}
+        initialValues={
+          editConsulationResult && {
+            date: editConsulationResult.date,
+            resultValue: editConsulationResult.resultValue,
+            note: editConsulationResult.note,
+            typeTest: editConsulationResult.typeTests || [],
+          }
+        }
+        typeTest={testResults}
+        onSubmit={(values) => {
+          const payload: UpdateConsulation = {
+            date: values.date.format("YYYY-MM-DD"),
+            resultValue: values.resultValue,
+            note: values.note || "",
+            typeTest: values.typeTest || []
+          };
+          handleUpdateConsulationResult(payload);
+        }}
       />
 
+      {/* ----------------------------------------------------------------- */}
       {/* Type test  */}
       <CreateTypeTestModal
         visible={isCreateTypeTestModalVisible}
