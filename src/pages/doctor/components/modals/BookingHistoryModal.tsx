@@ -227,10 +227,22 @@ export function BookingHistoryModal({
     }
   };
 
-  // const handleCreateNew = () => {
-  //   // Logic for creating new booking - you can customize this
-  //   message.info("Chức năng tạo booking mới");
-  // };
+  const handleUpdateStatusAppointment = async (
+    bookingId: number,
+    status: string
+  ) => {
+    try {
+      await DoctorApi.UpdateStatusBooking(bookingId, status); // truyền status qua query string
+      message.success("Cập nhật trạng thái thành công");
+
+      // Làm mới danh sách lịch hẹn
+      const res = await DoctorApi.GetListBookingCustomer(customerId);
+      setBookings(res.data);
+    } catch (error) {
+      console.error("Lỗi khi cập nhật trạng thái booking:", error);
+      message.error("Lỗi khi cập nhật trạng thái booking");
+    }
+  };
 
   return (
     <Modal
@@ -245,16 +257,6 @@ export function BookingHistoryModal({
               Lịch sử đặt lịch khám
             </Title>
           </Col>
-          {/* <Col>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={handleCreateNew}
-              className="bg-pink-500 border-pink-500 hover:bg-pink-600 hover:border-pink-600"
-            >
-              Tạo booking mới
-            </Button>
-          </Col> */}
         </Row>
       }
       className="booking-history-modal"
@@ -290,6 +292,25 @@ export function BookingHistoryModal({
                             {booking.status}
                           </Tag>
                         </Space>
+                        <div className="mt-2 flex items-center gap-2">
+                          <Text className="text-sm">Cập nhật trạng thái:</Text>
+                          <Select
+                            size="small"
+                            value={booking.status}
+                            style={{ width: 160 }}
+                            onChange={(value) =>
+                              handleUpdateStatusAppointment(
+                                booking.bookingId,
+                                value
+                              )
+                            }
+                            options={[
+                              { label: "Đang xử lý", value: "Đang xử lý" },
+                              { label: "Thành Công", value: "Thành Công" }, // hoặc "Completed" nếu backend dùng enum tiếng Anh
+                            ]}
+                          />
+                        </div>
+
                         <Text type="secondary" className="text-sm">
                           <CalendarOutlined className="mr-1" />
                           Ngày tạo:{" "}

@@ -253,6 +253,15 @@ const DoctorApi = {
     return axiosClient.post(`Doctor/booking/${bookingId}`, data);
   },
 
+  //Cập nhạt trạng thái booking
+  UpdateStatusBooking: (bookingId: number, status: string) => {
+    return axiosClient.put(
+      `/Doctor/updateStatusBooking/${bookingId}?status=${encodeURIComponent(
+        status
+      )}`
+    );
+  },
+
   //Phôi trứng
   GetListEmbryos: (customerId: number, bookingId: number) => {
     return axiosClient.get(`/Embryos/embryos/${customerId}/${bookingId}`);
