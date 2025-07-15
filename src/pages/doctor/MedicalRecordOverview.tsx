@@ -1,15 +1,40 @@
 import { Button, Card, Steps, Tag } from "antd";
+import {
+  CheckCircleOutlined,
+  LoadingOutlined,
+  ClockCircleOutlined,
+} from "@ant-design/icons";
 import dayjs from "dayjs";
 import type { MedicalRecord } from "../../types/medicalRecord.d";
+import { UpdateMedicalRecordStatusModal } from "./components/modals/UpdateMedicalRecordModal";
 
 interface MedicalRecordProps {
   medicalRecord: MedicalRecord[];
   onSelectRecord: (bookingId: number, medicalRecordId: number) => void;
+  onEditRecord: (record: MedicalRecord) => void;
+  editingRecord: MedicalRecord | null;
+  isUpdateModalOpen: boolean;
+  onCancelUpdate: () => void;
+  onUpdateMedicalRecord: (
+    medicalRecordId: number,
+    values: {
+      endDate: string;
+      stage: string;
+      diagnosis: string;
+      status: string;
+      attempt: number;
+    }
+  ) => void;
 }
 
 export function MedicalRecordOverview({
   medicalRecord,
   onSelectRecord,
+  onEditRecord,
+  editingRecord,
+  isUpdateModalOpen,
+  onCancelUpdate,
+  onUpdateMedicalRecord,
 }: MedicalRecordProps) {
   const today = dayjs();
 
@@ -44,6 +69,13 @@ export function MedicalRecordOverview({
     }
   };
 
+  const getStepIcon = (stage: { completed: boolean; current: boolean }) => {
+    if (stage.completed)
+      return <CheckCircleOutlined style={{ color: "green" }} />;
+    if (stage.current) return <LoadingOutlined style={{ color: "#1890ff" }} />;
+    return <ClockCircleOutlined style={{ color: "gray" }} />;
+  };
+
   return (
     <Card
       title={<span style={{ color: "#ff69b4" }}>Tiến Trình Điều Trị</span>}
@@ -56,7 +88,8 @@ export function MedicalRecordOverview({
         direction="vertical"
         current={currentStep}
         items={mappedStages.map((stage) => ({
-          title: `Lần ${stage.attempt}: ${stage.stage}`,
+          title: `Giai đoạn: ${stage.stage}`,
+          icon: getStepIcon(stage),
           description: (
             <div className="text-sm text-gray-600">
               <div>
@@ -88,8 +121,17 @@ export function MedicalRecordOverview({
               >
                 Xem chi tiết
               </Button>
+              <Button
+                size="small"
+                type="default"
+                className="ml-2"
+                onClick={() => onEditRecord(stage)}
+              >
+                Cập nhật trạng thái
+              </Button>
             </div>
           ),
+
           status: stage.completed
             ? "finish"
             : stage.current
@@ -97,6 +139,15 @@ export function MedicalRecordOverview({
             : "wait",
         }))}
         progressDot
+      />
+
+      <UpdateMedicalRecordStatusModal
+        open={isUpdateModalOpen}
+        onCancel={onCancelUpdate}
+        onSubmit={(values) =>
+          onUpdateMedicalRecord(editingRecord!.medicalRecordId, values)
+        }
+        record={editingRecord}
       />
     </Card>
   );

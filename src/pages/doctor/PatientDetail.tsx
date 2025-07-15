@@ -431,6 +431,49 @@ export default function PatientDetailPage() {
       message.error("Tạo mới hồ sơ thất bại");
     }
   };
+
+  const [editingRecord, setEditingRecord] = useState<MedicalRecord | null>(
+    null
+  );
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const showUpdateStatusModal = (record: MedicalRecord) => {
+    setEditingRecord(record);
+    setIsUpdateModalOpen(true);
+  };
+
+  const handleUpdateMedicalRecord = async (
+    medicalRecordId: number,
+    values: {
+      endDate: string;
+      stage: string;
+      diagnosis: string;
+      status: string;
+      attempt: number;
+    }
+  ) => {
+    if (!customerIdNumber) return;
+
+    try {
+      const payload = {
+        endDate: dayjs(values.endDate).format("YYYY-MM-DD"),
+        stage: values.stage,
+        diagnosis: values.diagnosis,
+        status: values.status,
+        attempt: Number(values.attempt),
+      };
+
+      await DoctorApi.UpdateMedicalRecord(medicalRecordId, payload); // ✅ dùng tham số
+
+      const res = await DoctorApi.GetMedicalRecord(customerIdNumber);
+      setMedicalRecord(res.data);
+      setIsUpdateModalOpen(false);
+      message.success("Cập nhật hồ sơ điều trị thành công");
+    } catch (error) {
+      console.error("Lỗi khi cập nhật hồ sơ:", error);
+      message.error("Cập nhật hồ sơ thất bại");
+    }
+  };
+
   const PatientDetailContent = () => (
     <div>
       <div style={{ marginBottom: 32 }}>
@@ -494,6 +537,11 @@ export default function PatientDetailPage() {
                       setSelectedMedicalRecordId(medicalRecordId);
                       setActiveTab("medications"); // chuyển sang tab chứa MedicalManagement
                     }}
+                    onEditRecord={showUpdateStatusModal} // ✅ truyền ở đây
+                    editingRecord={editingRecord}
+                    isUpdateModalOpen={isUpdateModalOpen}
+                    onCancelUpdate={() => setIsUpdateModalOpen(false)}
+                    onUpdateMedicalRecord={handleUpdateMedicalRecord}
                   />
                   <MedicalRecordModal
                     open={isCreateMedicalRecordModalVisible}
