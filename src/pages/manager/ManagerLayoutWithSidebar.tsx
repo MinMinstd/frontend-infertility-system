@@ -30,11 +30,7 @@ const menuItems = [
   { key: "orders", icon: <HistoryOutlined />, label: "Quản lý lịch sử điều trị" },
 
 
-  {
-    key: "orders",
-    icon: <HistoryOutlined />,
-    label: "Quản lý lịch sử điều trị",
-  },
+ 
 
  
   { key: "customers", icon: <TeamOutlined />, label: "Quản lý người dùng" },

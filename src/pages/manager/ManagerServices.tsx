@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, message, Spin, Empty, Card, Typography } from 'antd';
+import { Table, message, Spin, Empty, Card, Typography, Radio } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { motion } from 'framer-motion';
 import { FileText } from 'lucide-react';
@@ -29,6 +29,8 @@ const ServiceSVG = () => (
 const ManagerServices: React.FC = () => {
   const [roadmaps, setRoadmaps] = useState<RoadmapWithId[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<'ALL' | 'IVF' | 'IUI'>('ALL');
+
   useEffect(() => {
     const fetchRoadmaps = async () => {
       setLoading(true);
@@ -44,6 +46,10 @@ const ManagerServices: React.FC = () => {
     };
     fetchRoadmaps();
   }, []);
+
+  const filteredRoadmaps = filter === 'ALL'
+    ? roadmaps
+    : roadmaps.filter(r => r.serviceName.toLowerCase().includes(filter.toLowerCase()));
 
   const columns: ColumnsType<RoadmapWithId> = [
     {
@@ -102,6 +108,19 @@ const ManagerServices: React.FC = () => {
         </div>
         {/* End Banner */}
         <Card className="bg-white rounded-2xl shadow-lg p-6 mt-6 relative">
+          {/* Bộ lọc dịch vụ */}
+          <div className="mb-4 flex justify-end">
+            <Radio.Group
+              value={filter}
+              onChange={e => setFilter(e.target.value)}
+              optionType="button"
+              buttonStyle="solid"
+            >
+              <Radio.Button value="ALL">Tất cả</Radio.Button>
+              <Radio.Button value="IVF">IVF</Radio.Button>
+              <Radio.Button value="IUI">IUI</Radio.Button>
+            </Radio.Group>
+          </div>
           {/* SVG dịch vụ nhỏ góc phải card */}
           <div className="absolute right-6 bottom-6 opacity-10 pointer-events-none select-none"><ServiceSVG /></div>
           {loading ? (
@@ -116,7 +135,7 @@ const ManagerServices: React.FC = () => {
             >
               <Table
                 columns={columns}
-                dataSource={roadmaps}
+                dataSource={filteredRoadmaps}
                 rowKey="id"
                 className="rounded-xl overflow-hidden shadow"
                 pagination={{ pageSize: 10 }}
