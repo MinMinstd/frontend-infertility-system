@@ -20,7 +20,6 @@ import {
 } from "antd";
 import { useEffect, useState } from "react";
 import {
-  PlusOutlined,
   CalendarOutlined,
   ClockCircleOutlined,
   UserOutlined,
@@ -228,10 +227,10 @@ export function BookingHistoryModal({
     }
   };
 
-  const handleCreateNew = () => {
-    // Logic for creating new booking - you can customize this
-    message.info("Chức năng tạo booking mới");
-  };
+  // const handleCreateNew = () => {
+  //   // Logic for creating new booking - you can customize this
+  //   message.info("Chức năng tạo booking mới");
+  // };
 
   return (
     <Modal
@@ -246,7 +245,7 @@ export function BookingHistoryModal({
               Lịch sử đặt lịch khám
             </Title>
           </Col>
-          <Col>
+          {/* <Col>
             <Button
               type="primary"
               icon={<PlusOutlined />}
@@ -255,7 +254,7 @@ export function BookingHistoryModal({
             >
               Tạo booking mới
             </Button>
-          </Col>
+          </Col> */}
         </Row>
       }
       className="booking-history-modal"

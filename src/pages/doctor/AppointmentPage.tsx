@@ -17,7 +17,6 @@ import {
 import {
   ClockCircleOutlined,
   CalendarOutlined,
-  PlusOutlined,
   SearchOutlined,
   UserOutlined,
   IdcardOutlined,
@@ -130,15 +129,6 @@ export default function DoctorSchedule() {
             <Text type="secondary" className="text-gray-600">
               Manage patient appointments and scheduling
             </Text>
-          </Col>
-          <Col>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              className="bg-pink-500 border-pink-500 hover:bg-pink-600 hover:border-pink-600"
-            >
-              New Appointment
-            </Button>
           </Col>
         </Row>
       </div>
@@ -277,9 +267,6 @@ export default function DoctorSchedule() {
                       }}
                     >
                       View Details
-                    </Button>
-                    <Button className="border-pink-500 text-pink-500 hover:border-pink-600 hover:text-pink-600">
-                      Edit
                     </Button>
                   </Space>
                 </List.Item>

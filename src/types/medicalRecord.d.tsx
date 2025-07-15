@@ -161,6 +161,13 @@ export interface ConsulationResult_typeTest {
   typeTests: TypeTest[];
 }
 
+export interface UpdateConsulation {
+  date: string;
+  resultValue: string;
+  note: string;
+  typeTest: TypeTest[];
+}
+
 //Medical record
 export interface MedicalRecord {
   bookingId: number;

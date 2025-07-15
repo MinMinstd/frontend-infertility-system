@@ -8,12 +8,14 @@ interface ConsulationResultsProps {
   consulationResults: ConsulationResult_typeTest[];
   onAddTest: () => void;
   onAddTypeTest?: () => void;
+  onUpdateConsulationResult?: (record: ConsulationResult_typeTest) => void;
 }
 
 export function ConsulationResults({
   consulationResults,
   onAddTypeTest,
   onAddTest,
+  onUpdateConsulationResult,
 }: ConsulationResultsProps) {
   return (
     <Card
@@ -38,7 +40,7 @@ export function ConsulationResults({
         <Button
           type="dashed"
           icon={<PlusOutlined />}
-          onClick={onAddTypeTest} // 👈 gọi prop mở modal TypeTest
+          onClick={onAddTypeTest}
           style={{
             borderColor: "#ff69b4",
             color: "#ff69b4",
@@ -74,6 +76,7 @@ export function ConsulationResults({
                   type="text"
                   icon={<EditOutlined />}
                   style={{ color: "#ff69b4" }}
+                  onClick={() => onUpdateConsulationResult?.(result)}
                 />
               </Space>
             }
