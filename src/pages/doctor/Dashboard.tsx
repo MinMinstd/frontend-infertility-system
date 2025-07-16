@@ -1,247 +1,312 @@
-import { Card, Typography, Space, Badge, Row, Col, Statistic } from "antd";
+// File: src/pages/doctor/Dashboard.tsx
+
+import { useEffect, useState } from "react";
+import { Card, Typography, Row, Col, Statistic, Space, Spin } from "antd";
 import {
-  CalendarOutlined,
   UserOutlined,
-  RiseOutlined,
-  ExperimentOutlined,
-  WarningOutlined,
+  FileTextOutlined,
+  CheckCircleOutlined,
+  MedicineBoxOutlined,
 } from "@ant-design/icons";
 import { DoctorSidebar } from "./DoctorSidebar";
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title as ChartTitle,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
-const { Title, Text, Paragraph } = Typography;
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  ChartTitle,
+  Tooltip,
+  Legend
+);
+
+const { Title } = Typography;
+
+// Interface cho Chart.js data
+interface ChartData {
+  labels: string[];
+  datasets: {
+    label: string;
+    data: number[];
+    borderColor: string;
+    backgroundColor: string;
+    tension: number;
+    fill: boolean;
+  }[];
+}
+
+// Mock data - thay thế bằng API thực tế sau này
+const mockData = {
+  totalPatients: 127, // Tổng số bệnh nhân từ Customers
+  activeRecords: 23, // Hồ sơ điều trị đang theo dõi (status ≠ "Thành công")
+  completedSteps: 45, // Bước điều trị hoàn tất (status = "Complete")
+  doctorAppointments: 89, // Số lượt khám bác sĩ đã thực hiện
+  monthlyRecords: {
+    "Th1 2024": 8,
+    "Th2 2024": 12,
+    "Th3 2024": 15,
+    "Th4 2024": 18,
+    "Th5 2024": 22,
+    "Th6 2024": 25,
+    "Th7 2024": 20,
+    "Th8 2024": 28,
+    "Th9 2024": 30,
+    "Th10 2024": 26,
+    "Th11 2024": 32,
+    "Th12 2024": 35,
+  },
+};
 
 export default function Dashboard() {
-  const stats = [
-    {
-      title: "Active Patients",
-      value: "127",
-      change: "+12%",
-      icon: UserOutlined,
-      color: "#ff69b4",
-    },
-    {
-      title: "Today's Appointments",
-      value: "8",
-      change: "2 pending",
-      icon: CalendarOutlined,
-      color: "#ff1493",
-    },
-    {
-      title: "IVF Cycles",
-      value: "23",
-      change: "5 in progress",
-      icon: ExperimentOutlined,
-      color: "#ff69b4",
-    },
-    {
-      title: "Success Rate",
-      value: "68%",
-      change: "+5%",
-      icon: RiseOutlined,
-      color: "#ff1493",
-    },
-  ];
+  const [loading, setLoading] = useState(true);
+  const [dashboardStats, setDashboardStats] = useState({
+    totalPatients: 0,
+    activeRecords: 0,
+    completedSteps: 0,
+    doctorAppointments: 0,
+  });
+  const [chartData, setChartData] = useState<ChartData | null>(null);
 
-  const recentActivities = [
-    {
-      patient: "Sarah Johnson",
-      action: "Egg retrieval completed",
-      time: "2 hours ago",
-      type: "IVF",
-      status: "success",
-    },
-    {
-      patient: "Maria Garcia",
-      action: "Ultrasound scheduled",
-      time: "4 hours ago",
-      type: "IUI",
-      status: "pending",
-    },
-    {
-      patient: "Lisa Chen",
-      action: "Hormone levels updated",
-      time: "6 hours ago",
-      type: "IVF",
-      status: "normal",
-    },
-  ];
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        // Simulate API call delay
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  const urgentTasks = [
-    {
-      patient: "Emma Wilson",
-      task: "Review fertilization results",
-      priority: "high",
-      dueTime: "In 30 minutes",
-    },
-    {
-      patient: "Anna Brown",
-      task: "Schedule egg transfer",
-      priority: "medium",
-      dueTime: "Today 3:00 PM",
-    },
-  ];
+        // Set mock data
+        setDashboardStats({
+          totalPatients: mockData.totalPatients,
+          activeRecords: mockData.activeRecords,
+          completedSteps: mockData.completedSteps,
+          doctorAppointments: mockData.doctorAppointments,
+        });
 
-  const DashboardContent = () => (
-    <div>
-      <Space direction="vertical" size="large" className="w-full">
-        <div>
-          <Title level={2} style={{ color: "#ff69b4" }}>
-            Dashboard
-          </Title>
-          <Paragraph style={{ color: "#666" }}>
-            Welcome back, Dr. Smith. Here's your overview for today.
-          </Paragraph>
-        </div>
+        // Prepare chart data
+        setChartData({
+          labels: Object.keys(mockData.monthlyRecords),
+          datasets: [
+            {
+              label: "Hồ sơ điều trị theo tháng",
+              data: Object.values(mockData.monthlyRecords),
+              borderColor: "#ff69b4",
+              backgroundColor: "rgba(255, 105, 180, 0.1)",
+              tension: 0.4,
+              fill: true,
+            },
+          ],
+        });
+      } catch (err) {
+        console.error("Dashboard load error", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-        <Row gutter={[16, 16]}>
-          {stats.map((stat, index) => (
-            <Col xs={24} sm={12} lg={6} key={index}>
-              <Card
-                style={{
-                  borderColor: stat.color,
-                  boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
-                }}
-              >
-                <Statistic
-                  title={
-                    <span style={{ color: stat.color }}>{stat.title}</span>
-                  }
-                  value={stat.value}
-                  valueStyle={{ color: stat.color }}
-                  prefix={getIconForStat(stat.title)}
-                  suffix={<Text type="secondary">{stat.change}</Text>}
-                />
-              </Card>
-            </Col>
-          ))}
-        </Row>
-
-        <Row gutter={[16, 16]}>
-          <Col xs={24} lg={12}>
-            <Card
-              title={
-                <span style={{ color: "#ff69b4" }}>Recent Activities</span>
-              }
-              bordered={false}
-              style={{
-                borderColor: "#ff69b4",
-                boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
-              }}
-            >
-              <Space direction="vertical" className="w-full">
-                {recentActivities.map((activity, index) => (
-                  <Card
-                    key={index}
-                    size="small"
-                    className="w-full"
-                    style={{
-                      borderColor: "#ffb6c1",
-                      backgroundColor: "#fff5f7",
-                    }}
-                  >
-                    <Space direction="vertical">
-                      <Space className="w-full justify-between">
-                        <Text strong style={{ color: "#ff69b4" }}>
-                          {activity.patient}
-                        </Text>
-                        <Space>
-                          <Badge color="#ff69b4" text={activity.type} />
-                          <Badge
-                            status={getStatusBadge(activity.status)}
-                            text={activity.status}
-                          />
-                        </Space>
-                      </Space>
-                      <Text>{activity.action}</Text>
-                      <Text type="secondary">{activity.time}</Text>
-                    </Space>
-                  </Card>
-                ))}
-              </Space>
-            </Card>
-          </Col>
-
-          <Col xs={24} lg={12}>
-            <Card
-              title={
-                <Space>
-                  <WarningOutlined style={{ color: "#ff69b4" }} />
-                  <Text style={{ color: "#ff69b4" }}>Urgent Tasks</Text>
-                </Space>
-              }
-              bordered={false}
-              style={{
-                borderColor: "#ff69b4",
-                boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
-              }}
-            >
-              <Space direction="vertical" className="w-full">
-                {urgentTasks.map((task, index) => (
-                  <Card
-                    key={index}
-                    size="small"
-                    className="w-full"
-                    style={{
-                      borderColor: "#ffb6c1",
-                      backgroundColor: "#fff5f7",
-                    }}
-                  >
-                    <Space direction="vertical">
-                      <Space className="w-full justify-between">
-                        <Text strong style={{ color: "#ff69b4" }}>
-                          {task.patient}
-                        </Text>
-                        <Badge
-                          color={
-                            task.priority === "high" ? "#ff1493" : "#ff69b4"
-                          }
-                          text={task.priority}
-                        />
-                      </Space>
-                      <Text>{task.task}</Text>
-                      <Text style={{ color: "#ff1493" }}>{task.dueTime}</Text>
-                    </Space>
-                  </Card>
-                ))}
-              </Space>
-            </Card>
-          </Col>
-        </Row>
-      </Space>
-    </div>
-  );
+    fetchDashboardData();
+  }, []);
 
   return (
     <DoctorSidebar>
-      <DashboardContent />
+      <div>
+        <Title level={2} style={{ color: "#ff69b4" }}>
+          Dashboard Bác Sĩ
+        </Title>
+        {loading ? (
+          <Spin size="large" />
+        ) : (
+          <Space direction="vertical" size="large" className="w-full">
+            <Row gutter={[16, 16]}>
+              <Col xs={24} sm={12} lg={6}>
+                <Card
+                  style={{
+                    borderColor: "#ff69b4",
+                    boxShadow: "0 4px 12px rgba(255, 105, 180, 0.15)",
+                  }}
+                >
+                  <Statistic
+                    title={
+                      <span style={{ color: "#ff69b4", fontWeight: 600 }}>
+                        Tổng số bệnh nhân
+                      </span>
+                    }
+                    value={dashboardStats.totalPatients}
+                    prefix={<UserOutlined style={{ color: "#ff69b4" }} />}
+                    valueStyle={{ color: "#ff69b4", fontSize: "24px" }}
+                  />
+                  <div
+                    style={{
+                      color: "#666",
+                      fontSize: "12px",
+                      marginTop: "4px",
+                    }}
+                  >
+                    Từ bảng Customers
+                  </div>
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} lg={6}>
+                <Card
+                  style={{
+                    borderColor: "#ff1493",
+                    boxShadow: "0 4px 12px rgba(255, 20, 147, 0.15)",
+                  }}
+                >
+                  <Statistic
+                    title={
+                      <span style={{ color: "#ff1493", fontWeight: 600 }}>
+                        Hồ sơ điều trị đang theo dõi
+                      </span>
+                    }
+                    value={dashboardStats.activeRecords}
+                    prefix={<FileTextOutlined style={{ color: "#ff1493" }} />}
+                    valueStyle={{ color: "#ff1493", fontSize: "24px" }}
+                  />
+                  <div
+                    style={{
+                      color: "#666",
+                      fontSize: "12px",
+                      marginTop: "4px",
+                    }}
+                  >
+                    MedicalRecords status ≠ Thành công
+                  </div>
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} lg={6}>
+                <Card
+                  style={{
+                    borderColor: "#ff69b4",
+                    boxShadow: "0 4px 12px rgba(255, 105, 180, 0.15)",
+                  }}
+                >
+                  <Statistic
+                    title={
+                      <span style={{ color: "#ff69b4", fontWeight: 600 }}>
+                        Bước điều trị hoàn tất
+                      </span>
+                    }
+                    value={dashboardStats.completedSteps}
+                    prefix={
+                      <CheckCircleOutlined style={{ color: "#ff69b4" }} />
+                    }
+                    valueStyle={{ color: "#ff69b4", fontSize: "24px" }}
+                  />
+                  <div
+                    style={{
+                      color: "#666",
+                      fontSize: "12px",
+                      marginTop: "4px",
+                    }}
+                  >
+                    MedicalRecordDetails status = Complete
+                  </div>
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} lg={6}>
+                <Card
+                  style={{
+                    borderColor: "#ff1493",
+                    boxShadow: "0 4px 12px rgba(255, 20, 147, 0.15)",
+                  }}
+                >
+                  <Statistic
+                    title={
+                      <span style={{ color: "#ff1493", fontWeight: 600 }}>
+                        🩺 Số lượt khám bác sĩ đã thực hiện
+                      </span>
+                    }
+                    value={dashboardStats.doctorAppointments}
+                    prefix={
+                      <MedicineBoxOutlined style={{ color: "#ff1493" }} />
+                    }
+                    valueStyle={{ color: "#ff1493", fontSize: "24px" }}
+                  />
+                  <div
+                    style={{
+                      color: "#666",
+                      fontSize: "12px",
+                      marginTop: "4px",
+                    }}
+                  >
+                    Bookings → DoctorSchedules.DoctorId
+                  </div>
+                </Card>
+              </Col>
+            </Row>
+
+            <Card
+              title={
+                <span
+                  style={{
+                    color: "#ff69b4",
+                    fontSize: "18px",
+                    fontWeight: 600,
+                  }}
+                >
+                  📊 Biểu đồ hồ sơ điều trị theo tháng
+                </span>
+              }
+              style={{
+                borderColor: "#ff69b4",
+                boxShadow: "0 4px 12px rgba(255, 105, 180, 0.15)",
+              }}
+            >
+              <div
+                style={{
+                  color: "#666",
+                  fontSize: "14px",
+                  marginBottom: "16px",
+                }}
+              >
+                Dữ liệu từ MedicalRecords.StartDate group by month
+              </div>
+              {chartData && (
+                <div style={{ height: "400px" }}>
+                  <Line
+                    data={chartData}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          position: "top" as const,
+                        },
+                        title: {
+                          display: false,
+                        },
+                      },
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          grid: {
+                            color: "rgba(255, 105, 180, 0.1)",
+                          },
+                        },
+                        x: {
+                          grid: {
+                            color: "rgba(255, 105, 180, 0.1)",
+                          },
+                        },
+                      },
+                    }}
+                  />
+                </div>
+              )}
+            </Card>
+          </Space>
+        )}
+      </div>
     </DoctorSidebar>
   );
-}
-
-function getStatusBadge(status: string) {
-  switch (status) {
-    case "success":
-      return "success";
-    case "pending":
-      return "processing";
-    case "normal":
-      return "default";
-    default:
-      return "default";
-  }
-}
-
-function getIconForStat(title: string) {
-  switch (title) {
-    case "Active Patients":
-      return <UserOutlined style={{ color: "#ff69b4" }} />;
-    case "Today's Appointments":
-      return <CalendarOutlined style={{ color: "#ff1493" }} />;
-    case "IVF Cycles":
-      return <ExperimentOutlined style={{ color: "#ff69b4" }} />;
-    case "Success Rate":
-      return <RiseOutlined style={{ color: "#ff1493" }} />;
-    default:
-      return null;
-  }
 }
