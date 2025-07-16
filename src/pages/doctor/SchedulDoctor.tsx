@@ -1,28 +1,19 @@
+// File: src/pages/doctor/ScheduleDoctor.tsx
+
 "use client";
 
-import { useState } from "react";
-import {
-  Card,
-  Button,
-  Tag,
-  Typography,
-  Row,
-  Col,
-  Space,
-  Divider,
-  notification,
-} from "antd";
-import { ClockCircleOutlined, UserOutlined } from "@ant-design/icons";
+import { useEffect, useState } from "react";
+import { Card, Tag, Typography, Row, Col, Space, Divider, Empty } from "antd";
+import { ClockCircleOutlined, CalendarOutlined } from "@ant-design/icons";
+import DoctorApi from "../../servers/doctor.api";
 import { DoctorSidebar } from "./DoctorSidebar";
+import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
 
 interface TimeSlot {
   time: string;
-  isBooked: boolean;
-  patientName?: string;
-  patientId?: number;
-  treatmentType?: string;
+  isAvailable: boolean;
 }
 
 interface DaySchedule {
@@ -32,263 +23,173 @@ interface DaySchedule {
   afternoon: TimeSlot[];
 }
 
-export default function SchedulePage() {
-  const createMorningSlots = (): TimeSlot[] => {
-    const slots: TimeSlot[] = [];
-    for (let hour = 7; hour <= 11; hour++) {
-      if (hour === 7) {
-        slots.push({ time: "7:30 - 8:00", isBooked: false });
-      } else if (hour === 11) {
-        slots.push({ time: "11:00 - 11:30", isBooked: false });
-      } else {
-        slots.push({ time: `${hour}:00 - ${hour}:30`, isBooked: false });
-        slots.push({ time: `${hour}:30 - ${hour + 1}:00`, isBooked: false });
-      }
-    }
-    return slots;
-  };
+interface DoctorSchedule {
+  workDate: string;
+  startTime: string;
+  endTime: string;
+  status: string;
+}
 
-  const createAfternoonSlots = (): TimeSlot[] => {
-    const slots: TimeSlot[] = [];
-    for (let hour = 13; hour <= 16; hour++) {
-      if (hour === 13) {
-        slots.push({ time: "13:30 - 14:00", isBooked: false });
-      }
-      if (hour >= 14) {
-        slots.push({ time: `${hour}:00 - ${hour}:30`, isBooked: false });
-      }
-      if (hour <= 16) {
-        slots.push({ time: `${hour}:30 - ${hour + 1}:00`, isBooked: false });
-      }
-    }
-    return slots;
-  };
+export default function ScheduleDoctor() {
+  const [schedule, setSchedule] = useState<DaySchedule[]>([]);
 
-  const [schedule, setSchedule] = useState<DaySchedule[]>([
-    {
-      day: "Monday",
-      date: "20/01/2025",
-      morning: createMorningSlots(),
-      afternoon: createAfternoonSlots(),
-    },
-    {
-      day: "Tuesday",
-      date: "21/01/2025",
-      morning: createMorningSlots(),
-      afternoon: createAfternoonSlots(),
-    },
-    {
-      day: "Wednesday",
-      date: "22/01/2025",
-      morning: createMorningSlots(),
-      afternoon: createAfternoonSlots(),
-    },
-    {
-      day: "Thursday",
-      date: "23/01/2025",
-      morning: createMorningSlots(),
-      afternoon: createAfternoonSlots(),
-    },
-    {
-      day: "Friday",
-      date: "24/01/2025",
-      morning: createMorningSlots(),
-      afternoon: createAfternoonSlots(),
-    },
-    {
-      day: "Saturday",
-      date: "25/01/2025",
-      morning: createMorningSlots(),
-      afternoon: createAfternoonSlots(),
-    },
-  ]);
+  useEffect(() => {
+    const fetchSchedule = async () => {
+      try {
+        const res = await DoctorApi.GetListSchedule();
+        const rawSchedules: DoctorSchedule[] = res.data;
 
-  const [api, contextHolder] = notification.useNotification();
+        const grouped: Record<string, DaySchedule> = {};
 
-  const toggleSlot = (
-    dayIndex: number,
-    period: "morning" | "afternoon",
-    slotIndex: number
-  ) => {
-    setSchedule((prev) => {
-      const newSchedule = [...prev];
-      const slot = newSchedule[dayIndex][period][slotIndex];
-      const day = newSchedule[dayIndex];
+        rawSchedules.forEach((slot) => {
+          const date = dayjs(slot.workDate).format("DD/MM/YYYY");
+          const day = dayjs(slot.workDate).format("dddd");
+          const start = dayjs(`${slot.workDate} ${slot.startTime}`);
+          const end = dayjs(`${slot.workDate} ${slot.endTime}`);
 
-      if (!slot.isBooked) {
-        slot.isBooked = true;
-        slot.patientName = "New Patient";
-        slot.treatmentType = "IVF Consultation";
+          const period = start.hour() < 12 ? "morning" : "afternoon";
+          const timeSlots: TimeSlot[] = [];
 
-        api.success({
-          message: "New Appointment Booked!",
-          description: `${slot.patientName} scheduled for ${slot.time}, ${day.day} (${day.date})`,
-          placement: "topRight",
-          duration: 4,
+          let current = start;
+          while (current.isBefore(end)) {
+            const next = current.add(30, "minute");
+            timeSlots.push({
+              time: `${current.format("HH:mm")} - ${next.format("HH:mm")}`,
+              isAvailable: slot.status === "Available",
+            });
+            current = next;
+          }
+
+          if (!grouped[date]) {
+            grouped[date] = {
+              day,
+              date,
+              morning: [],
+              afternoon: [],
+            };
+          }
+
+          grouped[date][period].push(...timeSlots);
         });
-      } else {
-        slot.isBooked = false;
-        slot.patientName = undefined;
-        slot.treatmentType = undefined;
+
+        const newSchedule = Object.values(grouped);
+        setSchedule(newSchedule);
+      } catch (error) {
+        console.error("Lỗi khi tải lịch làm việc:", error);
       }
+    };
 
-      return newSchedule;
-    });
-  };
+    fetchSchedule();
+  }, []);
 
-  const TimeSlotButton = ({
-    slot,
-    onClick,
-  }: {
-    slot: TimeSlot;
-    onClick: () => void;
-  }) => (
-    <Button
-      type={slot.isBooked ? "primary" : "default"}
-      className={`w-full h-16 flex flex-col justify-center items-center transition-all duration-200 ${
-        slot.isBooked
-          ? "bg-gradient-to-r from-blue-500 to-blue-600 border-blue-500 shadow-md"
-          : "bg-white border-gray-300 hover:border-blue-400 hover:shadow-sm"
+  const TimeSlotDisplay = ({ slot }: { slot: TimeSlot }) => (
+    <div
+      className={`w-full h-14 flex flex-col justify-center items-center rounded border text-sm font-medium text-center ${
+        slot.isAvailable
+          ? "bg-white border-green-400 text-green-700"
+          : "bg-gray-100 border-gray-300 text-gray-400 line-through opacity-70"
       }`}
-      onClick={onClick}
     >
-      <div className="text-xs font-medium">{slot.time}</div>
-      {slot.isBooked && slot.patientName && (
-        <div className="text-xs flex items-center gap-1 mt-1">
-          <UserOutlined className="text-xs" />
-          <span className="truncate max-w-20">{slot.patientName}</span>
-        </div>
-      )}
-      {slot.isBooked && slot.treatmentType && (
-        <div className="text-xs opacity-80 truncate max-w-24">
-          {slot.treatmentType}
-        </div>
-      )}
-    </Button>
+      {slot.time}
+      <Tag
+        color={slot.isAvailable ? "green" : "default"}
+        className="mt-1 text-xs"
+      >
+        {slot.isAvailable ? "Available" : "Unavailable"}
+      </Tag>
+    </div>
   );
 
   const ScheduleContent = () => (
-    <div className="max-w-7xl mx-auto">
-      {contextHolder}
-      <Row gutter={[24, 24]}>
-        {schedule.map((day, dayIndex) => (
-          <Col key={dayIndex} xs={24} lg={12} xl={8}>
-            <Card
-              className="shadow-lg h-full border-0 hover:shadow-xl transition-shadow duration-300"
-              title={
-                <div className="flex items-center justify-between">
-                  <span className="text-lg font-semibold text-gray-800">
-                    {day.day}
-                  </span>
-                  <Tag color="blue" className="font-medium">
-                    {day.date}
-                  </Tag>
-                </div>
-              }
-            >
-              <Space direction="vertical" className="w-full" size="large">
-                <div>
-                  <Space align="center" className="mb-3">
-                    <ClockCircleOutlined className="text-orange-500" />
-                    <Text strong className="text-gray-700">
-                      Morning
-                    </Text>
-                    <Tag color="orange">7:30 - 11:30</Tag>
-                  </Space>
-                  <Row gutter={[8, 8]}>
-                    {day.morning.map((slot, slotIndex) => (
-                      <Col key={slotIndex} span={12}>
-                        <TimeSlotButton
-                          slot={slot}
-                          onClick={() =>
-                            toggleSlot(dayIndex, "morning", slotIndex)
-                          }
-                        />
-                      </Col>
-                    ))}
-                  </Row>
-                </div>
+    <div className="w-full px-2 py-3">
+      <div className="flex items-center gap-2 mb-6">
+        <CalendarOutlined className="text-2xl text-blue-500" />
+        <Title level={3} style={{ margin: 0 }}>
+          Lịch làm việc của bác sĩ
+        </Title>
+      </div>
 
-                <Divider />
-                <div className="text-center">
-                  <Tag color="gold" className="px-4 py-1">
-                    Lunch Break: 11:30 - 13:30
-                  </Tag>
-                </div>
-                <Divider />
+      {schedule.length === 0 ? (
+        <Empty description="Không có lịch làm việc" />
+      ) : (
+        <Row gutter={[24, 24]}>
+          {schedule.map((day, dayIndex) => (
+            <Col key={dayIndex} xs={24} lg={12} xl={8}>
+              <Card
+                bordered={false}
+                className="shadow-md hover:shadow-lg transition"
+                title={
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-lg text-gray-800">
+                      {day.day}
+                    </span>
+                    <Tag color="blue">{day.date}</Tag>
+                  </div>
+                }
+              >
+                <Space direction="vertical" className="w-full" size="large">
+                  {day.morning.length > 0 && (
+                    <>
+                      <Space align="center" className="mb-2">
+                        <ClockCircleOutlined className="text-orange-500" />
+                        <Text strong className="text-gray-700">
+                          Buổi sáng
+                        </Text>
+                      </Space>
+                      <Row gutter={[8, 8]}>
+                        {day.morning.map((slot, idx) => (
+                          <Col span={12} key={idx}>
+                            <TimeSlotDisplay slot={slot} />
+                          </Col>
+                        ))}
+                      </Row>
+                      <Divider />
+                    </>
+                  )}
 
-                <div>
-                  <Space align="center" className="mb-3">
-                    <ClockCircleOutlined className="text-blue-500" />
-                    <Text strong className="text-gray-700">
-                      Afternoon
-                    </Text>
-                    <Tag color="blue">13:30 - 17:00</Tag>
-                  </Space>
-                  <Row gutter={[8, 8]}>
-                    {day.afternoon.map((slot, slotIndex) => (
-                      <Col key={slotIndex} span={12}>
-                        <TimeSlotButton
-                          slot={slot}
-                          onClick={() =>
-                            toggleSlot(dayIndex, "afternoon", slotIndex)
-                          }
-                        />
-                      </Col>
-                    ))}
-                  </Row>
-                </div>
-
-                <Divider />
-                <div className="flex justify-between">
-                  <Text type="secondary">
-                    Booked:{" "}
-                    <Text strong className="text-blue-600">
-                      {day.morning.filter((s) => s.isBooked).length +
-                        day.afternoon.filter((s) => s.isBooked).length}
-                    </Text>
-                  </Text>
-                  <Text type="secondary">
-                    Available:{" "}
-                    <Text strong className="text-green-600">
-                      {day.morning.filter((s) => !s.isBooked).length +
-                        day.afternoon.filter((s) => !s.isBooked).length}
-                    </Text>
-                  </Text>
-                </div>
-              </Space>
-            </Card>
-          </Col>
-        ))}
-      </Row>
+                  {day.afternoon.length > 0 && (
+                    <>
+                      <Space align="center" className="mb-2">
+                        <ClockCircleOutlined className="text-blue-500" />
+                        <Text strong className="text-gray-700">
+                          Buổi chiều
+                        </Text>
+                      </Space>
+                      <Row gutter={[8, 8]}>
+                        {day.afternoon.map((slot, idx) => (
+                          <Col span={12} key={idx}>
+                            <TimeSlotDisplay slot={slot} />
+                          </Col>
+                        ))}
+                      </Row>
+                    </>
+                  )}
+                </Space>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      )}
 
       <Card className="mt-6 border-0 shadow-md">
-        <Title level={4}>Legend:</Title>
+        <Title level={5}>Chú thích:</Title>
         <Space wrap size="large">
           <Space align="center">
-            <div className="w-4 h-4 bg-white border border-gray-300 rounded"></div>
-            <Text>Available time slot</Text>
+            <div className="w-4 h-4 bg-white border border-green-400 rounded" />
+            <Text>Ca làm việc trống</Text>
           </Space>
           <Space align="center">
-            <div className="w-4 h-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded"></div>
-            <Text>Booked appointment</Text>
+            <div className="w-4 h-4 bg-gray-100 border border-gray-300 rounded line-through" />
+            <Text>Ca không sẵn sàng</Text>
           </Space>
           <Space align="center">
             <ClockCircleOutlined className="text-gray-500" />
-            <Text>Each slot: 30 minutes</Text>
-          </Space>
-          <Space align="center">
-            <UserOutlined className="text-blue-500" />
-            <Text>Click to book/cancel appointments</Text>
+            <Text>Mỗi slot: 30 phút</Text>
           </Space>
         </Space>
       </Card>
     </div>
   );
 
-  return (
-    <DoctorSidebar>
-      <ScheduleContent />
-    </DoctorSidebar>
-  );
+  return <DoctorSidebar>{<ScheduleContent />}</DoctorSidebar>;
 }

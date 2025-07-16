@@ -12,12 +12,7 @@ import {
   Col,
   Spin,
 } from "antd";
-import {
-  SearchOutlined,
-  FilterOutlined,
-  EyeOutlined,
-  EditOutlined,
-} from "@ant-design/icons";
+import { SearchOutlined, FilterOutlined, EyeOutlined } from "@ant-design/icons";
 
 import { useNavigate } from "react-router-dom";
 import { DoctorSidebar } from "./DoctorSidebar";
@@ -122,12 +117,6 @@ export default function PatientsPage() {
               style={{ backgroundColor: "#ff69b4", borderColor: "#ff69b4" }}
             >
               View Details
-            </Button>
-            <Button
-              icon={<EditOutlined />}
-              style={{ borderColor: "#ff69b4", color: "#ff69b4" }}
-            >
-              Edit
             </Button>
           </Space>
         </Col>
