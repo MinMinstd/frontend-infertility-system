@@ -34,3 +34,10 @@ export type TreatmentOverview = {
   description: string;
   durationDay: number;
 };
+
+export interface DoctorSchedule {
+  workDate: string;
+  startTime: string;
+  endTime: string;
+  status: string;
+}

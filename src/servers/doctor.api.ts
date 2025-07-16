@@ -290,6 +290,11 @@ const DoctorApi = {
   UpdateEmbryo: (embryoId: number, data: UpdateEmbryo) => {
     return axiosClient.put(`Embryos/embryo/${embryoId}`, data);
   },
+
+  // schedule for job
+  GetListSchedule: () => {
+    return axiosClient.get(`/DoctorSchedule/GetFullScheduleForDoctor`);
+  },
 };
 
 export default DoctorApi;
