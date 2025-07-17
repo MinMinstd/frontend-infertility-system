@@ -47,3 +47,13 @@ export interface PaymentInfo {
   price: number;
   paymentId: number;
 }
+
+export interface Embryo {
+  embryoId: number;
+  createAt: string;
+  transferredAt: string;
+  quality: string;
+  type: string;
+  status: string;
+  note: string;
+}

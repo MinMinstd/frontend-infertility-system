@@ -107,14 +107,23 @@ export default function TreatmentHistoryPage() {
   const TreatmentHistoryContent = () => (
     <div>
       <div style={{ marginBottom: 32 }}>
-        <Title level={2} style={{ color: "#ff69b4" }}>Treatment History</Title>
-        <Text style={{ color: "#666" }}>Complete overview of all patient treatments and outcomes</Text>
+        <Title level={2} style={{ color: "#ff69b4" }}>
+          Treatment History
+        </Title>
+        <Text style={{ color: "#666" }}>
+          Complete overview of all patient treatments and outcomes
+        </Text>
       </div>
 
       {/* Stats Cards */}
       <Row gutter={[16, 16]} style={{ marginBottom: 32 }}>
         <Col xs={24} sm={12} lg={6}>
-          <Card style={{ borderColor: "#ff69b4", boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)" }}>
+          <Card
+            style={{
+              borderColor: "#ff69b4",
+              boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
+            }}
+          >
             <Statistic
               title={<span style={{ color: "#ff69b4" }}>Total Completed</span>}
               value={treatmentStats.totalCompleted}
@@ -124,9 +133,16 @@ export default function TreatmentHistoryPage() {
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
-          <Card style={{ borderColor: "#ff1493", boxShadow: "0 2px 8px rgba(255, 20, 147, 0.1)" }}>
+          <Card
+            style={{
+              borderColor: "#ff1493",
+              boxShadow: "0 2px 8px rgba(255, 20, 147, 0.1)",
+            }}
+          >
             <Statistic
-              title={<span style={{ color: "#ff1493" }}>Successful Pregnancies</span>}
+              title={
+                <span style={{ color: "#ff1493" }}>Successful Pregnancies</span>
+              }
               value={treatmentStats.successfulPregnancies}
               prefix={<HeartOutlined style={{ color: "#ff1493" }} />}
               valueStyle={{ color: "#ff1493" }}
@@ -134,7 +150,12 @@ export default function TreatmentHistoryPage() {
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
-          <Card style={{ borderColor: "#ff69b4", boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)" }}>
+          <Card
+            style={{
+              borderColor: "#ff69b4",
+              boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
+            }}
+          >
             <Statistic
               title={<span style={{ color: "#ff69b4" }}>Success Rate</span>}
               value={treatmentStats.successRate}
@@ -145,7 +166,12 @@ export default function TreatmentHistoryPage() {
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
-          <Card style={{ borderColor: "#ff1493", boxShadow: "0 2px 8px rgba(255, 20, 147, 0.1)" }}>
+          <Card
+            style={{
+              borderColor: "#ff1493",
+              boxShadow: "0 2px 8px rgba(255, 20, 147, 0.1)",
+            }}
+          >
             <Statistic
               title={<span style={{ color: "#ff1493" }}>Avg. Cycles</span>}
               value={treatmentStats.averageCycles}
@@ -210,11 +236,16 @@ export default function TreatmentHistoryPage() {
                     <Row align="middle" justify="space-between">
                       <Col xs={24} md={6}>
                         <div>
-                          <Text strong style={{ fontSize: 16, color: "#ff69b4" }}>
+                          <Text
+                            strong
+                            style={{ fontSize: 16, color: "#ff69b4" }}
+                          >
                             {treatment.patient}
                           </Text>
                           <div>
-                            <Text type="secondary">{treatment.treatment} Treatment</Text>
+                            <Text type="secondary">
+                              {treatment.treatment} Treatment
+                            </Text>
                           </div>
                         </div>
                       </Col>
@@ -222,7 +253,9 @@ export default function TreatmentHistoryPage() {
                         <div style={{ textAlign: "center" }}>
                           <Text type="secondary">Duration</Text>
                           <div>
-                            <Text>{treatment.startDate} - {treatment.endDate}</Text>
+                            <Text>
+                              {treatment.startDate} - {treatment.endDate}
+                            </Text>
                           </div>
                         </div>
                       </Col>
@@ -230,7 +263,9 @@ export default function TreatmentHistoryPage() {
                         <div style={{ textAlign: "center" }}>
                           <Text type="secondary">Cycles</Text>
                           <div>
-                            <Text strong style={{ color: "#ff69b4" }}>{treatment.cycles}</Text>
+                            <Text strong style={{ color: "#ff69b4" }}>
+                              {treatment.cycles}
+                            </Text>
                           </div>
                         </div>
                       </Col>
@@ -239,7 +274,11 @@ export default function TreatmentHistoryPage() {
                           <Text type="secondary">Outcome</Text>
                           <div>
                             <Badge
-                              color={treatment.status === "success" ? "#ff1493" : "#ff69b4"}
+                              color={
+                                treatment.status === "success"
+                                  ? "#ff1493"
+                                  : "#ff69b4"
+                              }
                               text={treatment.outcome}
                             />
                           </div>
@@ -290,11 +329,16 @@ export default function TreatmentHistoryPage() {
                     <Row align="middle" justify="space-between">
                       <Col xs={24} md={6}>
                         <div>
-                          <Text strong style={{ fontSize: 16, color: "#ff69b4" }}>
+                          <Text
+                            strong
+                            style={{ fontSize: 16, color: "#ff69b4" }}
+                          >
                             {treatment.patient}
                           </Text>
                           <div>
-                            <Text type="secondary">{treatment.treatment} Treatment</Text>
+                            <Text type="secondary">
+                              {treatment.treatment} Treatment
+                            </Text>
                           </div>
                         </div>
                       </Col>
@@ -310,15 +354,17 @@ export default function TreatmentHistoryPage() {
                         <div style={{ textAlign: "center" }}>
                           <Text type="secondary">Current Stage</Text>
                           <div>
-                            <Text strong style={{ color: "#ff69b4" }}>{treatment.currentStage}</Text>
+                            <Text strong style={{ color: "#ff69b4" }}>
+                              {treatment.currentStage}
+                            </Text>
                           </div>
                         </div>
                       </Col>
                       <Col xs={24} md={6}>
                         <div style={{ textAlign: "center" }}>
                           <Text type="secondary">Progress</Text>
-                          <Progress 
-                            percent={treatment.progress} 
+                          <Progress
+                            percent={treatment.progress}
                             size="small"
                             strokeColor="#ff69b4"
                           />

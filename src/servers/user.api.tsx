@@ -63,6 +63,9 @@ const UserApi = {
   //Lịch sử thanh toán detail
   GetPaymentHistoryDetail: (paymentId: number) =>
     axiosClient.get(`Payment/GetPaymentDetail/${paymentId}`),
+
+  //Phôi ở đây nè
+  GetListEmbroys: () => axiosClient.get(`Customer/embryos`),
 };
 
 export default UserApi;
