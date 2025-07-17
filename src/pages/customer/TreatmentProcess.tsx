@@ -1,7 +1,16 @@
 // File: src/pages/TreatmentProcess.tsx
 
 import { useState, useEffect, useMemo } from "react";
-import { Button, Typography, Input, Spin, Empty, Tag, Space } from "antd";
+import {
+  Button,
+  Typography,
+  Input,
+  Spin,
+  Empty,
+  Tag,
+  Space,
+  Collapse,
+} from "antd";
 import {
   ArrowLeftOutlined,
   SearchOutlined,
@@ -13,6 +22,7 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import type { Treatment } from "../../types/medicalRecord.d";
 import UserApi from "../../servers/user.api";
+import type { Embryo } from "../../types/user.d";
 
 const { Title, Text, Paragraph } = Typography;
 const { Search } = Input;
@@ -21,9 +31,23 @@ export default function TreatmentProcess() {
   const [treatments, setTreatments] = useState<Treatment[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [embryos, setEmbryos] = useState<Embryo[] | null>([]);
 
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+
+  //Gọi Phôi
+  useEffect(() => {
+    const fetchEmbryos = async () => {
+      try {
+        const res = await UserApi.GetListEmbroys(); // hoặc truyền customerId
+        setEmbryos(res.data);
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách phôi:", error);
+      }
+    };
+    fetchEmbryos();
+  }, [id]);
 
   useEffect(() => {
     const fetchTreatmentProcess = async () => {
@@ -77,7 +101,7 @@ export default function TreatmentProcess() {
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50">
       <div className="container mx-auto max-w-6xl">
         <div className="p-6">
-          <div className="mb-8 bg-white rounded-2xl shadow-lg p-6">
+          <div className="mb-2 bg-pink rounded-2xl shadow-lg p-3">
             <Button
               icon={<ArrowLeftOutlined />}
               onClick={() => navigate(-1)}
@@ -93,7 +117,7 @@ export default function TreatmentProcess() {
                 style={{ color: "#FF69B4" }}
                 className="text-pink-600 mb-3"
               >
-                Chi tiết Quá Trình Điều Trị
+                Quá Trình Điều Trị
               </Title>
               <div className="bg-pink-100 rounded-lg p-3 inline-block">
                 <Text className="text-gray-700 text-lg">
@@ -101,6 +125,64 @@ export default function TreatmentProcess() {
                   <Text className="font-bold text-pink-700">{id}</Text>
                 </Text>
               </div>
+
+              <Collapse
+                accordion
+                expandIconPosition="end"
+                className="mb-6"
+                items={[
+                  {
+                    key: "1",
+                    label: (
+                      <span className="text-pink-600 font-semibold text-lg">
+                        🧫 Danh sách phôi được lưu trữ ({embryos?.length || 0})
+                      </span>
+                    ),
+                    children: (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                        {embryos?.map((embryo) => (
+                          <div
+                            key={embryo.embryoId}
+                            className="bg-pink-50 border border-pink-200 rounded-lg p-4"
+                          >
+                            <div className="flex justify-between items-center mb-2">
+                              <Text className="text-sm text-gray-600">
+                                Ngày tạo:{" "}
+                                <strong>
+                                  {new Date(embryo.createAt).toLocaleDateString(
+                                    "vi-VN"
+                                  )}
+                                </strong>
+                              </Text>
+                              <Tag
+                                color={
+                                  embryo.quality.toLowerCase() === "tốt"
+                                    ? "green"
+                                    : embryo.quality.toLowerCase() ===
+                                      "trung bình"
+                                    ? "orange"
+                                    : "red"
+                                }
+                              >
+                                {embryo.quality}
+                              </Tag>
+                            </div>
+                            <Text className="block text-sm text-gray-700 mb-1">
+                              Tình trạng:{" "}
+                              <strong className="text-gray-800">
+                                {embryo.status}
+                              </strong>
+                            </Text>
+                            <Text className="block text-sm text-gray-700">
+                              Ghi chú: {embryo.note}
+                            </Text>
+                          </div>
+                        ))}
+                      </div>
+                    ),
+                  },
+                ]}
+              />
             </div>
           </div>
 
