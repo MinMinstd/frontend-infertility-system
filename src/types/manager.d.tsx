@@ -43,21 +43,9 @@ export interface Account {
     status: string;
   }
 
-  export interface Service {
-    serviceDBId: number;
-    name: string;
-    description: string;
-    price: number;
-}
+ 
 
-export interface TreatmentRoadmap {
-    treatmentRoadmapId: number;
-    stage: string;
-    description: string;
-    durationDay: number;
-    price: number;
-    serviceName: string;
-}
+
 
 export interface OrderDetail {
     orderDetailId: number;
@@ -98,4 +86,46 @@ export interface PaymentDetail {
   date: string;
   priceByTreatment: number;
   status: string;
+}
+
+export interface ServiceForManagement {
+  serviceDBId: number;
+  name: string;
+  description: string;
+}
+
+export interface ServiceCreateRequest {
+  name: string;
+  description: string;
+}
+
+export interface ServiceUpdateRequest {
+  name: string;
+  description: string;
+}
+
+export interface TreatmentRoadmapCreateRequest {
+  serviceId: number;
+  stage: string;
+  description: string;
+  durationDay: number;
+  price: number;
+  serviceName: string;
+}
+
+export interface TreatmentRoadmapStep {
+  treatmentRoadmapStepId: number;
+  treatmentRoadmapId: number;
+  stage: string;
+  description: string;
+  durationDay: number;
+  price: number;
+  serviceName: string;
+}
+
+export interface TreatmentRoadmapUpdateRequest {
+  stage: string;
+  description: string;
+  durationDay: number;
+  price: number;
 }
