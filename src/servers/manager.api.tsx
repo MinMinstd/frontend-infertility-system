@@ -7,15 +7,15 @@ const ManagerApi = {
 
     GetUserAfterLogin: () => axiosClient.get<Account[]>("/User/GetUserAfterLogin"),
 
-    GetCountTotalAccounts: () => axiosClient.get<Account[]>("/User/CountTotalAccounts"),
+    GetCountTotalAccounts: () => axiosClient.get<Account[]>("/User/statistics/total"),
 
-    GetCountDoctorsAccount: () => axiosClient.get<Account[]>("/User/CountDoctorsAccount"),
+    GetCountDoctorsAccount: () => axiosClient.get<Account[]>("/User/statistics/doctors"),
 
-    GetCountCustomerAccount: () => axiosClient.get<Account[]>("/User/CountCustomerAccount"),
+    GetCountCustomerAccount: () => axiosClient.get<Account[]>("/User/statistics/customers"),
 
-    GetCountNewAccount: () => axiosClient.get<Account[]>("/User/CountNewAccount"),
+    GetCountNewAccount: () => axiosClient.get<Account[]>("/User/statistics/new"),
 
-    GetAllUsersForManagement: () => axiosClient.get<Account[]>("/User/GetAllUsersForManagement"),
+    GetAllUsersForManagement: () => axiosClient.get<Account[]>("/User"),
     
     GetAllAppointments: () => axiosClient.get<Appointment[]>("/Booking/GetListBooking"),
 
