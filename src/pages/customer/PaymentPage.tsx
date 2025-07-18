@@ -88,16 +88,46 @@ export default function PaymentPage() {
   //   }
   // };
 
-  const handlePayment = async () => {
-    //cần di chuyển
-    // try {
-    //   await handleUpdateStatusPayment();
-    //   message.success("Thanh toán thành công!");
-    // } catch (error) {
-    //   console.log("Lỗi không thể cập nhập được trạng thái của status: ", error);
-    //   message.error("Thanh toán không thành công!");
-    // }
+  // const handlePayment = async () => {
+  //   //cần di chuyển
+  //   // try {
+  //   //   await handleUpdateStatusPayment();
+  //   //   message.success("Thanh toán thành công!");
+  //   // } catch (error) {
+  //   //   console.log("Lỗi không thể cập nhập được trạng thái của status: ", error);
+  //   //   message.error("Thanh toán không thành công!");
+  //   // }
 
+  //   try {
+  //     if (!paymentInfo || !patientInfor) {
+  //       message.error("Thiếu thông tin thanh toán hoặc bệnh nhân.");
+  //       return;
+  //     }
+
+  //     const payload = {
+  //       orderId: patientInfor.orderId,
+  //       amount: paymentInfo.price,
+  //       orderInfo: `Thanh toán cho giai đoạn: ${paymentInfo.stage}`,
+  //       returnUrl: window.location.origin + "/payment-success",
+  //     };
+
+  //     console.log("Thuộc tính được đẩy xuống backend: ", payload);
+
+  //     const res = await UserApi.CreateVnPayPayment(payload);
+  //     const paymentUrl = res.data;
+
+  //     if (paymentUrl) {
+  //       window.location.href = paymentUrl;
+  //     } else {
+  //       message.error("Không thể tạo thanh toán VNPay.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Lỗi tạo thanh toán VNPay:", error);
+  //     message.error("Thanh toán thất bại.");
+  //   }
+  // };
+
+  const handlePayment = async () => {
     try {
       if (!paymentInfo || !patientInfor) {
         message.error("Thiếu thông tin thanh toán hoặc bệnh nhân.");
@@ -105,13 +135,32 @@ export default function PaymentPage() {
       }
 
       const payload = {
-        orderId: patientInfor.orderId,
+        orderType: "Thanh toán điều trị",
         amount: paymentInfo.price,
-        orderInfo: `Thanh toán cho giai đoạn: ${paymentInfo.stage}`,
-        returnUrl: window.location.origin + "/payment-success",
+        orderDescription: `Thanh toán cho giai đoạn: ${paymentInfo.stage}`,
+        name: patientInfor.wife,
+
+        //Thêm các url xử lý khác nhau
+        returnUrl: "http://localhost:5173/payment-result",
+        cancelUrl: "http://localhost:5173/payment-result",
       };
 
+      console.log("Payload gửi xuống backend:", payload);
+
+      // Lưu thông tin thanh toán vào localStorage để sử dụng sau khi thanh toán
+      const pendingPayment = {
+        paymentId: paymentInfo.paymentId,
+        orderId: patientInfor.orderId,
+        amount: paymentInfo.price,
+        stage: paymentInfo.stage,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem("pendingPayment", JSON.stringify(pendingPayment));
+
       const res = await UserApi.CreateVnPayPayment(payload);
+      console.log(
+        "Với Thông tin thanh toán với localStorage để sử dụng sau khi thanh toán: "
+      );
       const paymentUrl = res.data;
 
       if (paymentUrl) {
