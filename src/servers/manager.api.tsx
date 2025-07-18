@@ -53,6 +53,8 @@ const ManagerApi = {
     CreateDoctorSchedule: (doctorId: string | number, data: DoctorScheduleCreateRequest) => axiosClient.post(`/DoctorSchedule/${doctorId}`, data),
 
     GetAllDoctorSchedules: () => axiosClient.get<DaySchedule[]>("/DoctorSchedule/GetAll"),
+
+    DeleteAccount: (userId: number) => axiosClient.put(`/User/${userId}`, {}),
   };
   
   export default ManagerApi;
