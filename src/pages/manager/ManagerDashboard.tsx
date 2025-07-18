@@ -1,4 +1,4 @@
-import { Card, Row, Col, Statistic, Typography, Space } from "antd";
+import { Typography, Space } from "antd";
 import {
   Calendar,
   Users,
@@ -26,14 +26,6 @@ const sectionVariants = {
 
 const ManagerDashboard = () => {
   const navigate = useNavigate();
-  // Mock data - replace with actual API calls
-  const stats = {
-    totalAppointments: 156,
-    totalPatients: 89,
-    totalDoctors: 12,
-    totalRevenue: 25000000,
-  };
-
   const managementSections = [
     {
       title: "Quản lý lịch hẹn",
@@ -117,69 +109,7 @@ const ManagerDashboard = () => {
           <Text type="secondary">Tổng quan về hoạt động của hệ thống</Text>
         </motion.div>
 
-        <motion.div
-          className="w-full"
-          variants={sectionVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <Row gutter={[16, 16]}>
-            {[{
-              title: "Tổng số lịch hẹn",
-              value: stats.totalAppointments,
-              icon: <Calendar className="w-7 h-7 text-white" />, // giữ icon
-              img: "/Images/TrangThietBi.jpg",
-              color: "bg-blue-500",
-              valueStyle: { color: "#3b82f6", fontWeight: 700, fontSize: 28 },
-            }, {
-              title: "Tổng số bệnh nhân",
-              value: stats.totalPatients,
-              icon: <Users className="w-7 h-7 text-white" />, // giữ icon
-              img: "/Images/KhongGianThanThien.jpg",
-              color: "bg-purple-500",
-              valueStyle: { color: "#a855f7", fontWeight: 700, fontSize: 28 },
-            }, {
-              title: "Tổng số bác sĩ",
-              value: stats.totalDoctors,
-              icon: <User className="w-7 h-7 text-white" />, // giữ icon
-              img: "/Images/doctor-avatar.png",
-              color: "bg-green-500",
-              valueStyle: { color: "#22c55e", fontWeight: 700, fontSize: 28 },
-            }, {
-              title: "Doanh thu",
-              value: stats.totalRevenue,
-              icon: <DollarSign className="w-7 h-7 text-white" />, // giữ icon
-              img: "/Images/logo.png",
-              color: "bg-emerald-500",
-              valueStyle: { color: "#10b981", fontWeight: 700, fontSize: 28 },
-              suffix: "VNĐ"
-            }].map((stat, i) => (
-              <Col xs={24} sm={12} md={6} key={stat.title}>
-                <motion.div
-                  custom={i}
-                  variants={cardVariants}
-                  initial="hidden"
-                  animate="visible"
-                  whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}
-                >
-                  <Card className={`shadow-md hover:shadow-lg transition-shadow rounded-xl ${stat.color} border-0 relative`}
-                    style={{ minHeight: 140 }}
-                  >
-                    {/* Hình minh họa nhỏ góc phải */}
-                    <img src={stat.img} alt="stat" className="absolute right-3 bottom-3 w-12 h-12 opacity-20 pointer-events-none select-none" />
-                    <Statistic
-                      title={<span className="text-gray-100">{stat.title}</span>}
-                      value={stat.value}
-                      prefix={<div className={`p-3 rounded-xl ${stat.color} flex items-center justify-center`}>{stat.icon}</div>}
-                      valueStyle={stat.valueStyle}
-                      suffix={stat.suffix}
-                    />
-                  </Card>
-                </motion.div>
-              </Col>
-            ))}
-          </Row>
-        </motion.div>
+        {/* ĐÃ XÓA PHẦN 4 CARD THỐNG KÊ */}
 
         <motion.div
           className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-2"

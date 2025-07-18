@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Space, message, Spin, Empty, Card, Typography, Modal } from "antd";
+import { Table, Button, Space, message, Spin, Empty, Card, Typography, Modal, Tag, Tooltip } from "antd";
 import { Calendar as CalendarIcon, User, ArrowLeft, ArrowRight, Plus, Trash2 } from "lucide-react";
 import type { ColumnsType } from "antd/es/table";
 import { motion } from "framer-motion";
@@ -190,7 +190,7 @@ const ManagerDoctors: React.FC = () => {
       ),
     },
     {
-      title: <span className="text-pink-600 font-semibold">Học vị</span>,
+      title: <span className="text-pink-600 font-semibold">Chuyên Môn</span>,
       dataIndex: "degreeName",
       key: "degreeName",
       width: 150,
@@ -269,7 +269,7 @@ const ManagerDoctors: React.FC = () => {
       </div>
       {/* Modal xem/tạo lịch bác sĩ */}
       {showSchedule && (
-        <Modal open={true} footer={null} onCancel={() => setShowSchedule(null)} width={700} style={{top: 40}} bodyStyle={{padding:0}}>
+        <Modal open={true} footer={null} onCancel={() => setShowSchedule(null)} width={900} style={{top: 40}} bodyStyle={{padding:0, borderRadius: 16, boxShadow: '0 8px 32px 0 rgba(24, 144, 255, 0.15)'}}>
           <div className="p-0">
             <div className="flex items-center justify-between px-6 pt-6 pb-2">
               <Title level={4} className="!mb-0">Quản lý lịch làm việc - {showSchedule.fullName}</Title>
@@ -279,86 +279,70 @@ const ManagerDoctors: React.FC = () => {
                 <Button onClick={handleNextWeek} icon={<ArrowRight />}>Tuần sau</Button>
               </div>
             </div>
-            <div className="px-6 pb-2">
-              <Button type="primary" className="mr-2" onClick={handleCreateSchedule} loading={loadingSchedule} icon={<Plus />}>Tạo lịch</Button>
+            <div className="px-6 pb-2 flex gap-2">
+              <Button type="primary" onClick={handleCreateSchedule} loading={loadingSchedule} icon={<Plus />}>Tạo lịch</Button>
               <Button danger icon={<Trash2 />}>Xóa</Button>
             </div>
             <div className="px-6 pb-2">
               <div className="bg-blue-50 rounded p-2 text-blue-700 text-sm">
-                <b>Hướng dẫn:</b> Nhấp vào ô trống để tạo ca làm việc mới, nhấp vào ca đã tạo để chỉnh sửa. Ca màu đã được đặt và không thể xóa.
+                <b>Hướng dẫn:</b> Nhấp vào <span style={{color:'#1677ff', fontWeight:600}}>Trống</span> để tạo ca làm việc mới, nhấp vào ca đã tạo để chỉnh sửa. Ca màu <span style={{color:'#52c41a', fontWeight:600}}>Đã có lịch</span> đã được đặt và không thể xóa.
               </div>
             </div>
             <div className="px-6 pb-6">
-              <div className="overflow-x-auto">
-                <table className="min-w-full border-collapse">
-                  <thead>
-                    <tr>
-                      <th className="w-20"></th>
-                      {WEEKDAYS.map((d, i) => (
-                        <th key={d} className="text-center font-semibold text-gray-700 py-2">
-                          {d}
-                          <br />
-                          <span className="text-xs text-gray-400">
-                            {addDays(weekStart, i).toLocaleDateString('vi-VN')}
-                          </span>
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {TIME_BLOCKS.map(block => (
-                      <tr key={block.start + block.end}>
-                        <td className="text-center font-medium text-gray-600 py-1">{block.start} - {block.end}</td>
-                        {Array(7).fill(0).map((_, i) => {
-                          const date = addDays(weekStart, i).toISOString().slice(0, 10);
-                          const blockKey = `${toTimeOnlyFull(block.start)}-${toTimeOnlyFull(block.end)}`;
-                          const slot = schedule[date]?.[blockKey];
-                          const isSelected = selectedDate === date && selectedBlock && selectedBlock.start === block.start && selectedBlock.end === block.end;
-                          const isPast = new Date(date) < today;
-                          if (isPast) {
-                            return (
-                              <td key={date + blockKey} className="text-center">
-                                <div
-                                  className="bg-gray-100 text-gray-400 rounded px-2 py-1 text-xs font-semibold cursor-not-allowed select-none"
-                                  title="Không thể tạo lịch cho ngày quá khứ"
-                                >
-                                  Quá khứ
-                                </div>
-                              </td>
-                            );
-                          }
-                          if (slot) {
-                            return (
-                              <td key={date + blockKey} className="text-center">
-                                <div
-                                  className="bg-green-100 text-green-700 rounded px-2 py-1 text-xs font-semibold cursor-not-allowed select-none"
-                                  title={`Ngày: ${date}\nKhung giờ: ${block.start} - ${block.end}\nĐã có lịch`}
-                                >
-                                  Đã có lịch
-                                </div>
-                              </td>
-                            );
-                          }
-                          return (
-                            <td key={date + blockKey} className="text-center">
-                              <div
-                                className={`rounded px-2 py-1 text-xs font-semibold cursor-pointer select-none border ${
-                                  isSelected
-                                    ? 'bg-blue-100 border-blue-400 text-blue-700'
-                                    : 'bg-gray-50 border-gray-200 text-gray-400'
-                                }`}
-                                onClick={() => handleSelectBlock(date, block)}
-                                title={`Ngày: ${date}\nKhung giờ: ${block.start} - ${block.end}`}
-                              >
-                                {isSelected ? 'Đang chọn' : 'Trống'}
-                              </div>
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div>
+                <Table
+                  bordered
+                  pagination={false}
+                  className="rounded-xl shadow-sm"
+                  style={{ width: '100%' }}
+                  columns={[
+                    {
+                      title: '',
+                      dataIndex: 'time',
+                      key: 'time',
+                      width: 120,
+                      align: 'center' as const,
+                      render: (text: string) => <span className="font-medium text-gray-600">{text}</span>
+                    },
+                    ...WEEKDAYS.map((d, i) => ({
+                      title: <div className="text-center font-semibold text-gray-700">{d}<br/><span className="text-xs text-gray-400">{addDays(weekStart, i).toLocaleDateString('vi-VN')}</span></div>,
+                      dataIndex: d,
+                      key: d,
+                      align: 'center' as const,
+                      width: 110,
+                      render: (_: unknown, row: { key: string; time: string; start: string; end: string }) => {
+                        const date = addDays(weekStart, i).toISOString().slice(0, 10);
+                        const blockKey = `${toTimeOnlyFull(row.start)}-${toTimeOnlyFull(row.end)}`;
+                        const slot = schedule[date]?.[blockKey];
+                        const isSelected = selectedDate === date && selectedBlock && selectedBlock.start === row.start && selectedBlock.end === row.end;
+                        const isPast = new Date(date) < today;
+                        if (isPast) {
+                          return <Tooltip title="Không thể tạo lịch cho ngày quá khứ"><span><Tag color="default">Quá khứ</Tag></span></Tooltip>;
+                        }
+                        if (slot) {
+                          return <Tooltip title={`Ngày: ${date}\nKhung giờ: ${row.start} - ${row.end}\nĐã có lịch`}><Tag color="success">Đã có lịch</Tag></Tooltip>;
+                        }
+                        return (
+                          <Tooltip title={`Ngày: ${date}\nKhung giờ: ${row.start} - ${row.end}`}> 
+                            <Tag
+                              color={isSelected ? "processing" : "default"}
+                              style={{cursor:'pointer', borderRadius:8, fontWeight:600, border: isSelected ? '2px solid #1677ff' : undefined}}
+                              onClick={() => handleSelectBlock(date, row)}
+                            >
+                              {isSelected ? 'Đang chọn' : 'Trống'}
+                            </Tag>
+                          </Tooltip>
+                        );
+                      }
+                    }))
+                  ]}
+                  dataSource={TIME_BLOCKS.map(block => ({
+                    key: block.start + block.end,
+                    time: `${block.start} - ${block.end}`,
+                    start: block.start,
+                    end: block.end
+                  }))}
+                />
               </div>
             </div>
           </div>
