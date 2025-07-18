@@ -74,20 +74,20 @@ const ManagerReport: React.FC = () => {
 
   useEffect(() => {
     Promise.all([
-      ManagerApi.GetAllUsersForManagement(),
+      ManagerApi.GetCountTotalAccounts(),
       ManagerApi.GetCountNewAccount(),
-      ManagerApi.GetAllDoctors(),
+      ManagerApi.GetCountDoctorsAccount(),
       ManagerApi.GetAllAppointments(),
       ManagerApi.GetAllServicesForManagement(),
       ManagerApi.GetFeedback(),
-    ]).then(([accountsRes, newAccRes, doctorsRes, appointmentsRes, servicesRes, feedbacksRes]) => {
-      setTotalAccounts(Array.isArray(accountsRes.data) ? accountsRes.data.length : 0);
+    ]).then(([allAccRes, newAccRes, doctorAccRes, appointmentsRes, servicesRes, feedbacksRes]) => {
+      setTotalAccounts(typeof allAccRes.data === 'number' ? allAccRes.data : (Array.isArray(allAccRes.data) ? allAccRes.data.length : 0));
       setNewAccounts(
         typeof newAccRes.data === 'number'
           ? newAccRes.data
           : (Array.isArray(newAccRes.data) ? newAccRes.data.length : 0)
       );
-      setTotalDoctors(Array.isArray(doctorsRes.data) ? doctorsRes.data.length : 0);
+      setTotalDoctors(typeof doctorAccRes.data === 'number' ? doctorAccRes.data : (Array.isArray(doctorAccRes.data) ? doctorAccRes.data.length : 0));
       setTotalAppointments(Array.isArray(appointmentsRes.data) ? appointmentsRes.data.length : 0);
       setTotalServices(Array.isArray(servicesRes.data) ? servicesRes.data.length : 0);
       setTotalFeedbacks(Array.isArray(feedbacksRes.data) ? feedbacksRes.data.length : 0);
