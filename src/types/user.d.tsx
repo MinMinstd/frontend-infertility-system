@@ -57,3 +57,8 @@ export interface Embryo {
   status: string;
   note: string;
 }
+
+export interface FeedbackCreateRequest {
+  comments: string;
+  rating: number;
+}

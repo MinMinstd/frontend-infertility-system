@@ -66,6 +66,10 @@ const UserApi = {
 
   //Phôi ở đây nè
   GetListEmbroys: () => axiosClient.get(`Customer/embryos`),
+
+  // Gửi feedback từ khách hàng
+  PostFeedback: (data: { comments: string; rating: number }) =>
+    axiosClient.post("/Feedback", data),
 };
 
 export default UserApi;

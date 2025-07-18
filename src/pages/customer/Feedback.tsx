@@ -1,54 +1,28 @@
 import React, { useState } from "react";
-import FeedbackCard from "../../components/FeedbackCard";
-import { Form, Input, Button, Rate, Card, Typography, message } from "antd";
-import type { Feedback } from "../../data/feedbackData";
-import { sampleFeedbacks } from "../../data/feedbackData";
+import FeedbackList from "../../components/FeedbackCard";
+import { Typography, Form, Input, Button, Rate, message, Card } from "antd";
+import UserApi from "../../servers/user.api";
+import type { FeedbackCreateRequest } from "../../types/user.d";
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const FeedbackPage: React.FC = () => {
-  const [feedbacks, setFeedbacks] = useState<Feedback[]>(sampleFeedbacks);
-  const [newFeedback, setNewFeedback] = useState<Partial<Feedback>>({});
-  const [isReplying, setIsReplying] = useState<string | null>(null);
-  const [replyText, setReplyText] = useState<{ [key: string]: string }>({});
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmitFeedback = () => {
-    if (newFeedback.userName && newFeedback.comment && newFeedback.rating) {
-      const newFeedbackItem: Feedback = {
-        id: Date.now().toString(),
-        userName: newFeedback.userName!,
-        rating: newFeedback.rating!,
-        comment: newFeedback.comment!,
-        date: new Date().toLocaleDateString("vi-VN", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        }),
-        avatarUrl: `https://api.dicebear.com/6.x/avataaars/svg?seed=${newFeedback.userName}`,
-      };
-      setFeedbacks([newFeedbackItem, ...feedbacks]);
-      setNewFeedback({});
-      message.success("Phản hồi của bạn đã được gửi thành công!");
-    } else {
-      message.error("Vui lòng điền đầy đủ thông tin!");
-    }
-  };
-
-  const handleReplyChange = (id: string, value: string) => {
-    setIsReplying(id);
-    setReplyText((prev) => ({ ...prev, [id]: value }));
-  };
-
-  const handleSubmitReply = (id: string) => {
-    if (replyText[id]) {
-      setFeedbacks((prev) =>
-        prev.map((f) => (f.id === id ? { ...f, reply: replyText[id] } : f))
-      );
-      setReplyText((prev) => ({ ...prev, [id]: "" }));
-      setIsReplying(null);
-      message.success("Phản hồi đã được gửi!");
-    } else {
-      message.error("Vui lòng nhập nội dung phản hồi!");
+  const handleSubmit = async (values: FeedbackCreateRequest) => {
+    setLoading(true);
+    try {
+      await UserApi.PostFeedback(values);
+      message.success("Gửi phản hồi thành công!");
+      form.resetFields();
+      // Reload FeedbackList nếu cần (có thể dùng state hoặc ref tuỳ cách cài đặt FeedbackList)
+      // Nếu FeedbackList không tự động reload, có thể truyền key hoặc callback để reload
+      // window.location.reload(); // hoặc trigger reload FeedbackList nếu cần
+    } catch {
+      message.error("Gửi phản hồi thất bại!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -69,39 +43,6 @@ const FeedbackPage: React.FC = () => {
       >
         Ý kiến phản hồi từ khách hàng
       </Title>
-      {feedbacks.length > 0 ? (
-        feedbacks.map((feedback) => (
-          <FeedbackCard
-            key={feedback.id}
-            userName={feedback.userName}
-            rating={feedback.rating}
-            comment={feedback.comment}
-            date={feedback.date}
-            avatarUrl={feedback.avatarUrl}
-            reply={feedback.reply}
-            onReplyChange={(value) => handleReplyChange(feedback.id, value)}
-            onReplySubmit={() => handleSubmitReply(feedback.id)}
-            isReplying={isReplying === feedback.id}
-          />
-        ))
-      ) : (
-        <Text
-          style={{ textAlign: "center", display: "block", color: "#64748b" }}
-        >
-          Chưa có phản hồi nào. Hãy gửi phản hồi đầu tiên!
-        </Text>
-      )}
-      <Title
-        level={4}
-        style={{
-          textAlign: "center",
-          color: "#1f2937",
-          marginTop: 32,
-          marginBottom: 16,
-        }}
-      >
-        Gửi phản hồi của bạn
-      </Title>
       <Card
         style={{
           marginBottom: 32,
@@ -109,38 +50,38 @@ const FeedbackPage: React.FC = () => {
           boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
         }}
       >
-        <Form layout="vertical" onFinish={handleSubmitFeedback}>
-          <Form.Item label="Tên của bạn" required>
-            <Input
-              value={newFeedback.userName}
-              onChange={(e) =>
-                setNewFeedback({ ...newFeedback, userName: e.target.value })
-              }
-              placeholder="Nhập tên"
-            />
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleSubmit}
+        >
+          <Form.Item
+            label="Đánh giá"
+            name="rating"
+            rules={[{ required: true, message: "Vui lòng chọn số sao đánh giá" }]}
+          >
+            <Rate allowClear={false} />
           </Form.Item>
-          <Form.Item label="Đánh giá" required>
-            <Rate
-              value={newFeedback.rating}
-              onChange={(value) =>
-                setNewFeedback({ ...newFeedback, rating: value })
-              }
-            />
-          </Form.Item>
-          <Form.Item label="Bình luận" required>
+          <Form.Item
+            label="Bình luận"
+            name="comments"
+            rules={[
+              { required: true, message: "Vui lòng nhập bình luận" },
+              { max: 200, message: "Bình luận không được vượt quá 200 ký tự" },
+            ]}
+          >
             <Input.TextArea
-              value={newFeedback.comment}
-              onChange={(e) =>
-                setNewFeedback({ ...newFeedback, comment: e.target.value })
-              }
-              placeholder="Nhập bình luận của bạn"
+              showCount
+              maxLength={200}
               rows={4}
+              placeholder="Nhập bình luận của bạn (tối đa 200 ký tự)"
             />
           </Form.Item>
           <Form.Item>
             <Button
               type="primary"
               htmlType="submit"
+              loading={loading}
               style={{ backgroundColor: "#f472b6", borderColor: "#f472b6" }}
             >
               Gửi phản hồi
@@ -148,6 +89,7 @@ const FeedbackPage: React.FC = () => {
           </Form.Item>
         </Form>
       </Card>
+      <FeedbackList />
     </div>
   );
 };
