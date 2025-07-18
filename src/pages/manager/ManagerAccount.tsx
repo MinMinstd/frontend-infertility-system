@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Row, Col, Statistic, Table, Typography, Space, Spin, message, Empty } from 'antd';
-import { User, Users, UserPlus } from 'lucide-react';
+import { User, Users, UserPlus, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ManagerApi from '../../servers/manager.api';
 import type { Account } from '../../types/manager.d';
@@ -156,6 +156,22 @@ const ManagerAccount: React.FC = () => {
       key: 'totalActiveDays',
       render: (count: number) => (
         <span className="text-blue-600 font-medium">{count ?? ''}</span>
+      ),
+    },
+    {
+      title: <span className="text-pink-600 font-semibold">Thao tác</span>,
+      key: 'action',
+      render: (_: any, record: Account) => (
+        <button
+          className="text-red-500 hover:text-red-700 p-1 rounded-full border border-transparent hover:border-red-200 transition"
+          title="Xóa tài khoản"
+          onClick={() => {
+            // TODO: Xử lý xóa tài khoản ở đây
+            message.info(`Nhấn xóa tài khoản: ${record.fullName}`);
+          }}
+        >
+          <Trash2 className="w-5 h-5" />
+        </button>
       ),
     },
   ];
