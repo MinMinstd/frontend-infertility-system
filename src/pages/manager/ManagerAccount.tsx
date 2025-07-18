@@ -86,10 +86,11 @@ const ManagerAccount: React.FC = () => {
         customer: typeof customerRes.data === 'number' ? customerRes.data : (Array.isArray(customerRes.data) ? customerRes.data.length : 0),
         new: typeof newRes.data === 'number' ? newRes.data : (Array.isArray(newRes.data) ? newRes.data.length : 0),
       });
-      const accounts = Array.isArray(accountsRes.data) ? accountsRes.data : [];
+      // Lọc chỉ lấy tài khoản active
+      const accounts = Array.isArray(accountsRes.data) ? accountsRes.data.filter((acc: Account) => acc.isActive) : [];
       setAllAccounts(accounts);
       setDisplayAccounts(accounts);
-    } catch (err) {
+    } catch {
       message.error('Lỗi khi tải dữ liệu tài khoản!');
       setAllAccounts([]);
       setDisplayAccounts([]);
@@ -111,6 +112,8 @@ const ManagerAccount: React.FC = () => {
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
       filtered = allAccounts.filter(acc => acc.createdAt && new Date(acc.createdAt) > thirtyDaysAgo);
     }
+    // Luôn chỉ hiển thị tài khoản active
+    filtered = filtered.filter(acc => acc.isActive);
     setDisplayAccounts(filtered);
   };
 
@@ -161,13 +164,20 @@ const ManagerAccount: React.FC = () => {
     {
       title: <span className="text-pink-600 font-semibold">Thao tác</span>,
       key: 'action',
-      render: (_: any, record: Account) => (
+      render: (_: unknown, record: Account) => (
         <button
           className="text-red-500 hover:text-red-700 p-1 rounded-full border border-transparent hover:border-red-200 transition"
           title="Xóa tài khoản"
-          onClick={() => {
-            // TODO: Xử lý xóa tài khoản ở đây
-            message.info(`Nhấn xóa tài khoản: ${record.fullName}`);
+          onClick={async () => {
+            if (window.confirm(`Bạn có chắc chắn muốn xóa tài khoản: ${record.fullName}?`)) {
+              try {
+                await ManagerApi.DeleteAccount(record.userId);
+                message.success('Xóa tài khoản thành công!');
+                fetchAllData();
+              } catch {
+                message.error('Xóa tài khoản thất bại!');
+              }
+            }
           }}
         >
           <Trash2 className="w-5 h-5" />

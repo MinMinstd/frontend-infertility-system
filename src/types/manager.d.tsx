@@ -9,15 +9,15 @@ export interface Feedback {
 }
 
 export interface Account {
-    id: string;
+    userId: number;
     fullName: string;
     email: string;
     role: string;
     createdAt: string;
     lastActiveAt: string;
     totalActiveDays: number;
-
-  }
+    isActive: boolean;
+}
 
   export interface Appointment {
     customerName: string;
