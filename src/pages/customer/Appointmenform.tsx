@@ -30,6 +30,7 @@ import type { Doctor } from "../../types/doctor.d";
 import type { DoctorSchedule } from "../../types/doctorSchedule.d";
 import { bookingApi } from "../../servers/booking.api";
 import type { BookingConsulant } from "../../types/booking.d";
+import { useNotification } from "../../context/NotificationContext";
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -61,6 +62,7 @@ export default function AppointmentForm() {
   const [availabilityMessage, setAvailabilityMessage] = useState<string | null>(
     null
   );
+  const { addNotification } = useNotification();
 
   //Thực hiện lấy danh sách dịch vụ
   useEffect(() => {
@@ -174,7 +176,12 @@ export default function AppointmentForm() {
       };
 
       await bookingApi.bookingConsulant(bookingData);
-
+      addNotification({
+        avatar: "/Images/doctor-avatar.png",
+        name: "Phòng khám",
+        message: "Bạn đã đặt lịch hẹn thành công!",
+        time: new Date().toLocaleTimeString(),
+      });
       message.success(
         "Đặt lịch hẹn thành công! Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất."
       );
