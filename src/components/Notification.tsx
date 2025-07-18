@@ -1,38 +1,13 @@
-import { useState, useRef, useEffect } from "react";
-
-interface NotificationItem {
-  id: number;
-  avatar: string;
-  name: string;
-  message: string;
-  time: string;
-  isRead?: boolean;
-}
+import { useRef, useEffect, useState } from "react";
+import { useNotification } from "../context/NotificationContext";
 
 const Notification = () => {
   // Danh sách thông báo mẫu, có thể thay bằng props hoặc fetch API
-  const [notifications, setNotifications] = useState<NotificationItem[]>([
-    {
-      id: 1,
-      avatar: "/docs/images/people/profile-picture-1.jpg",
-      name: "Bác sĩ Nguyễn Văn A",
-      message: "Đã xác nhận lịch hẹn của bạn",
-      time: "2 phút trước",
-      isRead: false,
-    },
-    {
-      id: 2,
-      avatar: "/docs/images/people/profile-picture-2.jpg",
-      name: "Phòng khám",
-      message: "Nhắc lịch khám ngày mai (25/05/2024)",
-      time: "1 giờ trước",
-      isRead: true,
-    },
-  ]);
+  const { notifications, markAllAsRead, markAsRead } = useNotification();
   // Để test trạng thái không có thông báo, setNotifications([])
 
-  const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   // Đóng dropdown khi click ra ngoài
   useEffect(() => {
@@ -54,24 +29,8 @@ const Notification = () => {
     };
   }, [isOpen]);
 
-  const handleMarkAllAsRead = () => {
-    setNotifications((prevNotifications) =>
-      prevNotifications.map((notification) => ({
-        ...notification,
-        isRead: true,
-      }))
-    );
-  };
-
-  const handleMarkAsRead = (id: number) => {
-    setNotifications((prevNotifications) =>
-      prevNotifications.map((notification) =>
-        notification.id === id
-          ? { ...notification, isRead: true }
-          : notification
-      )
-    );
-  };
+  const handleMarkAllAsRead = markAllAsRead;
+  const handleMarkAsRead = markAsRead;
 
   return (
     <div className="relative" ref={dropdownRef}>
