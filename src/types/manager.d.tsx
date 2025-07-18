@@ -29,14 +29,16 @@ export interface Account {
     
   } 
   export interface Doctor {
-    doctorId: string;
+    doctorId: number;
     fullName: string;
     degreeName: string;
     phone: string;
     email: string;
+    isActive: boolean;
   }
 
   export interface DaySchedule {
+    doctorScheduleId: number;
     workDate: string;
     startTime: string;
     endTime: string;
@@ -143,7 +145,8 @@ export interface TotalCustomersResponse {
 }
 
 export interface DoctorScheduleCreateRequest {
-  workDate: string; // yyyy-MM-dd
-  startTime: string; // HH:mm
-  endTime: string;   // HH:mm
+    workDate: string; // yyyy-MM-dd
+    startTime: string; // HH:mm
+    endTime: string;   // HH:mm
+    status: string;
 }

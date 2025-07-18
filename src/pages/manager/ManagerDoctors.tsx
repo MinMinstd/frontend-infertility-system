@@ -4,8 +4,7 @@ import { Calendar as CalendarIcon, User, ArrowLeft, ArrowRight, Plus, Trash2 } f
 import type { ColumnsType } from "antd/es/table";
 import { motion } from "framer-motion";
 import ManagerApi from "../../servers/manager.api";
-import type { Doctor } from "../../types/manager.d";
-import type { DaySchedule, DoctorScheduleCreateRequest } from "../../types/manager.d";
+import type { Doctor, DaySchedule } from "../../types/manager.d";
 import axios from "axios";
 
 const { Title, Text } = Typography;
@@ -56,7 +55,8 @@ const ManagerDoctors: React.FC = () => {
       setLoading(true);
       try {
         const response = await ManagerApi.GetAllDoctors();
-        setDoctors(response.data);
+        // Chỉ lấy bác sĩ đang hoạt động
+        setDoctors((response.data || []).filter((d: Doctor) => d.isActive === true));
       } catch {
         message.error("Lấy danh sách bác sĩ thất bại");
       } finally {
@@ -116,7 +116,7 @@ const ManagerDoctors: React.FC = () => {
   const handleCreateSchedule = async () => {
     if (!showSchedule || !selectedDate || !selectedBlock) return;
     // Gửi startTime, endTime đúng định dạng HH:mm:ss
-    const data: DoctorScheduleCreateRequest & { status: string } = {
+    const data = {
       workDate: selectedDate,
       startTime: toTimeOnlyFull(selectedBlock.start),
       endTime: toTimeOnlyFull(selectedBlock.end),
@@ -166,6 +166,66 @@ const ManagerDoctors: React.FC = () => {
     }
   };
 
+  // Hàm xoá lịch làm việc
+  const handleDeleteSchedule = async () => {
+    if (!showSchedule || !selectedDate || !selectedBlock) return;
+    const date = selectedDate;
+    const blockKey = `${toTimeOnlyFull(selectedBlock.start)}-${toTimeOnlyFull(selectedBlock.end)}`;
+    const slot = schedule[date]?.[blockKey];
+    if (!slot || !slot.doctorScheduleId) {
+      message.warning('Vui lòng chọn một ca đã có lịch để xoá!');
+      return;
+    }
+    Modal.confirm({
+      title: 'Xác nhận xoá lịch',
+      content: `Bạn có chắc muốn xoá ca làm việc ngày ${date}, khung giờ ${selectedBlock.start} - ${selectedBlock.end}?`,
+      okText: 'Xoá',
+      okType: 'danger',
+      cancelText: 'Huỷ',
+      onOk: async () => {
+        setLoadingSchedule(true);
+        try {
+          await ManagerApi.DeleteDoctorSchedule(Number(showSchedule.doctorId), slot.doctorScheduleId);
+          message.success('Xoá lịch thành công!');
+          setSelectedDate(null);
+          setSelectedBlock(null);
+          // Reload lịch
+          const res = await ManagerApi.GetDoctorScheduleById(showSchedule.doctorId);
+          const weekMap: Record<string, Record<string, DaySchedule | null>> = {};
+          for (let i = 0; i < 7; ++i) {
+            const d = addDays(weekStart, i).toISOString().slice(0, 10);
+            weekMap[d] = {};
+            TIME_BLOCKS.forEach(b => {
+              weekMap[d][`${toTimeOnlyFull(b.start)}-${toTimeOnlyFull(b.end)}`] = null;
+            });
+          }
+          if (Array.isArray(res.data)) {
+            res.data.forEach((item: DaySchedule) => {
+              const d = item.workDate;
+              const key = `${toTimeOnlyFull(item.startTime)}-${toTimeOnlyFull(item.endTime)}`;
+              if (weekMap[d] && weekMap[d][key] !== undefined) {
+                weekMap[d][key] = item;
+              }
+            });
+          }
+          setSchedule(weekMap);
+        } catch (err) {
+          let msg = 'Xoá lịch thất bại!';
+          if (axios.isAxiosError(err)) {
+            if (err.response?.data?.message) {
+              msg += ': ' + err.response.data.message;
+            } else if (err.response?.data) {
+              msg += ': ' + JSON.stringify(err.response.data);
+            }
+          }
+          message.error(msg);
+        } finally {
+          setLoadingSchedule(false);
+        }
+      }
+    });
+  };
+
   const handlePrevWeek = () => setWeekStart(addDays(weekStart, -7));
   const handleNextWeek = () => setWeekStart(addDays(weekStart, 7));
   const weekRange = `${weekStart.toLocaleDateString('vi-VN')} - ${addDays(weekStart,6).toLocaleDateString('vi-VN')}`;
@@ -176,6 +236,7 @@ const ManagerDoctors: React.FC = () => {
       dataIndex: "doctorId",
       key: "doctorId",
       width: 120,
+      render: (id: number) => id,
     },
     {
       title: <span className="text-pink-600 font-semibold">Họ và tên</span>,
@@ -216,7 +277,7 @@ const ManagerDoctors: React.FC = () => {
           <Button
             type="primary"
             icon={<CalendarIcon className="w-4 h-4" />}
-            onClick={() => setShowSchedule({doctorId: record.doctorId, fullName: record.fullName})}
+            onClick={() => setShowSchedule({doctorId: String(record.doctorId), fullName: record.fullName})}
             className="bg-pink-500 border-pink-500 hover:bg-pink-600 hover:border-pink-600"
           >
             Xem lịch
@@ -269,7 +330,8 @@ const ManagerDoctors: React.FC = () => {
       </div>
       {/* Modal xem/tạo lịch bác sĩ */}
       {showSchedule && (
-        <Modal open={true} footer={null} onCancel={() => setShowSchedule(null)} width={900} style={{top: 40}} bodyStyle={{padding:0, borderRadius: 16, boxShadow: '0 8px 32px 0 rgba(24, 144, 255, 0.15)'}}>
+        <Modal open={true} footer={null} onCancel={() => setShowSchedule(null)} width={900} style={{top: 40}}
+          styles={{ body: { padding: 0, borderRadius: 16, boxShadow: '0 8px 32px 0 rgba(24, 144, 255, 0.15)' } }}>
           <div className="p-0">
             <div className="flex items-center justify-between px-6 pt-6 pb-2">
               <Title level={4} className="!mb-0">Quản lý lịch làm việc - {showSchedule.fullName}</Title>
@@ -280,8 +342,35 @@ const ManagerDoctors: React.FC = () => {
               </div>
             </div>
             <div className="px-6 pb-2 flex gap-2">
-              <Button type="primary" onClick={handleCreateSchedule} loading={loadingSchedule} icon={<Plus />}>Tạo lịch</Button>
-              <Button danger icon={<Trash2 />}>Xóa</Button>
+              {(() => {
+                if (!selectedDate || !selectedBlock) return null;
+                const date = selectedDate;
+                const blockKey = `${toTimeOnlyFull(selectedBlock.start)}-${toTimeOnlyFull(selectedBlock.end)}`;
+                const slot = schedule[date]?.[blockKey];
+                const isHasSchedule = !!(slot && typeof slot.doctorScheduleId === 'number' && slot.doctorScheduleId > 0);
+                return (
+                  <>
+                    <Button
+                      type="primary"
+                      icon={<Plus />}
+                      onClick={handleCreateSchedule}
+                      loading={loadingSchedule}
+                      disabled={isHasSchedule}
+                    >
+                      Tạo lịch
+                    </Button>
+                    <Button
+                      danger
+                      icon={<Trash2 />}
+                      onClick={handleDeleteSchedule}
+                      loading={loadingSchedule}
+                      disabled={!isHasSchedule}
+                    >
+                      Xóa
+                    </Button>
+                  </>
+                );
+              })()}
             </div>
             <div className="px-6 pb-2">
               <div className="bg-blue-50 rounded p-2 text-blue-700 text-sm">
@@ -319,8 +408,23 @@ const ManagerDoctors: React.FC = () => {
                         if (isPast) {
                           return <Tooltip title="Không thể tạo lịch cho ngày quá khứ"><span><Tag color="default">Quá khứ</Tag></span></Tooltip>;
                         }
-                        if (slot) {
-                          return <Tooltip title={`Ngày: ${date}\nKhung giờ: ${row.start} - ${row.end}\nĐã có lịch`}><Tag color="success">Đã có lịch</Tag></Tooltip>;
+                        if (slot && slot.doctorScheduleId) {
+                          return (
+                            <Tooltip title={`Ngày: ${date}\nKhung giờ: ${row.start} - ${row.end}\nĐã có lịch`}>
+                              <Tag
+                                color={isSelected ? "processing" : "success"}
+                                style={{
+                                  cursor: 'pointer',
+                                  borderRadius: 8,
+                                  fontWeight: 600,
+                                  border: isSelected ? '2px solid #1677ff' : undefined
+                                }}
+                                onClick={() => handleSelectBlock(date, row)}
+                              >
+                                {isSelected ? 'Đang chọn' : 'Đã có lịch'}
+                              </Tag>
+                            </Tooltip>
+                          );
                         }
                         return (
                           <Tooltip title={`Ngày: ${date}\nKhung giờ: ${row.start} - ${row.end}`}> 

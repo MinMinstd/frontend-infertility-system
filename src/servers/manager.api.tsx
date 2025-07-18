@@ -21,7 +21,8 @@ const ManagerApi = {
 
     GetAllDoctors: () => axiosClient.get<Doctor[]>("/Doctor/GetDoctorsForManagement"),
 
-    GetDoctorScheduleById: (doctorId: string) => axiosClient.get<DaySchedule[]>(`/DoctorSchedule/GetScheduleByDoctorId/${doctorId}`),
+    GetDoctorScheduleById: (doctorId: string | number) =>
+      axiosClient.get<DaySchedule[]>(`/DoctorSchedule/GetScheduleByDoctorId/${doctorId}`),
     
     GetAllOrder: () => axiosClient.get<Order[]>("/Order/GetAllOrder"),
 
@@ -55,6 +56,7 @@ const ManagerApi = {
     GetAllDoctorSchedules: () => axiosClient.get<DaySchedule[]>("/DoctorSchedule/GetAll"),
 
     DeleteAccount: (userId: number) => axiosClient.put(`/User/${userId}`, {}),
+    DeleteDoctorSchedule: (doctorId: number, scheduleId: number) => axiosClient.delete(`/DoctorSchedule/${doctorId}/${scheduleId}`),
   };
   
   export default ManagerApi;
