@@ -82,7 +82,11 @@ const ManagerReport: React.FC = () => {
       ManagerApi.GetFeedback(),
     ]).then(([accountsRes, newAccRes, doctorsRes, appointmentsRes, servicesRes, feedbacksRes]) => {
       setTotalAccounts(Array.isArray(accountsRes.data) ? accountsRes.data.length : 0);
-      setNewAccounts(Array.isArray(newAccRes.data) ? newAccRes.data.length : 0);
+      setNewAccounts(
+        typeof newAccRes.data === 'number'
+          ? newAccRes.data
+          : (Array.isArray(newAccRes.data) ? newAccRes.data.length : 0)
+      );
       setTotalDoctors(Array.isArray(doctorsRes.data) ? doctorsRes.data.length : 0);
       setTotalAppointments(Array.isArray(appointmentsRes.data) ? appointmentsRes.data.length : 0);
       setTotalServices(Array.isArray(servicesRes.data) ? servicesRes.data.length : 0);

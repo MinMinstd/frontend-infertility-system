@@ -141,3 +141,9 @@ export interface TotalTransactionsResponse {
 export interface TotalCustomersResponse {
   totalCustomers: number;
 }
+
+export interface DoctorScheduleCreateRequest {
+  workDate: string; // yyyy-MM-dd
+  startTime: string; // HH:mm
+  endTime: string;   // HH:mm
+}

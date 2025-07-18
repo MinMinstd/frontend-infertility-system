@@ -1,4 +1,4 @@
-import type { Feedback, Account, Appointment, Doctor, DaySchedule, Order, TreatmentRoadmapWithPayment, CustomerWithPayment, ServiceForManagement, ServiceCreateRequest, ServiceUpdateRequest, TreatmentRoadmapStep, TreatmentRoadmapCreateRequest, TreatmentRoadmapUpdateRequest, TotalRevenueResponse, TotalTransactionsResponse, TotalCustomersResponse } from "../types/manager.d";
+import type { Feedback, Account, Appointment, Doctor, DaySchedule, Order, TreatmentRoadmapWithPayment, CustomerWithPayment, ServiceForManagement, ServiceCreateRequest, ServiceUpdateRequest, TreatmentRoadmapStep, TreatmentRoadmapCreateRequest, TreatmentRoadmapUpdateRequest, TotalRevenueResponse, TotalTransactionsResponse, TotalCustomersResponse, DoctorScheduleCreateRequest } from "../types/manager.d";
 import axiosClient from "./axiosClient";
 const ManagerApi = {
     
@@ -49,6 +49,10 @@ const ManagerApi = {
 
     GetTotalCustomers: (month: number, year: number) =>
       axiosClient.get<TotalCustomersResponse>(`/Payment/report/total-customer/${month}/${year}`),
+
+    CreateDoctorSchedule: (doctorId: string | number, data: DoctorScheduleCreateRequest) => axiosClient.post(`/DoctorSchedule/${doctorId}`, data),
+
+    GetAllDoctorSchedules: () => axiosClient.get<DaySchedule[]>("/DoctorSchedule/GetAll"),
   };
   
   export default ManagerApi;
