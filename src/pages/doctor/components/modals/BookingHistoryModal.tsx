@@ -56,6 +56,7 @@ interface Appointment {
 }
 
 interface DoctorSlot {
+  doctorScheduleId: number;
   startTime: string;
   endTime: string;
   status: string; // hoặc isAvailable nếu backend trả về khác
@@ -191,10 +192,53 @@ export function BookingHistoryModal({
     setSelectedDateMap((prev) => ({ ...prev, [bookingId]: date }));
   };
 
+  // const handleCreateAppointment = async (bookingId: number) => {
+  //   try {
+  //     const values = await form.validateFields();
+  //     const selectedStage = values.stage;
+  //     const stageInfo = treatmentStages[bookingId]?.find(
+  //       (item) => item.stage === selectedStage
+  //     );
+  //     if (!stageInfo) {
+  //       message.error("Không tìm thấy thông tin giai đoạn điều trị");
+  //       return;
+  //     }
+  //     const payload = {
+  //       treatmentRoadmapId: stageInfo.treatmentRoadmapId,
+  //       dateTreatment: dayjs(values.date).format("YYYY-MM-DD"),
+  //       timeTreatment: values.time,
+  //       doctorScheduleId: values.doctorScheduleId,
+  //     };
+
+  //     console.log("📤 Dữ liệu gửi lên backend:", {
+  //       bookingId,
+  //       treatmentRoadmapId: stageInfo.treatmentRoadmapId,
+  //       dateTreatment: dayjs(values.date).format("YYYY-MM-DD"),
+  //       timeTreatment: values.time,
+  //       doctorScheduleId: values.doctorScheduleId,
+  //     });
+
+  //     await DoctorApi.CreateBookingAppointment(bookingId, payload);
+  //     message.success("Tạo lịch khám thành công");
+  //     form.resetFields();
+  //     setCreatingFor(null);
+  //     // Refresh appointments
+  //     const res = await DoctorApi.GetListAppointmentInBooking(bookingId);
+  //     setAppointmentsMap((prev) => ({ ...prev, [bookingId]: res.data }));
+  //   } catch {
+  //     message.error("Vui lòng điền đầy đủ thông tin hợp lệ");
+  //   }
+  // };
+
   const handleCreateAppointment = async (bookingId: number) => {
     try {
       const values = await form.validateFields();
+
       const selectedStage = values.stage;
+      const doctorScheduleId = values.doctorScheduleId;
+      const selectedDate = selectedDateMap[bookingId]?.format("YYYY-MM-DD");
+
+      // 1. Lấy treatmentRoadmapId từ stage
       const stageInfo = treatmentStages[bookingId]?.find(
         (item) => item.stage === selectedStage
       );
@@ -202,27 +246,39 @@ export function BookingHistoryModal({
         message.error("Không tìm thấy thông tin giai đoạn điều trị");
         return;
       }
+
+      // 2. Tra lại slot từ doctorScheduleId
+      const selectedSlot = doctorSlots[selectedDate || ""]?.find(
+        (slot) => slot.doctorScheduleId === doctorScheduleId
+      );
+
+      if (!selectedSlot) {
+        message.error("Không tìm thấy giờ khám phù hợp");
+        return;
+      }
+
+      // 3. Tạo payload
       const payload = {
         treatmentRoadmapId: stageInfo.treatmentRoadmapId,
         dateTreatment: dayjs(values.date).format("YYYY-MM-DD"),
-        timeTreatment: values.time,
+        doctorScheduleId: doctorScheduleId,
+        timeTreatment: `${selectedSlot.startTime} - ${selectedSlot.endTime}`,
       };
 
-      console.log("📤 Dữ liệu gửi lên backend:", {
-        bookingId,
-        treatmentRoadmapId: stageInfo.treatmentRoadmapId,
-        dateTreatment: dayjs(values.date).format("YYYY-MM-DD"),
-        timeTreatment: values.time,
-      });
+      console.log("📤 Payload gửi đi:", payload);
 
+      // 4. Gọi API tạo lịch khám
       await DoctorApi.CreateBookingAppointment(bookingId, payload);
       message.success("Tạo lịch khám thành công");
+
+      // 5. Làm mới
       form.resetFields();
       setCreatingFor(null);
-      // Refresh appointments
+
       const res = await DoctorApi.GetListAppointmentInBooking(bookingId);
       setAppointmentsMap((prev) => ({ ...prev, [bookingId]: res.data }));
-    } catch {
+    } catch (error) {
+      console.error("❌ Lỗi tạo lịch khám:", error);
       message.error("Vui lòng điền đầy đủ thông tin hợp lệ");
     }
   };
@@ -498,7 +554,7 @@ export function BookingHistoryModal({
                           </Col>
                           <Col xs={24} sm={12}>
                             <Form.Item
-                              name="time"
+                              name="doctorScheduleId"
                               label="Giờ khám"
                               rules={[
                                 {
@@ -512,7 +568,7 @@ export function BookingHistoryModal({
                                 options={(doctorSlots[slotKey] || [])
                                   .filter((s) => s.status === "Available")
                                   .map((s) => ({
-                                    value: `${s.startTime} - ${s.endTime}`,
+                                    value: s.doctorScheduleId,
                                     label: `${s.startTime} - ${s.endTime}`,
                                   }))}
                               />
