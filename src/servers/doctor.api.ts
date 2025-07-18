@@ -262,6 +262,7 @@ const DoctorApi = {
     bookingId: number,
     data: {
       treatmentRoadmapId: number;
+      doctorScheduleId: number;
       dateTreatment: string;
       timeTreatment: string;
     }
