@@ -38,6 +38,13 @@ function toTimeOnlyFull(str: string) {
   return str.length === 5 ? str + ':00' : str;
 }
 
+function formatDateLocal(date: Date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 const ManagerDoctors: React.FC = () => {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [loading, setLoading] = useState(true);
@@ -75,7 +82,7 @@ const ManagerDoctors: React.FC = () => {
         const res = await ManagerApi.GetDoctorScheduleById(showSchedule.doctorId);
         const weekMap: Record<string, Record<string, DaySchedule | null>> = {};
         for (let i = 0; i < 7; ++i) {
-          const date = addDays(weekStart, i).toISOString().slice(0, 10);
+          const date = formatDateLocal(addDays(weekStart, i));
           weekMap[date] = {};
           TIME_BLOCKS.forEach(b => {
             weekMap[date][`${toTimeOnlyFull(b.start)}-${toTimeOnlyFull(b.end)}`] = null;
@@ -134,7 +141,7 @@ const ManagerDoctors: React.FC = () => {
       const res = await ManagerApi.GetDoctorScheduleById(showSchedule.doctorId);
       const weekMap: Record<string, Record<string, DaySchedule | null>> = {};
       for (let i = 0; i < 7; ++i) {
-        const date = addDays(weekStart, i).toISOString().slice(0, 10);
+        const date = formatDateLocal(addDays(weekStart, i));
         weekMap[date] = {};
         TIME_BLOCKS.forEach(b => {
           weekMap[date][`${toTimeOnlyFull(b.start)}-${toTimeOnlyFull(b.end)}`] = null;
@@ -193,7 +200,7 @@ const ManagerDoctors: React.FC = () => {
           const res = await ManagerApi.GetDoctorScheduleById(showSchedule.doctorId);
           const weekMap: Record<string, Record<string, DaySchedule | null>> = {};
           for (let i = 0; i < 7; ++i) {
-            const d = addDays(weekStart, i).toISOString().slice(0, 10);
+            const d = formatDateLocal(addDays(weekStart, i));
             weekMap[d] = {};
             TIME_BLOCKS.forEach(b => {
               weekMap[d][`${toTimeOnlyFull(b.start)}-${toTimeOnlyFull(b.end)}`] = null;
@@ -400,7 +407,7 @@ const ManagerDoctors: React.FC = () => {
                       align: 'center' as const,
                       width: 110,
                       render: (_: unknown, row: { key: string; time: string; start: string; end: string }) => {
-                        const date = addDays(weekStart, i).toISOString().slice(0, 10);
+                        const date = formatDateLocal(addDays(weekStart, i));
                         const blockKey = `${toTimeOnlyFull(row.start)}-${toTimeOnlyFull(row.end)}`;
                         const slot = schedule[date]?.[blockKey];
                         const isSelected = selectedDate === date && selectedBlock && selectedBlock.start === row.start && selectedBlock.end === row.end;
