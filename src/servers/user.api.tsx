@@ -41,8 +41,8 @@ const UserApi = {
   GetInfoCustomerPay: () => axiosClient.get("/Order/GetOrderCurrent"),
 
   //Thông tin giai đoạn điều trị
-  GetPaymentByOrderId: (order: number) =>
-    axiosClient.get(`Payment/GetPaymentByOrderId/${order}`),
+  GetPaymentByOrderId: (orderId: number) =>
+    axiosClient.get(`Payment/GetPaymentByOrderId/${orderId}`),
 
   //Cập nhật trạng thái của payment
   UpdateSatatusPayment: (paymentId: number) =>
@@ -51,10 +51,12 @@ const UserApi = {
   //Thực hiện thanh toán ở bên thứ 3
   ReturnVnPayPayment: () => axiosClient.get("/vnpay/return"),
   CreateVnPayPayment: (data: {
-    orderId: number;
+    orderType: string; // hoặc "bill", "treatment", tuỳ hệ thống bạn định nghĩa
     amount: number;
-    orderInfo: string;
+    orderDescription: string;
+    name: string;
     returnUrl: string;
+    cancelUrl: string;
   }) => axiosClient.post("vnpay/create", data),
 
   //Lịch sử thanh toán
@@ -64,7 +66,7 @@ const UserApi = {
   GetPaymentHistoryDetail: (paymentId: number) =>
     axiosClient.get(`Payment/GetPaymentDetail/${paymentId}`),
 
-  //Phôi ở đây nè
+  //Danh sách phôi
   GetListEmbroys: () => axiosClient.get(`Customer/embryos`),
 };
 
