@@ -1,4 +1,4 @@
-import type { Feedback, Account, Appointment, Doctor, DaySchedule, Order, TreatmentRoadmapWithPayment, CustomerWithPayment, ServiceForManagement, ServiceCreateRequest, ServiceUpdateRequest, TreatmentRoadmapStep, TreatmentRoadmapCreateRequest, TreatmentRoadmapUpdateRequest } from "../types/manager.d";
+import type { Feedback, Account, Appointment, Doctor, DaySchedule, Order, TreatmentRoadmapWithPayment, CustomerWithPayment, ServiceForManagement, ServiceCreateRequest, ServiceUpdateRequest, TreatmentRoadmapStep, TreatmentRoadmapCreateRequest, TreatmentRoadmapUpdateRequest, TotalRevenueResponse, TotalTransactionsResponse, TotalCustomersResponse } from "../types/manager.d";
 import axiosClient from "./axiosClient";
 const ManagerApi = {
     
@@ -30,12 +30,25 @@ const ManagerApi = {
     GetCustomerWithPayment: () => axiosClient.get<CustomerWithPayment[]>("/Customer/GetCustomerWithPayment"),
 
     GetAllServicesForManagement: () => axiosClient.get<ServiceForManagement[]>("/Service/for-management"),
+
     CreateService: (data: ServiceCreateRequest) => axiosClient.post("/Service", data),
+
     UpdateService: (serviceDBId: number, data: ServiceUpdateRequest) => axiosClient.put(`/Service/${serviceDBId}`, data),
+
     GetTreatmentRoadmapByServiceId: (serviceId: number) => axiosClient.get<TreatmentRoadmapStep[]>(`/TreatementRoadmap/${serviceId}`),
+
     CreateTreatmentRoadmap: (data: TreatmentRoadmapCreateRequest) => axiosClient.post('/TreatementRoadmap', data),
+
     UpdateTreatmentRoadmap: (treatmentRoadmapId: number, data: TreatmentRoadmapUpdateRequest) => axiosClient.put(`/TreatementRoadmap/${treatmentRoadmapId}`, data),
     
+    GetTotalRevenue: (month: number, year: number) =>
+      axiosClient.get<TotalRevenueResponse>(`/Payment/report/total-revenue/${month}/${year}`),
+    
+    GetTotalTransactions: (month: number, year: number) =>
+      axiosClient.get<TotalTransactionsResponse>(`/Payment/report/total-transaction/${month}/${year}`),
+
+    GetTotalCustomers: (month: number, year: number) =>
+      axiosClient.get<TotalCustomersResponse>(`/Payment/report/total-customer/${month}/${year}`),
   };
   
   export default ManagerApi;

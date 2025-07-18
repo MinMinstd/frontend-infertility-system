@@ -5,14 +5,16 @@ import {
   Row,
   Col,
   Typography,
-  Statistic,
-  message,
   Empty,
+  DatePicker,
+  Statistic,
 } from 'antd';
-import { Users, User, FileText, MessageCircle, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ManagerApi from '../../servers/manager.api';
-import type { Order } from '../../types/manager.d';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import dayjs from 'dayjs';
+import { Users, User, FileText, MessageCircle, Calendar } from 'lucide-react';
+import type { Order, Appointment } from '../../types/manager.d';
 
 const { Title, Text } = Typography;
 
@@ -40,74 +42,96 @@ const ReportSVG = () => (
 );
 
 const ManagerReport: React.FC = () => {
-  const [loading, setLoading] = useState(true);
+  const [serviceStats, setServiceStats] = useState<ServiceStats[]>([]);
+  // Thêm các state mới
+  const [revenueChartData, setRevenueChartData] = useState<{ month: string, totalRevenue: number }[]>([]);
+  const [loadingRevenueChart, setLoadingRevenueChart] = useState(false);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [totalAccounts, setTotalAccounts] = useState(0);
   const [newAccounts, setNewAccounts] = useState(0);
   const [totalDoctors, setTotalDoctors] = useState(0);
   const [totalAppointments, setTotalAppointments] = useState(0);
   const [totalServices, setTotalServices] = useState(0);
   const [totalFeedbacks, setTotalFeedbacks] = useState(0);
-  const [serviceStats, setServiceStats] = useState<ServiceStats[]>([]);
-  // Thêm các state mới
-  const [totalDoctorAccounts, setTotalDoctorAccounts] = useState(0);
-  const [totalCustomerAccounts, setTotalCustomerAccounts] = useState(0);
-  const [totalOrders, setTotalOrders] = useState(0);
-  const [totalRevenue, setTotalRevenue] = useState(0);
-  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [topDoctors, setTopDoctors] = useState<{ name: string; count: number }[]>([]);
+  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
+
+  // Lấy dữ liệu doanh thu từng tháng trong năm hiện tại
+  useEffect(() => {
+    const fetchRevenueChart = async () => {
+      setLoadingRevenueChart(true);
+      const promises = Array.from({ length: 12 }, (_, i) => ManagerApi.GetTotalRevenue(i + 1, selectedYear));
+      const results = await Promise.allSettled(promises);
+      const data = results.map((res, idx) => ({
+        month: (idx + 1).toString().padStart(2, '0'),
+        totalRevenue: res.status === 'fulfilled' ? res.value.data.totalRevenue : 0
+      }));
+      setRevenueChartData(data);
+      setLoadingRevenueChart(false);
+    };
+    fetchRevenueChart();
+  }, [selectedYear]);
 
   useEffect(() => {
-    setLoading(true);
     Promise.all([
-      ManagerApi.GetCountTotalAccounts(),
+      ManagerApi.GetAllUsersForManagement(),
       ManagerApi.GetCountNewAccount(),
-      ManagerApi.GetCountDoctorsAccount(),
-      ManagerApi.GetCountCustomerAccount(),
       ManagerApi.GetAllDoctors(),
       ManagerApi.GetAllAppointments(),
-      ManagerApi.GetAllTreatmentRoadMap(),
+      ManagerApi.GetAllServicesForManagement(),
       ManagerApi.GetFeedback(),
+    ]).then(([accountsRes, newAccRes, doctorsRes, appointmentsRes, servicesRes, feedbacksRes]) => {
+      setTotalAccounts(Array.isArray(accountsRes.data) ? accountsRes.data.length : 0);
+      setNewAccounts(Array.isArray(newAccRes.data) ? newAccRes.data.length : 0);
+      setTotalDoctors(Array.isArray(doctorsRes.data) ? doctorsRes.data.length : 0);
+      setTotalAppointments(Array.isArray(appointmentsRes.data) ? appointmentsRes.data.length : 0);
+      setTotalServices(Array.isArray(servicesRes.data) ? servicesRes.data.length : 0);
+      setTotalFeedbacks(Array.isArray(feedbacksRes.data) ? feedbacksRes.data.length : 0);
+    }).catch(() => {
+      setTotalAccounts(0);
+      setNewAccounts(0);
+      setTotalDoctors(0);
+      setTotalAppointments(0);
+      setTotalServices(0);
+      setTotalFeedbacks(0);
+    });
+  }, []);
+
+  useEffect(() => {
+    Promise.all([
+      ManagerApi.GetAllAppointments(),
       ManagerApi.GetAllOrder(),
-    ])
-      .then(([
-        totalAccRes,
-        newAccRes,
-        doctorAccRes,
-        customerAccRes,
-        doctorsRes,
-        appointmentsRes,
-        servicesRes,
-        feedbacksRes,
-        ordersRes,
-      ]) => {
-        setTotalAccounts(Array.isArray(totalAccRes.data) ? totalAccRes.data.length : (typeof totalAccRes.data === 'number' ? totalAccRes.data : 0));
-        setNewAccounts(Array.isArray(newAccRes.data) ? newAccRes.data.length : (typeof newAccRes.data === 'number' ? newAccRes.data : 0));
-        setTotalDoctorAccounts(Array.isArray(doctorAccRes.data) ? doctorAccRes.data.length : (typeof doctorAccRes.data === 'number' ? doctorAccRes.data : 0));
-        setTotalCustomerAccounts(Array.isArray(customerAccRes.data) ? customerAccRes.data.length : (typeof customerAccRes.data === 'number' ? customerAccRes.data : 0));
-        setTotalDoctors(Array.isArray(doctorsRes.data) ? doctorsRes.data.length : 0);
-        setTotalAppointments(Array.isArray(appointmentsRes.data) ? appointmentsRes.data.length : 0);
-        setTotalServices(Array.isArray(servicesRes.data) ? servicesRes.data.length : 0);
-        setTotalFeedbacks(Array.isArray(feedbacksRes.data) ? feedbacksRes.data.length : 0);
-        // Tổng hợp dịch vụ
+      ManagerApi.GetAllServicesForManagement(),
+    ]).then(([appointmentsRes, ordersRes, servicesRes]) => {
+      // Top 5 bác sĩ nhiều lịch hẹn nhất
+      if (Array.isArray(appointmentsRes.data)) {
+        const doctorMap: Record<string, { name: string; count: number }> = {};
+        appointmentsRes.data.forEach((a: Appointment) => {
+          if (a.doctorName) {
+            if (!doctorMap[a.doctorName]) doctorMap[a.doctorName] = { name: a.doctorName, count: 0 };
+            doctorMap[a.doctorName].count += 1;
+          }
+        });
+        setTopDoctors(Object.values(doctorMap).sort((a, b) => b.count - a.count).slice(0, 5));
+      }
+      // 5 đơn hàng gần nhất
+      if (Array.isArray(ordersRes.data)) {
+        setRecentOrders(ordersRes.data.slice(-5).reverse());
+      }
+      // Bảng dịch vụ (thống kê số lần sử dụng và doanh thu)
+      if (Array.isArray(ordersRes.data) && Array.isArray(servicesRes.data)) {
         const serviceMap: Record<string, { usageCount: number; revenue: number }> = {};
-        let revenue = 0;
-        if (Array.isArray(ordersRes.data)) {
-          setTotalOrders(ordersRes.data.length);
-          setRecentOrders(ordersRes.data.slice(-5).reverse());
-          ordersRes.data.forEach((order: Order) => {
-            if (order.orderDetailList && Array.isArray(order.orderDetailList)) {
-              order.orderDetailList.forEach((detail: { serviceName?: string; price?: number }) => {
-                const name = detail.serviceName || 'Khác';
-                const price = detail.price || 0;
-                if (!serviceMap[name]) serviceMap[name] = { usageCount: 0, revenue: 0 };
-                serviceMap[name].usageCount += 1;
-                serviceMap[name].revenue += price;
-                revenue += price;
-              });
-            }
-          });
-        }
-        setTotalRevenue(revenue);
+        ordersRes.data.forEach((order: Order) => {
+          if (order.orderDetailList && Array.isArray(order.orderDetailList)) {
+            order.orderDetailList.forEach((detail: { serviceName?: string; price?: number }) => {
+              const name = detail.serviceName || 'Khác';
+              const price = detail.price || 0;
+              if (!serviceMap[name]) serviceMap[name] = { usageCount: 0, revenue: 0 };
+              serviceMap[name].usageCount += 1;
+              serviceMap[name].revenue += price;
+            });
+          }
+        });
         setServiceStats(
           Object.entries(serviceMap).map(([serviceName, stat], idx) => ({
             key: String(idx + 1),
@@ -116,22 +140,8 @@ const ManagerReport: React.FC = () => {
             revenue: stat.revenue,
           }))
         );
-        // Top bác sĩ nhiều lịch hẹn nhất
-        if (Array.isArray(appointmentsRes.data)) {
-          const doctorMap: Record<string, { name: string; count: number }> = {};
-          appointmentsRes.data.forEach((a: import('../../types/manager.d').Appointment) => {
-            if (a.doctorName) {
-              if (!doctorMap[a.doctorName]) doctorMap[a.doctorName] = { name: a.doctorName, count: 0 };
-              doctorMap[a.doctorName].count += 1;
-            }
-          });
-          setTopDoctors(Object.values(doctorMap).sort((a, b) => b.count - a.count).slice(0, 5));
-        }
-      })
-      .catch(() => {
-        message.error('Lỗi khi tải dữ liệu tổng hợp!');
-      })
-      .finally(() => setLoading(false));
+      }
+    });
   }, []);
 
   const columns = [
@@ -174,159 +184,77 @@ const ManagerReport: React.FC = () => {
       {/* End Banner */}
       <Row gutter={[16, 16]} className="mt-4">
         <Col xs={24} sm={12} md={4}>
-          <motion.div
-            variants={tableVariants}
-            initial="hidden"
-            animate="visible"
-            whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}
-          >
+          <motion.div variants={tableVariants} initial="hidden" animate="visible" whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}>
             <Card className="shadow-md hover:shadow-lg transition-shadow rounded-xl border-0 bg-gradient-to-br from-blue-100 to-white relative">
-              {/* SVG report nhỏ góc phải card */}
               <div className="absolute right-4 bottom-4 opacity-10 pointer-events-none select-none"><ReportSVG /></div>
-              <Statistic
-                title={<span className="text-blue-600">Tổng tài khoản</span>}
-                value={totalAccounts}
-                prefix={<Users className="w-6 h-6 text-blue-500" />}
-                valueStyle={{ color: '#3b82f6', fontWeight: 700, fontSize: 20 }}
-              />
+              <Statistic title={<span className="text-blue-600">Tổng tài khoản</span>} value={totalAccounts} prefix={<Users className="w-6 h-6 text-blue-500" />} valueStyle={{ color: '#3b82f6', fontWeight: 700, fontSize: 20 }} />
             </Card>
           </motion.div>
         </Col>
         <Col xs={24} sm={12} md={4}>
-          <motion.div
-            variants={tableVariants}
-            initial="hidden"
-            animate="visible"
-            whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}
-          >
+          <motion.div variants={tableVariants} initial="hidden" animate="visible" whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}>
             <Card className="shadow-md hover:shadow-lg transition-shadow rounded-xl border-0 bg-gradient-to-br from-green-100 to-white relative">
-              {/* SVG report nhỏ góc phải card */}
               <div className="absolute right-4 bottom-4 opacity-10 pointer-events-none select-none"><ReportSVG /></div>
-              <Statistic
-                title={<span className="text-green-600">Tài khoản mới</span>}
-                value={newAccounts}
-                prefix={<User className="w-6 h-6 text-green-500" />}
-                valueStyle={{ color: '#22c55e', fontWeight: 700, fontSize: 20 }}
-              />
+              <Statistic title={<span className="text-green-600">Tài khoản mới</span>} value={newAccounts} prefix={<User className="w-6 h-6 text-green-500" />} valueStyle={{ color: '#22c55e', fontWeight: 700, fontSize: 20 }} />
             </Card>
           </motion.div>
         </Col>
         <Col xs={24} sm={12} md={4}>
-          <motion.div
-            variants={tableVariants}
-            initial="hidden"
-            animate="visible"
-            whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}
-          >
+          <motion.div variants={tableVariants} initial="hidden" animate="visible" whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}>
             <Card className="shadow-md hover:shadow-lg transition-shadow rounded-xl border-0 bg-gradient-to-br from-pink-100 to-white relative">
-              {/* SVG report nhỏ góc phải card */}
               <div className="absolute right-4 bottom-4 opacity-10 pointer-events-none select-none"><ReportSVG /></div>
-              <Statistic
-                title={<span className="text-pink-600">Bác sĩ</span>}
-                value={totalDoctors}
-                prefix={<User className="w-6 h-6 text-pink-500" />}
-                valueStyle={{ color: '#ec4899', fontWeight: 700, fontSize: 20 }}
-              />
+              <Statistic title={<span className="text-pink-600">Bác sĩ</span>} value={totalDoctors} prefix={<User className="w-6 h-6 text-pink-500" />} valueStyle={{ color: '#ec4899', fontWeight: 700, fontSize: 20 }} />
             </Card>
           </motion.div>
         </Col>
         <Col xs={24} sm={12} md={4}>
-          <motion.div
-            variants={tableVariants}
-            initial="hidden"
-            animate="visible"
-            whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}
-          >
+          <motion.div variants={tableVariants} initial="hidden" animate="visible" whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}>
             <Card className="shadow-md hover:shadow-lg transition-shadow rounded-xl border-0 bg-gradient-to-br from-orange-100 to-white relative">
-              {/* SVG report nhỏ góc phải card */}
               <div className="absolute right-4 bottom-4 opacity-10 pointer-events-none select-none"><ReportSVG /></div>
-              <Statistic
-                title={<span className="text-orange-600">Lịch hẹn</span>}
-                value={totalAppointments}
-                prefix={<Calendar className="w-6 h-6 text-orange-500" />}
-                valueStyle={{ color: '#f59e42', fontWeight: 700, fontSize: 20 }}
-              />
+              <Statistic title={<span className="text-orange-600">Lịch hẹn</span>} value={totalAppointments} prefix={<Calendar className="w-6 h-6 text-orange-500" />} valueStyle={{ color: '#f59e42', fontWeight: 700, fontSize: 20 }} />
             </Card>
           </motion.div>
         </Col>
         <Col xs={24} sm={12} md={4}>
-          <motion.div
-            variants={tableVariants}
-            initial="hidden"
-            animate="visible"
-            whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}
-          >
+          <motion.div variants={tableVariants} initial="hidden" animate="visible" whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}>
             <Card className="shadow-md hover:shadow-lg transition-shadow rounded-xl border-0 bg-gradient-to-br from-purple-100 to-white relative">
-              {/* SVG report nhỏ góc phải card */}
               <div className="absolute right-4 bottom-4 opacity-10 pointer-events-none select-none"><ReportSVG /></div>
-              <Statistic
-                title={<span className="text-purple-600">Dịch vụ</span>}
-                value={totalServices}
-                prefix={<FileText className="w-6 h-6 text-purple-500" />}
-                valueStyle={{ color: '#a855f7', fontWeight: 700, fontSize: 20 }}
-              />
+              <Statistic title={<span className="text-purple-600">Dịch vụ</span>} value={totalServices} prefix={<FileText className="w-6 h-6 text-purple-500" />} valueStyle={{ color: '#a855f7', fontWeight: 700, fontSize: 20 }} />
             </Card>
           </motion.div>
         </Col>
         <Col xs={24} sm={12} md={4}>
-          <motion.div
-            variants={tableVariants}
-            initial="hidden"
-            animate="visible"
-            whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}
-          >
+          <motion.div variants={tableVariants} initial="hidden" animate="visible" whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}>
             <Card className="shadow-md hover:shadow-lg transition-shadow rounded-xl border-0 bg-gradient-to-br from-indigo-100 to-white relative">
-              {/* SVG report nhỏ góc phải card */}
               <div className="absolute right-4 bottom-4 opacity-10 pointer-events-none select-none"><ReportSVG /></div>
-              <Statistic
-                title={<span className="text-indigo-600">Phản hồi</span>}
-                value={totalFeedbacks}
-                prefix={<MessageCircle className="w-6 h-6 text-indigo-500" />}
-                valueStyle={{ color: '#6366f1', fontWeight: 700, fontSize: 20 }}
-              />
+              <Statistic title={<span className="text-indigo-600">Phản hồi</span>} value={totalFeedbacks} prefix={<MessageCircle className="w-6 h-6 text-indigo-500" />} valueStyle={{ color: '#6366f1', fontWeight: 700, fontSize: 20 }} />
             </Card>
           </motion.div>
         </Col>
       </Row>
-      {/* Card thống kê mở rộng */}
-      <Row gutter={[16, 16]} className="mt-2">
-        <Col xs={24} sm={12} md={4}>
-          <Card className="shadow-md rounded-xl border-0 bg-gradient-to-br from-blue-200 to-white">
-            <Statistic
-              title={<span className="text-blue-700">Tài khoản bác sĩ</span>}
-              value={totalDoctorAccounts}
-              valueStyle={{ color: '#2563eb', fontWeight: 700, fontSize: 18 }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={4}>
-          <Card className="shadow-md rounded-xl border-0 bg-gradient-to-br from-green-200 to-white">
-            <Statistic
-              title={<span className="text-green-700">Tài khoản khách hàng</span>}
-              value={totalCustomerAccounts}
-              valueStyle={{ color: '#16a34a', fontWeight: 700, fontSize: 18 }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={4}>
-          <Card className="shadow-md rounded-xl border-0 bg-gradient-to-br from-pink-200 to-white">
-            <Statistic
-              title={<span className="text-pink-700">Tổng đơn hàng</span>}
-              value={totalOrders}
-              valueStyle={{ color: '#db2777', fontWeight: 700, fontSize: 18 }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={4}>
-          <Card className="shadow-md rounded-xl border-0 bg-gradient-to-br from-yellow-200 to-white">
-            <Statistic
-              title={<span className="text-yellow-700">Tổng doanh thu</span>}
-              value={totalRevenue.toLocaleString('vi-VN') + ' VNĐ'}
-              valueStyle={{ color: '#eab308', fontWeight: 700, fontSize: 18 }}
-            />
-          </Card>
-        </Col>
-      </Row>
+      {/* Biểu đồ doanh thu theo tháng */}
+      <Card className="bg-white rounded-2xl shadow-lg p-6 mt-6 relative">
+        <div className="mb-4 flex items-center justify-between">
+          <Title level={4} className="text-yellow-600 !mb-0">Biểu đồ tổng doanh thu theo tháng ({selectedYear})</Title>
+          <DatePicker
+            picker="year"
+            value={selectedYear ? dayjs(`${selectedYear}`, 'YYYY') : undefined}
+            onChange={v => v && setSelectedYear(v.year())}
+            allowClear={false}
+            style={{ minWidth: 100 }}
+          />
+        </div>
+        <ResponsiveContainer width="100%" height={320}>
+          <LineChart data={revenueChartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="month" tick={{ fontSize: 14 }} />
+            <YAxis tickFormatter={v => v.toLocaleString('vi-VN')} tick={{ fontSize: 14 }} />
+            <Tooltip formatter={v => `${Number(v).toLocaleString('vi-VN')} VNĐ`} labelFormatter={l => `Tháng ${l}`} />
+            <Line type="monotone" dataKey="totalRevenue" stroke="#eab308" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+          </LineChart>
+        </ResponsiveContainer>
+        {loadingRevenueChart && <div className="absolute inset-0 flex items-center justify-center bg-white/60 z-10"><span className="text-yellow-600 font-semibold text-lg">Đang tải biểu đồ...</span></div>}
+      </Card>
       {/* Bảng top bác sĩ và đơn hàng gần đây */}
       <Row gutter={[16, 16]} className="mt-6">
         <Col xs={24} md={12}>
@@ -337,10 +265,9 @@ const ManagerReport: React.FC = () => {
                 { title: 'Bác sĩ', dataIndex: 'name', key: 'name' },
                 { title: 'Số lịch hẹn', dataIndex: 'count', key: 'count' },
               ]}
-              dataSource={topDoctors.map((d, i) => ({ ...d, key: i }))}
+              dataSource={topDoctors}
               pagination={false}
               size="small"
-              loading={loading}
             />
           </Card>
         </Col>
@@ -351,7 +278,6 @@ const ManagerReport: React.FC = () => {
               columns={[
                 { title: 'Mã đơn', dataIndex: 'orderId', key: 'orderId' },
                 { title: 'Khách hàng', dataIndex: 'customer', key: 'customer' },
-                // Không có createdAt, thay bằng orderId hoặc để trống
               ]}
               dataSource={recentOrders.map((order, i) => ({
                 key: order.orderId || i,
@@ -360,7 +286,6 @@ const ManagerReport: React.FC = () => {
               }))}
               pagination={false}
               size="small"
-              loading={loading}
             />
           </Card>
         </Col>
@@ -375,7 +300,6 @@ const ManagerReport: React.FC = () => {
           className="rounded-xl overflow-hidden shadow"
           pagination={{ pageSize: 10 }}
           locale={{ emptyText: <Empty image={<ReportSVG />} description={<span>Chưa có dữ liệu báo cáo</span>} /> }}
-          loading={loading}
         />
       </Card>
     </div>
