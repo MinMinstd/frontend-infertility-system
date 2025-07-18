@@ -35,8 +35,30 @@ const ManagerFinance: React.FC = () => {
   const [loadingCustomer, setLoadingCustomer] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerWithPayment | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [totalTransactions, setTotalTransactions] = useState<number>(0);
+  const [loadingTransactions, setLoadingTransactions] = useState(false);
+  const [totalCustomers, setTotalCustomers] = useState<number>(0);
+  const [loadingCustomers, setLoadingCustomers] = useState(false);
+  const [totalRevenue, setTotalRevenue] = useState<number>(0);
+  const [loadingRevenue, setLoadingRevenue] = useState(false);
 
-  // Lấy doanh thu theo dịch vụ/tháng
+  // Lấy tổng số giao dịch theo tháng/năm từ API mới
+  useEffect(() => {
+    const fetchTotalTransactions = async () => {
+      setLoadingTransactions(true);
+      try {
+        const res = await ManagerApi.GetTotalTransactions(selectedMonth.month() + 1, selectedMonth.year());
+        setTotalTransactions(res.data.totalTransactions);
+      } catch {
+        setTotalTransactions(0);
+      } finally {
+        setLoadingTransactions(false);
+      }
+    };
+    fetchTotalTransactions();
+  }, [selectedMonth]);
+
+  // Lấy doanh thu theo dịch vụ/tháng (giữ nguyên để hiển thị bảng chi tiết)
   useEffect(() => {
     const fetchRoadmap = async () => {
       setLoadingRoadmap(true);
@@ -68,13 +90,45 @@ const ManagerFinance: React.FC = () => {
     fetchCustomer();
   }, []);
 
-  // Tính tổng giao dịch và tổng doanh thu của tháng đang chọn
-  const totalTransactions = roadmapRevenue.reduce((sum, r) => sum + (r.listPayment?.length || 0), 0);
-  const totalRevenue = roadmapRevenue.reduce((sum, r) => sum + (r.cost || 0), 0);
+  // Lấy tổng số khách hàng đã giao dịch theo tháng/năm từ API mới
+  useEffect(() => {
+    const fetchTotalCustomers = async () => {
+      setLoadingCustomers(true);
+      try {
+        const res = await ManagerApi.GetTotalCustomers(selectedMonth.month() + 1, selectedMonth.year());
+        setTotalCustomers(res.data.totalCustomers);
+      } catch {
+        setTotalCustomers(0);
+      } finally {
+        setLoadingCustomers(false);
+      }
+    };
+    fetchTotalCustomers();
+  }, [selectedMonth]);
+
+  // Lấy tổng doanh thu theo tháng/năm từ API mới
+  useEffect(() => {
+    const fetchTotalRevenue = async () => {
+      setLoadingRevenue(true);
+      try {
+        const res = await ManagerApi.GetTotalRevenue(selectedMonth.month() + 1, selectedMonth.year());
+        setTotalRevenue(res.data.totalRevenue);
+      } catch {
+        setTotalRevenue(0);
+      } finally {
+        setLoadingRevenue(false);
+      }
+    };
+    fetchTotalRevenue();
+  }, [selectedMonth]);
+
+  // Xóa dòng tính tổng giao dịch từ roadmapRevenue
+  // const totalTransactions = roadmapRevenue.reduce((sum, r) => sum + (r.listPayment?.length || 0), 0);
   // Tính số khách hàng đã giao dịch trong tháng này
-  const monthStr = selectedMonth.format('YYYY-MM');
-  const customersInMonth = customerPayments.filter(c => c.listPayment.some(p => p.date.startsWith(monthStr)));
-  const totalCustomersInMonth = customersInMonth.length;
+  // const monthStr = selectedMonth.format('YYYY-MM');
+  // Xóa dòng tính tổng khách hàng từ customerPayments
+  // const customersInMonth = customerPayments.filter(c => c.listPayment.some(p => p.date.startsWith(monthStr)));
+  // const totalCustomersInMonth = customersInMonth.length;
 
   // Bảng doanh thu theo dịch vụ/tháng
   const roadmapColumns = [
@@ -187,7 +241,9 @@ const ManagerFinance: React.FC = () => {
           </div>
           <div className="flex-1 text-center">
             <div className="text-blue-600 font-semibold text-lg">Tổng giao dịch tháng {selectedMonth.format('MM/YYYY')}</div>
-            <div className="text-3xl font-bold text-blue-700 mt-1">{totalTransactions}</div>
+            <div className="text-3xl font-bold text-blue-700 mt-1">
+              {loadingTransactions ? 'Đang tải...' : totalTransactions}
+            </div>
           </div>
         </div>
         <div className="flex-1 min-w-[220px] bg-gradient-to-br from-green-100 to-white rounded-2xl shadow-md p-6 flex items-center gap-4 hover:shadow-lg transition-shadow">
@@ -196,7 +252,9 @@ const ManagerFinance: React.FC = () => {
           </div>
           <div className="flex-1 text-center">
             <div className="text-green-600 font-semibold text-lg">Tổng doanh thu tháng {selectedMonth.format('MM/YYYY')}</div>
-            <div className="text-3xl font-bold text-green-700 mt-1">{totalRevenue.toLocaleString('vi-VN')} <span className="text-base font-medium">VNĐ</span></div>
+            <div className="text-3xl font-bold text-green-700 mt-1">
+              {loadingRevenue ? 'Đang tải...' : totalRevenue.toLocaleString('vi-VN')} <span className="text-base font-medium">VNĐ</span>
+            </div>
           </div>
         </div>
         <div className="flex-1 min-w-[220px] bg-gradient-to-br from-pink-100 to-white rounded-2xl shadow-md p-6 flex items-center gap-4 hover:shadow-lg transition-shadow">
@@ -205,7 +263,9 @@ const ManagerFinance: React.FC = () => {
           </div>
           <div className="flex-1 text-center">
             <div className="text-pink-600 font-semibold text-lg">Khách hàng giao dịch tháng {selectedMonth.format('MM/YYYY')}</div>
-            <div className="text-3xl font-bold text-pink-700 mt-1">{totalCustomersInMonth}</div>
+            <div className="text-3xl font-bold text-pink-700 mt-1">
+              {loadingCustomers ? 'Đang tải...' : totalCustomers}
+            </div>
           </div>
         </div>
       </div>

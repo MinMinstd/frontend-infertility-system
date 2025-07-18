@@ -129,3 +129,15 @@ export interface TreatmentRoadmapUpdateRequest {
   durationDay: number;
   price: number;
 }
+
+export interface TotalRevenueResponse {
+  totalRevenue: number;
+}
+
+export interface TotalTransactionsResponse {
+  totalTransactions: number;
+}
+
+export interface TotalCustomersResponse {
+  totalCustomers: number;
+}
