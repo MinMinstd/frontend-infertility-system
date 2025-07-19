@@ -267,19 +267,6 @@ export const RegisterService = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Nghề nghiệp chồng
-              </label>
-              <input
-                type="text"
-                required
-                className="mt-1 block w-full h-8 rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
-                value={husbandJob}
-                onChange={(e) => setHusbandJob(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
                 Số diện thoại
               </label>
               <input
@@ -301,19 +288,6 @@ export const RegisterService = () => {
                 className="mt-1 block w-full h-8 rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
                 value={wifeName}
                 onChange={(e) => setWifeName(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Nghề nghiệp vợ:
-              </label>
-              <input
-                type="text"
-                required
-                className="mt-1 block w-full h-8 rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
-                value={wifeJob}
-                onChange={(e) => setWifeJob(e.target.value)}
               />
             </div>
 
