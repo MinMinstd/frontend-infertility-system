@@ -31,27 +31,27 @@ export const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ children }) => {
     {
       key: "/doctor",
       icon: <DashboardOutlined />,
-      label: "Dashboard",
+      label: "Thông kê",
     },
     {
       key: "/doctor/patients",
       icon: <UserOutlined />,
-      label: "Patients",
+      label: "Bênh nhân điều trị",
     },
     {
       key: "/doctor/appointments",
       icon: <CalendarOutlined />,
-      label: "Appointments",
+      label: "Lịch Khám",
     },
     {
       key: "/doctor/treatment_history",
       icon: <ClockCircleOutlined />,
-      label: "Treatment History",
+      label: "Lịch sử điều trị",
     },
     {
       key: "/doctor/schedule",
       icon: <ScheduleOutlined />,
-      label: "Schedule",
+      label: "Lịch làm việc",
     },
   ];
 
@@ -105,13 +105,13 @@ export const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ children }) => {
               fontSize: collapsed ? "16px" : "20px",
             }}
           >
-            {collapsed ? "FC" : "Fertility Clinic"}
+            {collapsed ? "FC" : "Hiếm Muộn"}
           </Title>
           {!collapsed && (
             <Text
               style={{ color: "rgba(255, 255, 255, 0.8)", fontSize: "12px" }}
             >
-              Doctor Portal
+              Cổng thông tin bác sĩ
             </Text>
           )}
         </div>
@@ -149,7 +149,7 @@ export const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ children }) => {
               }
             )}
             <Title level={4} style={{ margin: 0, color: "#ff69b4" }}>
-              Doctor Dashboard
+              Chức Năng
             </Title>
           </Space>
           <Dropdown

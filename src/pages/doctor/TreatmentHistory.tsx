@@ -108,10 +108,10 @@ export default function TreatmentHistoryPage() {
     <div>
       <div style={{ marginBottom: 32 }}>
         <Title level={2} style={{ color: "#ff69b4" }}>
-          Treatment History
+          Lịch sử theo dõi
         </Title>
         <Text style={{ color: "#666" }}>
-          Complete overview of all patient treatments and outcomes
+          Tổng quan về quá trình điều trị và kết quả
         </Text>
       </div>
 
@@ -125,7 +125,9 @@ export default function TreatmentHistoryPage() {
             }}
           >
             <Statistic
-              title={<span style={{ color: "#ff69b4" }}>Total Completed</span>}
+              title={
+                <span style={{ color: "#ff69b4" }}>Tổng số ca hoàn thành</span>
+              }
               value={treatmentStats.totalCompleted}
               prefix={<FileTextOutlined style={{ color: "#ff69b4" }} />}
               valueStyle={{ color: "#ff69b4" }}
@@ -220,7 +222,7 @@ export default function TreatmentHistoryPage() {
         items={[
           {
             key: "completed",
-            label: `Completed Treatments (${completedTreatments.length})`,
+            label: `Tổng số ca hoàn thành (${completedTreatments.length})`,
             children: (
               <div>
                 {completedTreatments.map((treatment) => (
@@ -313,7 +315,7 @@ export default function TreatmentHistoryPage() {
           },
           {
             key: "ongoing",
-            label: `Ongoing Treatments (${ongoingTreatments.length})`,
+            label: `Tổng số ca đang điều trị (${ongoingTreatments.length})`,
             children: (
               <div>
                 {ongoingTreatments.map((treatment) => (
