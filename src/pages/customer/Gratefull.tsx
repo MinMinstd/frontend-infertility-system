@@ -1,5 +1,6 @@
 // import { Card, Avatar, Typography, Tag } from "antd";
 // import { CalendarOutlined } from "@ant-design/icons";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import sampleStories from "../../data/sampleStoriesData"; // Đảm bảo đường dẫn đúng với file chứa dữ liệu mẫu
 import { Calendar, Star, ArrowRight } from "lucide-react";
@@ -12,14 +13,195 @@ interface GratefullProps {
 
 export const Gratefull = ({ limit }: GratefullProps) => {
   const navigate = useNavigate();
-  const displayStories = limit ? sampleStories.slice(0, limit) : sampleStories;
+  // State cho modal và form
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  // State cho danh sách bài post (bao gồm cả bài mới)
+  const [posts, setPosts] = useState(sampleStories);
+  // State cho dữ liệu form
+  const [form, setForm] = useState({
+    userName: "",
+    treatmentType: "",
+    title: "",
+    story: "",
+    avatarUrl: "",
+    contentImage: "",
+  });
+  // State cho lỗi đơn giản
+  const [error, setError] = useState("");
+
+  const displayStories = limit ? posts.slice(0, limit) : posts;
 
   const handleCardClick = (storyId: string) => {
-    navigate(`/gratefull/${storyId}`); // Sửa lại để khớp với route trong App.tsx
+    navigate(`/gratefull/${storyId}`);
+  };
+
+  // Xử lý thay đổi form
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+  };
+
+  // Xử lý upload ảnh đại diện
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setForm((prev) => ({ ...prev, avatarUrl: imageUrl }));
+    }
+  };
+
+  // Xử lý upload ảnh nội dung
+  const handleContentImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setForm((prev) => ({ ...prev, contentImage: imageUrl }));
+    }
+  };
+
+  // Xử lý submit form
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Validate đơn giản
+    if (!form.userName || !form.treatmentType || !form.title || !form.story) {
+      setError("Vui lòng điền đầy đủ thông tin.");
+      return;
+    }
+    // Tạo bài post mới
+    const newPost = {
+      id: Date.now().toString(),
+      userName: form.userName,
+      treatmentType: form.treatmentType,
+      title: form.title,
+      story: form.story,
+      avatarUrl: form.avatarUrl || "",
+      contentImage: form.contentImage || "",
+      rating: 5, // Mặc định 5 sao
+      duration: "",
+      date: new Date().toISOString(),
+    };
+    setPosts([newPost, ...posts]);
+    setForm({ userName: "", treatmentType: "", title: "", story: "", avatarUrl: "", contentImage: "" });
+    setError("");
+    setIsModalOpen(false);
   };
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12 bg-gradient-to-b from-pink-50 to-blue-50 rounded-3xl shadow-lg">
+      {/* Nút chia sẻ câu chuyện */}
+      <div className="flex justify-end mb-6">
+        <button
+          className="bg-gradient-to-r from-pink-500 to-blue-500 text-white px-6 py-2 rounded-full font-semibold shadow hover:from-pink-600 hover:to-blue-600 transition-all duration-300"
+          onClick={() => setIsModalOpen(true)}
+        >
+          Chia sẻ câu chuyện
+        </button>
+      </div>
+      {/* Modal đăng bài */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-lg relative">
+            <button
+              className="absolute top-3 right-3 text-gray-400 hover:text-pink-500 text-2xl font-bold"
+              onClick={() => setIsModalOpen(false)}
+              aria-label="Đóng"
+            >
+              ×
+            </button>
+            <h3 className="text-xl font-bold mb-4 text-pink-600">Chia sẻ câu chuyện của bạn</h3>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tên của bạn</label>
+                <input
+                  type="text"
+                  name="userName"
+                  value={form.userName}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                  placeholder="Nhập tên của bạn"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Dịch vụ bạn sử dụng</label>
+                <input
+                  type="text"
+                  name="treatmentType"
+                  value={form.treatmentType}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                  placeholder="VD: IVF, IUI, ..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tiêu đề</label>
+                <input
+                  type="text"
+                  name="title"
+                  value={form.title}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                  placeholder="Nhập tiêu đề câu chuyện"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nội dung</label>
+                <textarea
+                  name="story"
+                  value={form.story}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-400 min-h-[100px]"
+                  placeholder="Chia sẻ câu chuyện của bạn..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Hình ảnh đại diện</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                />
+                {form.avatarUrl && (
+                  <div className="mt-2 flex justify-center">
+                    <img
+                      src={form.avatarUrl}
+                      alt="avatar preview"
+                      className="w-20 h-20 rounded-full object-cover border border-pink-300 shadow"
+                    />
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Hình ảnh cho nội dung bài viết</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleContentImageChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                />
+                {form.contentImage && (
+                  <div className="mt-2 flex justify-center">
+                    <img
+                      src={form.contentImage}
+                      alt="content preview"
+                      className="w-32 h-32 object-cover border border-blue-300 shadow rounded-lg"
+                    />
+                  </div>
+                )}
+              </div>
+              {error && <div className="text-red-500 text-sm text-center">{error}</div>}
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  className="bg-gradient-to-r from-pink-500 to-blue-500 text-white px-6 py-2 rounded-full font-semibold shadow hover:from-pink-600 hover:to-blue-600 transition-all duration-300"
+                >
+                  Đăng bài
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="text-center lg:text-left">
         <h2 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-pink-600 to-blue-600 bg-clip-text text-transparent mb-4">
@@ -89,8 +271,7 @@ export const Gratefull = ({ limit }: GratefullProps) => {
 
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-500">
-                      Chia sẻ:{" "}
-                      {new Date(story.date).toLocaleDateString("vi-VN")}
+                      Chia sẻ: {new Date(story.date).toLocaleDateString("vi-VN")}
                     </span>
                     <button className="inline-flex items-center text-pink-600 hover:text-pink-700 font-medium group-hover:translate-x-1 transition-all duration-300">
                       Đọc thêm

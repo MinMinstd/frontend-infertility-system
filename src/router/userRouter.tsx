@@ -20,12 +20,18 @@ import OnlineConsult from "../components/OnlineResult";
 import PaymentPage from "../pages/customer/PaymentPage";
 import PaymentHistoryPage from "../pages/customer/PaymentHistory";
 import PaymentResult from "../pages/customer/PaymentResult";
+import ConfirmEmail from "../pages/auth/ConfirmEmail";
 
 export const userRoutes: RouteObject[] = [
   { path: "/", element: <Home /> },
   {
     path: "/login",
     element: <LoginPage />,
+    handle: { layout: "none" },
+  },
+  {
+    path: "/confirm-email",
+    element: <ConfirmEmail />,
     handle: { layout: "none" },
   },
   {

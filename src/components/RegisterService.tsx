@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { bookingApi } from "../servers/booking.api";
 import { useAuth } from "../context/AuthContext";
+import { useNotification } from "../context/NotificationContext";
 
 interface Doctor {
   doctorId: number;
@@ -21,6 +22,7 @@ interface DoctorSchedule {
 
 export const RegisterService = () => {
   const { user } = useAuth();
+  const { addNotification } = useNotification();
 
   const [services, setServices] = useState<Service[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
@@ -190,6 +192,12 @@ export const RegisterService = () => {
 
       const response = await bookingApi.bookingService(data);
       console.log("Booking response:", response);
+      addNotification({
+        avatar: "/Images/logo.png",
+        name: "Phòng khám",
+        message: "Bạn đã đăng ký dịch vụ thành công!",
+        time: new Date().toLocaleTimeString(),
+      });
 
       // Log successful submission details
       console.log("Submission successful with details:", {
