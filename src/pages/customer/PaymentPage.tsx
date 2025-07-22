@@ -36,6 +36,8 @@ export default function PaymentPage() {
   //Thông tin thực hiện thanh toán đối với dịch nào
   useEffect(() => {
     const fetchData = async () => {
+
+      if (!patientInfor?.orderId) return;
       try {
         const res = await UserApi.GetPaymentByOrderId(
           patientInfor?.orderId || 0
@@ -141,8 +143,8 @@ export default function PaymentPage() {
         name: patientInfor.wife,
 
         //Thêm các url xử lý khác nhau
-        returnUrl: "http://localhost:5173/payment-result",
-        cancelUrl: "http://localhost:5173/payment-result",
+        returnUrl: "http://localhost:5173/payment-result?status=return",
+        cancelUrl: "http://localhost:5173/payment-result?status=cancel",
       };
 
       console.log("Payload gửi xuống backend:", payload);

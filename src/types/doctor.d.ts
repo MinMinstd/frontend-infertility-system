@@ -13,6 +13,7 @@ export type InformationPatient = {
   status: string;
   startDate: string;
   serviceName: string;
+  descriptionService: string;
 };
 
 //Định nghĩa thông tin bệnh nhân ở PatientDetail
@@ -40,4 +41,28 @@ export interface DoctorSchedule {
   startTime: string;
   endTime: string;
   status: string;
+}
+
+export interface MedicalRecordComplete {
+  medicalRecordId: number;
+  startDate: string;
+  endDate: string;
+  stage: string;
+  diagnosis: string;
+  status: string;
+  attempt: number;
+  fullName: string;
+  serviceName: string;
+}
+
+export interface MedicalRecordOngoing {
+  medicalRecordId: number;
+  startDate: string;
+  endDate: string;
+  stage: string;
+  diagnosis: string;
+  status: string;
+  attempt: number;
+  fullName: string;
+  serviceName: string;
 }

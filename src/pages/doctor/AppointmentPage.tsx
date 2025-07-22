@@ -12,7 +12,7 @@ import {
   Button,
   Input,
   Select,
-  Tag,
+  // Tag,
 } from "antd";
 import {
   CalendarOutlined,
@@ -102,20 +102,20 @@ export default function DoctorSchedule() {
     return age;
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case "confirmed":
-        return "#52c41a";
-      case "pending":
-        return "#faad14";
-      case "cancelled":
-        return "#ff4d4f";
-      case "completed":
-        return "#1890ff";
-      default:
-        return "#d9d9d9";
-    }
-  };
+  // const getStatusColor = (status: string) => {
+  //   switch (status?.toLowerCase()) {
+  //     case "confirmed":
+  //       return "#52c41a";
+  //     case "pending":
+  //       return "#faad14";
+  //     case "cancelled":
+  //       return "#ff4d4f";
+  //     case "completed":
+  //       return "#1890ff";
+  //     default:
+  //       return "#d9d9d9";
+  //   }
+  // };
 
   const AppointmentContent = () => (
     <div className="p-6">
@@ -149,16 +149,16 @@ export default function DoctorSchedule() {
         </Col>
         <Col xs={24} md={6}>
           <Select
-            placeholder="Filter by Status"
+            placeholder="Lọc theo trạng thái"
             value={statusFilter}
             onChange={setStatusFilter}
             className="w-full"
             options={[
-              { value: "all", label: "All Status" },
-              { value: "confirmed", label: "Confirmed" },
-              { value: "pending", label: "Pending" },
-              { value: "cancelled", label: "Cancelled" },
-              { value: "completed", label: "Completed" },
+              { value: "Các trạng thái", label: "Các trạng thái" },
+              { value: "Xác nhận", label: "Xác nhận" },
+              { value: "Đang xử lý", label: "Đang xử lý" },
+              { value: "Đã hủy", label: "Đã hủy" },
+              { value: "Hoàn thành", label: "Hoàn thành" },
             ]}
           />
         </Col>
@@ -177,7 +177,7 @@ export default function DoctorSchedule() {
           >
             <List
               dataSource={filteredPatients}
-              locale={{ emptyText: "No appointments found" }}
+              locale={{ emptyText: "Không tìm thấy lịch hẹn" }}
               renderItem={(patient: AppointmentInfoPatient) => (
                 <List.Item
                   className="border border-pink-100 rounded-lg mb-3 bg-pink-50 hover:bg-pink-100 transition-colors"
@@ -201,14 +201,14 @@ export default function DoctorSchedule() {
                       >
                         <Space className="w-full justify-between">
                           <Text strong className="text-pink-600 text-lg">
-                            {patient.fullName || "N/A"}
+                            {patient.fullName || "Tên bệnh nhân"}
                           </Text>
-                          <Tag
+                          {/* <Tag
                             color={getStatusColor(patient.status)}
                             className="font-medium"
                           >
-                            {patient.status?.toUpperCase() || "UNKNOWN"}
-                          </Tag>
+                            {patient.status?.toUpperCase() || "KHÔNG ĐỊNH DẠNG"}
+                          </Tag> */}
                         </Space>
                         <Space className="text-gray-600">
                           <IdcardOutlined />
