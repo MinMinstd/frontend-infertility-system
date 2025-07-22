@@ -1,29 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Table,
   Card,
   Row,
   Col,
   Typography,
-  Empty,
   DatePicker,
   Statistic,
+  Table,
 } from 'antd';
 import { motion } from 'framer-motion';
 import ManagerApi from '../../servers/manager.api';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import dayjs from 'dayjs';
-import { Users, User, FileText, MessageCircle, Calendar } from 'lucide-react';
-import type { Order, Appointment } from '../../types/manager.d';
+import { Users, User, MessageCircle, Calendar } from 'lucide-react';
+import type { Appointment } from '../../types/manager.d';
+import type { Order } from '../../types/manager.d';
 
 const { Title, Text } = Typography;
-
-interface ServiceStats {
-  key: string;
-  serviceName: string;
-  usageCount: number;
-  revenue: number;
-}
 
 const tableVariants = {
   hidden: { opacity: 0, y: 40 },
@@ -42,8 +35,6 @@ const ReportSVG = () => (
 );
 
 const ManagerReport: React.FC = () => {
-  const [serviceStats, setServiceStats] = useState<ServiceStats[]>([]);
-  // Thêm các state mới
   const [revenueChartData, setRevenueChartData] = useState<{ month: string, totalRevenue: number }[]>([]);
   const [loadingRevenueChart, setLoadingRevenueChart] = useState(false);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
@@ -51,8 +42,8 @@ const ManagerReport: React.FC = () => {
   const [newAccounts, setNewAccounts] = useState(0);
   const [totalDoctors, setTotalDoctors] = useState(0);
   const [totalAppointments, setTotalAppointments] = useState(0);
-  const [totalServices, setTotalServices] = useState(0);
   const [totalFeedbacks, setTotalFeedbacks] = useState(0);
+  // Thêm lại state
   const [topDoctors, setTopDoctors] = useState<{ name: string; count: number }[]>([]);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
 
@@ -78,9 +69,8 @@ const ManagerReport: React.FC = () => {
       ManagerApi.GetCountNewAccount(),
       ManagerApi.GetCountDoctorsAccount(),
       ManagerApi.GetAllAppointments(),
-      ManagerApi.GetAllServicesForManagement(),
       ManagerApi.GetFeedback(),
-    ]).then(([allAccRes, newAccRes, doctorAccRes, appointmentsRes, servicesRes, feedbacksRes]) => {
+    ]).then(([allAccRes, newAccRes, doctorAccRes, appointmentsRes, feedbacksRes]) => {
       setTotalAccounts(typeof allAccRes.data === 'number' ? allAccRes.data : (Array.isArray(allAccRes.data) ? allAccRes.data.length : 0));
       setNewAccounts(
         typeof newAccRes.data === 'number'
@@ -89,24 +79,22 @@ const ManagerReport: React.FC = () => {
       );
       setTotalDoctors(typeof doctorAccRes.data === 'number' ? doctorAccRes.data : (Array.isArray(doctorAccRes.data) ? doctorAccRes.data.length : 0));
       setTotalAppointments(Array.isArray(appointmentsRes.data) ? appointmentsRes.data.length : 0);
-      setTotalServices(Array.isArray(servicesRes.data) ? servicesRes.data.length : 0);
       setTotalFeedbacks(Array.isArray(feedbacksRes.data) ? feedbacksRes.data.length : 0);
     }).catch(() => {
       setTotalAccounts(0);
       setNewAccounts(0);
       setTotalDoctors(0);
       setTotalAppointments(0);
-      setTotalServices(0);
       setTotalFeedbacks(0);
     });
   }, []);
 
+  // Khôi phục lại logic lấy dữ liệu cho topDoctors và recentOrders trong useEffect
   useEffect(() => {
     Promise.all([
       ManagerApi.GetAllAppointments(),
       ManagerApi.GetAllOrder(),
-      ManagerApi.GetAllServicesForManagement(),
-    ]).then(([appointmentsRes, ordersRes, servicesRes]) => {
+    ]).then(([appointmentsRes, ordersRes]) => {
       // Top 5 bác sĩ nhiều lịch hẹn nhất
       if (Array.isArray(appointmentsRes.data)) {
         const doctorMap: Record<string, { name: string; count: number }> = {};
@@ -122,57 +110,8 @@ const ManagerReport: React.FC = () => {
       if (Array.isArray(ordersRes.data)) {
         setRecentOrders(ordersRes.data.slice(-5).reverse());
       }
-      // Bảng dịch vụ (thống kê số lần sử dụng và doanh thu)
-      if (Array.isArray(ordersRes.data) && Array.isArray(servicesRes.data)) {
-        const serviceMap: Record<string, { usageCount: number; revenue: number }> = {};
-        ordersRes.data.forEach((order: Order) => {
-          if (order.orderDetailList && Array.isArray(order.orderDetailList)) {
-            order.orderDetailList.forEach((detail: { serviceName?: string; price?: number }) => {
-              const name = detail.serviceName || 'Khác';
-              const price = detail.price || 0;
-              if (!serviceMap[name]) serviceMap[name] = { usageCount: 0, revenue: 0 };
-              serviceMap[name].usageCount += 1;
-              serviceMap[name].revenue += price;
-            });
-          }
-        });
-        setServiceStats(
-          Object.entries(serviceMap).map(([serviceName, stat], idx) => ({
-            key: String(idx + 1),
-            serviceName,
-            usageCount: stat.usageCount,
-            revenue: stat.revenue,
-          }))
-        );
-      }
     });
   }, []);
-
-  const columns = [
-    {
-      title: <span className="text-pink-600 font-semibold">Tên dịch vụ</span>,
-      dataIndex: 'serviceName',
-      key: 'serviceName',
-    },
-    {
-      title: <span className="text-pink-600 font-semibold">Số lần sử dụng</span>,
-      dataIndex: 'usageCount',
-      key: 'usageCount',
-      render: (count: number) => (
-        <span className="text-blue-600 font-medium">{count}</span>
-      ),
-    },
-    {
-      title: <span className="text-pink-600 font-semibold">Doanh thu</span>,
-      dataIndex: 'revenue',
-      key: 'revenue',
-      render: (amount: number) => (
-        <span className="text-green-600 font-medium">
-          {amount.toLocaleString('vi-VN')} VNĐ
-        </span>
-      ),
-    },
-  ];
 
   return (
     <div className="p-6 min-h-screen bg-gradient-to-br from-white to-gray-50">
@@ -223,15 +162,7 @@ const ManagerReport: React.FC = () => {
           <motion.div variants={tableVariants} initial="hidden" animate="visible" whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}>
             <Card className="shadow-md hover:shadow-lg transition-shadow rounded-xl border-0 bg-gradient-to-br from-purple-100 to-white relative">
               <div className="absolute right-4 bottom-4 opacity-10 pointer-events-none select-none"><ReportSVG /></div>
-              <Statistic title={<span className="text-purple-600">Dịch vụ</span>} value={totalServices} prefix={<FileText className="w-6 h-6 text-purple-500" />} valueStyle={{ color: '#a855f7', fontWeight: 700, fontSize: 20 }} />
-            </Card>
-          </motion.div>
-        </Col>
-        <Col xs={24} sm={12} md={4}>
-          <motion.div variants={tableVariants} initial="hidden" animate="visible" whileHover={{ scale: 1.04, boxShadow: "0 8px 32px 0 rgba(236,72,153,0.15)" }}>
-            <Card className="shadow-md hover:shadow-lg transition-shadow rounded-xl border-0 bg-gradient-to-br from-indigo-100 to-white relative">
-              <div className="absolute right-4 bottom-4 opacity-10 pointer-events-none select-none"><ReportSVG /></div>
-              <Statistic title={<span className="text-indigo-600">Phản hồi</span>} value={totalFeedbacks} prefix={<MessageCircle className="w-6 h-6 text-indigo-500" />} valueStyle={{ color: '#6366f1', fontWeight: 700, fontSize: 20 }} />
+              <Statistic title={<span className="text-purple-600">Phản hồi</span>} value={totalFeedbacks} prefix={<MessageCircle className="w-6 h-6 text-indigo-500" />} valueStyle={{ color: '#6366f1', fontWeight: 700, fontSize: 20 }} />
             </Card>
           </motion.div>
         </Col>
@@ -294,18 +225,6 @@ const ManagerReport: React.FC = () => {
           </Card>
         </Col>
       </Row>
-      <Card className="bg-white rounded-2xl shadow-lg p-6 mt-6 relative">
-        {/* SVG report nhỏ góc phải card/table */}
-        <div className="absolute right-6 bottom-6 opacity-10 pointer-events-none select-none"><ReportSVG /></div>
-        <Table
-          columns={columns}
-          dataSource={serviceStats}
-          rowKey="key"
-          className="rounded-xl overflow-hidden shadow"
-          pagination={{ pageSize: 10 }}
-          locale={{ emptyText: <Empty image={<ReportSVG />} description={<span>Chưa có dữ liệu báo cáo</span>} /> }}
-        />
-      </Card>
     </div>
   );
 };

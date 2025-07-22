@@ -168,7 +168,7 @@ const ManagerFeedbacks: React.FC = () => {
       title: <span className="text-pink-600 font-semibold">Ngày gửi</span>,
       dataIndex: 'date',
       key: 'date',
-      render: (date: string) => dayjs(date).format('DD/MM/YYYY HH:mm'),
+      render: (date: string) => dayjs(date).format('DD/MM/YYYY'),
     },
     {
       title: <span className="text-pink-600 font-semibold">Thao tác</span>,

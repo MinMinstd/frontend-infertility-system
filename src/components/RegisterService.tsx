@@ -233,9 +233,6 @@ export const RegisterService = () => {
     );
   }
 
-  // Tính toán ngày tối thiểu (ngày hiện tại)
-  // const today = new Date().toISOString().split("T")[0];
-
   return (
     <div className="bg-gradient-to-br from-pink-50 to-blue-50 min-h-screen py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
@@ -557,6 +554,7 @@ export const RegisterService = () => {
               </div>
             </form>
           </div>
+
         </div>
       </div>
     </div>

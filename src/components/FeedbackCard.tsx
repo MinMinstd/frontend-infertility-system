@@ -1,20 +1,15 @@
-import React from "react";
-import { Card, Rate, Typography, Avatar, Input, Button } from "antd";
-import { UserOutlined } from "@ant-design/icons";
+import React, { useEffect, useState } from "react";
+import { Card, Rate, Typography } from "antd";
+import ManagerApi from "../servers/manager.api";
+import type { Feedback } from "../types/manager.d";
 
 const { Text, Paragraph } = Typography;
-const { TextArea } = Input;
 
 interface FeedbackCardProps {
   userName: string;
   rating: number;
   comment: string;
   date: string;
-  avatarUrl?: string;
-  reply?: string;
-  isReplying?: boolean;
-  onReplyChange?: (value: string) => void;
-  onReplySubmit?: () => void;
 }
 
 const FeedbackCard: React.FC<FeedbackCardProps> = ({
@@ -22,11 +17,6 @@ const FeedbackCard: React.FC<FeedbackCardProps> = ({
   rating,
   comment,
   date,
-  avatarUrl,
-  reply,
-  isReplying,
-  onReplyChange,
-  onReplySubmit,
 }) => {
   return (
     <Card
@@ -47,12 +37,6 @@ const FeedbackCard: React.FC<FeedbackCardProps> = ({
           padding: 16,
         }}
       >
-        <Avatar
-          size={64}
-          icon={<UserOutlined />}
-          src={avatarUrl}
-          style={{ border: "2px solid #f472b6", backgroundColor: "#fde8f3" }}
-        />
         <div style={{ flex: 1 }}>
           <div
             style={{
@@ -88,48 +72,52 @@ const FeedbackCard: React.FC<FeedbackCardProps> = ({
           >
             {comment}
           </Paragraph>
-
-          {/* Hiển thị phản hồi nếu có */}
-          {reply && (
-            <div
-              style={{
-                marginTop: 16,
-                padding: 16,
-                backgroundColor: "#f8fafc",
-                borderRadius: 8,
-              }}
-            >
-              <Text strong style={{ color: "#1f2937" }}>
-                Phản hồi:
-              </Text>
-              <Paragraph style={{ marginTop: 8, color: "#4b5563" }}>
-                {reply}
-              </Paragraph>
-            </div>
-          )}
-
-          {/* Form trả lời feedback */}
-          {isReplying && (
-            <div style={{ marginTop: 16 }}>
-              <TextArea
-                placeholder="Nhập phản hồi của bạn"
-                rows={3}
-                onChange={(e) => onReplyChange?.(e.target.value)}
-                style={{ marginBottom: 8 }}
-              />
-              <Button
-                type="primary"
-                onClick={onReplySubmit}
-                style={{ backgroundColor: "#f472b6", borderColor: "#f472b6" }}
-              >
-                Gửi phản hồi
-              </Button>
-            </div>
-          )}
         </div>
       </div>
     </Card>
   );
 };
 
-export default FeedbackCard;
+const FeedbackList: React.FC = () => {
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFeedbacks = async () => {
+      setLoading(true);
+      try {
+        const res = await ManagerApi.GetFeedback();
+        // Lọc trùng theo feedbackId
+        const uniqueFeedbacks = (res.data || []).filter(
+          (fb, idx, arr) => arr.findIndex(f => f.feedbackId === fb.feedbackId) === idx
+        );
+        setFeedbacks(uniqueFeedbacks);
+      } catch {
+        setFeedbacks([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFeedbacks();
+  }, []);
+
+  if (loading) return <div>Đang tải phản hồi...</div>;
+  const filteredFeedbacks = feedbacks.filter(fb => fb.status === 'Ok');
+  if (!filteredFeedbacks.length) return <div>Chưa có phản hồi nào.</div>;
+
+  return (
+    <div>
+      {filteredFeedbacks.map((fb) => (
+        <FeedbackCard
+          key={fb.feedbackId}
+          userName={fb.fullName}
+          rating={fb.rating}
+          comment={fb.comments}
+          date={fb.date}
+        />
+      ))}
+    </div>
+  );
+};
+
+export default FeedbackList;

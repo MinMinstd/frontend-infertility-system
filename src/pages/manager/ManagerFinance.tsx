@@ -205,12 +205,12 @@ const ManagerFinance: React.FC = () => {
       key: 'date',
       render: (date: string) => dayjs(date).format('DD/MM/YYYY'),
     },
-    {
-      title: <span className="text-pink-600 font-semibold">Số tiền</span>,
-      dataIndex: 'priceByTreatment',
-      key: 'priceByTreatment',
-      render: (value: number) => value?.toLocaleString('vi-VN'),
-    },
+    // {
+    //   title: <span className="text-pink-600 font-semibold">Số tiền</span>,
+    //   dataIndex: 'priceByTreatment',
+    //   key: 'priceByTreatment',
+    //   render: (value: number) => value?.toLocaleString('vi-VN'),
+    // },
     {
       title: <span className="text-pink-600 font-semibold">Trạng thái</span>,
       dataIndex: 'status',
