@@ -81,6 +81,10 @@ const UserApi = {
   PostBlog: (data: FormData) => axiosClient.post('/BlogPost', data, {
     headers: { 'Content-Type': 'multipart/form-data' },
   }),
+
+  // Hủy lịch đặt khám
+  cancelBooking: (bookingId: number) =>
+    axiosClient.put(`/Booking/Delete/${bookingId}`),
 };
 
 export default UserApi;

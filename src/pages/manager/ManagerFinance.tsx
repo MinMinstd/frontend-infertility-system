@@ -80,6 +80,7 @@ const ManagerFinance: React.FC = () => {
       setLoadingCustomer(true);
       try {
         const res = await ManagerApi.GetCustomerWithPayment();
+        console.log("danh sách khách hàng", res.data);
         setCustomerPayments(res.data);
       } catch {
         setCustomerPayments([]);
@@ -122,15 +123,7 @@ const ManagerFinance: React.FC = () => {
     fetchTotalRevenue();
   }, [selectedMonth]);
 
-  // Xóa dòng tính tổng giao dịch từ roadmapRevenue
-  // const totalTransactions = roadmapRevenue.reduce((sum, r) => sum + (r.listPayment?.length || 0), 0);
-  // Tính số khách hàng đã giao dịch trong tháng này
-  // const monthStr = selectedMonth.format('YYYY-MM');
-  // Xóa dòng tính tổng khách hàng từ customerPayments
-  // const customersInMonth = customerPayments.filter(c => c.listPayment.some(p => p.date.startsWith(monthStr)));
-  // const totalCustomersInMonth = customersInMonth.length;
-
-  // Bảng doanh thu theo dịch vụ/tháng
+ 
   const roadmapColumns = [
     {
       title: <span className="text-pink-600 font-semibold">ID</span>,
@@ -146,10 +139,10 @@ const ManagerFinance: React.FC = () => {
     },
     {
       title: <span className="text-pink-600 font-semibold">Tổng thu (VNĐ)</span>,
-      dataIndex: 'cost',
-      key: 'cost',
+      dataIndex: 'total',
+      key: 'total',
       width: 180,
-      render: (cost: number) => cost?.toLocaleString('vi-VN'),
+      render: (total: number) => total?.toLocaleString('vi-VN'),
     },
     {
       title: <span className="text-pink-600 font-semibold">Số giao dịch</span>,
@@ -175,12 +168,6 @@ const ManagerFinance: React.FC = () => {
       render: (value: number) => value?.toLocaleString('vi-VN'),
     },
     {
-      title: <span className="text-pink-600 font-semibold">Số giao dịch</span>,
-      dataIndex: 'listPayment',
-      key: 'listPayment',
-      render: (list: PaymentDetail[]) => list.length,
-    },
-    {
       title: <span className="text-pink-600 font-semibold">Chi tiết</span>,
       key: 'action',
       render: (_: unknown, record: CustomerWithPayment) => (
@@ -194,6 +181,16 @@ const ManagerFinance: React.FC = () => {
   // Bảng chi tiết thanh toán của khách hàng
   const paymentColumns = [
     {
+      title: <span className="text-pink-600 font-semibold">Mã giao dịch</span>,
+      dataIndex: 'paymentId',
+      key: 'paymentId',
+    },
+    {
+      title: <span className="text-pink-600 font-semibold">Khách hàng</span>,
+      dataIndex: 'customerName',
+      key: 'customerName',
+    },
+    {
       title: <span className="text-pink-600 font-semibold">Dịch vụ</span>,
       dataIndex: 'serviceName',
       key: 'serviceName',
@@ -205,12 +202,21 @@ const ManagerFinance: React.FC = () => {
       key: 'date',
       render: (date: string) => dayjs(date).format('DD/MM/YYYY'),
     },
-    // {
-    //   title: <span className="text-pink-600 font-semibold">Số tiền</span>,
-    //   dataIndex: 'priceByTreatment',
-    //   key: 'priceByTreatment',
-    //   render: (value: number) => value?.toLocaleString('vi-VN'),
-    // },
+    {
+      title: <span className="text-pink-600 font-semibold">Số tiền</span>,
+      dataIndex: 'priceByTreatement',
+      key: 'priceByTreatement',
+      render: (value) => {
+        if (value === null || value === undefined) return 'N/A';
+        const num = Number(value);
+        return isNaN(num) ? value : num.toLocaleString('vi-VN');
+      },
+    },
+    {
+      title: <span className="text-pink-600 font-semibold">Phương thức</span>,
+      dataIndex: 'method',
+      key: 'method',
+    },
     {
       title: <span className="text-pink-600 font-semibold">Trạng thái</span>,
       dataIndex: 'status',

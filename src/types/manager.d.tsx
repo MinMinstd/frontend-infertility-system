@@ -65,7 +65,7 @@ export interface Order {
 export interface TreatmentRoadmapWithPayment {
   treatmentRoadmapId: number;
   stage: string;
-  cost: number;
+  total: number;
   listPayment: PaymentDetail[];
 }
 
@@ -82,7 +82,8 @@ export interface PaymentDetail {
   customerName: string;
   serviceName: string;
   date: string;
-  priceByTreatment: number;
+  priceByTreatement: number;
+  method: string;
   status: string;
 }
 

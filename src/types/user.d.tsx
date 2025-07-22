@@ -70,10 +70,7 @@ export interface BlogPost {
   treatmentType: string;
   date: string;
   status: string;
-  customerId?: number;
-  customer?: unknown;
-  managerId?: number;
-  manager?: unknown;
+  customerName: string;
   image?: File | null; // Đường dẫn hình ảnh từ API
 }
 
@@ -84,4 +81,8 @@ export interface BlogPostCreateRequest {
   Story: string;
   TreatmentType: string;
   ImageFile?: File | null;
+}
+
+export interface UserApiType {
+  cancelBooking: (bookingId: number) => Promise<{ message: string }>;
 }

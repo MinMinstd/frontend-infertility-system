@@ -179,7 +179,7 @@ export const Gratefull = ({ limit }: GratefullProps) => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="text-lg font-bold text-gray-800 group-hover:text-pink-600 transition-colors">
-                      Ẩn danh
+                      {story.customerName || "Ẩn danh"}
                     </h3>
                     <div className="flex items-center space-x-1">
                       {[...Array(5)].map((_, i) => (

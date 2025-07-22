@@ -63,7 +63,7 @@ export const GratefulDetail = () => {
             {story.title}
           </Title>
           <Text strong className="text-xl mb-4">
-            Ẩn danh
+            {story.customerName || "Ẩn danh"}
           </Text>
           <Paragraph className="text-gray-600 text-lg leading-relaxed mb-8">
             {story.story}

@@ -111,9 +111,27 @@ const HistoryMedical = () => {
       title: "Thao tác",
       key: "action",
       render: (_, record) => (
-        <Button type="link" onClick={() => handleViewDetail(record)}>
-          Xem chi tiết
-        </Button>
+        <>
+          <Button type="link" onClick={() => handleViewDetail(record)}>
+            Xem chi tiết
+          </Button>
+          <Button
+            type="link"
+            danger
+            onClick={async () => {
+              try {
+                await UserApi.cancelBooking(record.bookingId);
+                fetchAppointments();
+              } catch (err) {
+                // Có thể thêm thông báo lỗi ở đây nếu muốn
+                console.error("Hủy lịch thất bại", err);
+              }
+            }}
+            disabled={record.status?.toLowerCase() === "cancelled"}
+          >
+            Hủy Lịch
+          </Button>
+        </>
       ),
     },
   ];
