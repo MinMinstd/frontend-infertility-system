@@ -45,10 +45,6 @@ export interface Account {
     status: string;
   }
 
- 
-
-
-
 export interface OrderDetail {
     orderDetailId: number;
     doctorName: string;

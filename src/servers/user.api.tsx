@@ -72,6 +72,15 @@ const UserApi = {
   // Gửi feedback từ khách hàng
   PostFeedback: (data: { comments: string; rating: number }) =>
     axiosClient.post("/Feedback", data),
+
+  // Lấy danh sách blog
+  GetBlogPosts: () => axiosClient.get('/BlogPost'),
+  // Lấy danh sách ảnh của blog post
+  GetBlogPostImages: (blogPostId: number) => axiosClient.get<File>(`/BlogPost/Image/${blogPostId}`),
+  // Đăng bài viết mới (có hình ảnh)
+  PostBlog: (data: FormData) => axiosClient.post('/BlogPost', data, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  }),
 };
 
 export default UserApi;

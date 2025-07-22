@@ -355,6 +355,8 @@ const ManagerDoctors: React.FC = () => {
                 const blockKey = `${toTimeOnlyFull(selectedBlock.start)}-${toTimeOnlyFull(selectedBlock.end)}`;
                 const slot = schedule[date]?.[blockKey];
                 const isHasSchedule = !!(slot && typeof slot.doctorScheduleId === 'number' && slot.doctorScheduleId > 0);
+                const isBooked = isHasSchedule && slot.status === 'Unavailable';
+
                 return (
                   <>
                     <Button
@@ -371,7 +373,7 @@ const ManagerDoctors: React.FC = () => {
                       icon={<Trash2 />}
                       onClick={handleDeleteSchedule}
                       loading={loadingSchedule}
-                      disabled={!isHasSchedule}
+                      disabled={!isHasSchedule || isBooked}
                     >
                       Xóa
                     </Button>
@@ -381,7 +383,7 @@ const ManagerDoctors: React.FC = () => {
             </div>
             <div className="px-6 pb-2">
               <div className="bg-blue-50 rounded p-2 text-blue-700 text-sm">
-                <b>Hướng dẫn:</b> Nhấp vào <span style={{color:'#1677ff', fontWeight:600}}>Trống</span> để tạo ca làm việc mới, nhấp vào ca đã tạo để chỉnh sửa. Ca màu <span style={{color:'#52c41a', fontWeight:600}}>Đã có lịch</span> đã được đặt và không thể xóa.
+                <b>Hướng dẫn:</b> Nhấp vào <span style={{color:'#1677ff', fontWeight:600}}>Trống</span> để tạo lịch. Nhấp vào <span style={{color:'#1d39c4', fontWeight:600}}>Có lịch làm</span> để xoá. Ca <span style={{color:'#52c41a', fontWeight:600}}>Có lịch hẹn</span> đã được đặt và không thể thay đổi.
               </div>
             </div>
             <div className="px-6 pb-6">
@@ -413,26 +415,66 @@ const ManagerDoctors: React.FC = () => {
                         const isSelected = selectedDate === date && selectedBlock && selectedBlock.start === row.start && selectedBlock.end === row.end;
                         const isPast = new Date(date) < today;
                         if (isPast) {
-                          return <Tooltip title="Không thể tạo lịch cho ngày quá khứ"><span><Tag color="default">Quá khứ</Tag></span></Tooltip>;
-                        }
-                        if (slot && slot.doctorScheduleId) {
                           return (
-                            <Tooltip title={`Ngày: ${date}\nKhung giờ: ${row.start} - ${row.end}\nĐã có lịch`}>
-                              <Tag
-                                color={isSelected ? "processing" : "success"}
-                                style={{
-                                  cursor: 'pointer',
-                                  borderRadius: 8,
-                                  fontWeight: 600,
-                                  border: isSelected ? '2px solid #1677ff' : undefined
-                                }}
-                                onClick={() => handleSelectBlock(date, row)}
-                              >
-                                {isSelected ? 'Đang chọn' : 'Đã có lịch'}
-                              </Tag>
+                            <Tooltip title="Không thể tạo lịch cho ngày quá khứ">
+                              <span>
+                                <Tag
+                                  color="default"
+                                  style={{
+                                    opacity: 0.5,           // Làm mờ
+                                    filter: 'grayscale(1)', // Chuyển xám
+                                    cursor: 'not-allowed',  // Đổi con trỏ
+                                    borderRadius: 8,
+                                    fontWeight: 600,
+                                  }}
+                                >
+                                  Quá khứ
+                                </Tag>
+                              </span>
                             </Tooltip>
                           );
                         }
+                        if (slot && slot.doctorScheduleId) {
+                          // Có lịch hẹn (đã được đặt)
+                          if(slot.status === 'Unavailable'){
+                            return (
+                              <Tooltip title={`Ngày: ${date}\nKhung giờ: ${row.start} - ${row.end}\nĐã có lịch hẹn`}>
+                                <Tag
+                                  color={isSelected ? "processing" : "success"}
+                                  style={{
+                                    cursor: 'pointer',
+                                    borderRadius: 8,
+                                    fontWeight: 600,
+                                    border: isSelected ? '2px solid #1677ff' : undefined
+                                  }}
+                                  onClick={() => handleSelectBlock(date, row)}
+                                >
+                                  {isSelected ? 'Đang chọn' : 'Có lịch hẹn'}
+                                </Tag>
+                              </Tooltip>
+                            );
+                          }
+                          // Có lịch làm (chưa ai đặt)
+                          if(slot.status === 'Available'){
+                             return (
+                              <Tooltip title={`Ngày: ${date}\nKhung giờ: ${row.start} - ${row.end}\nCó lịch làm`}>
+                                <Tag
+                                  color={isSelected ? "processing" : "blue"}
+                                  style={{
+                                    cursor: 'pointer',
+                                    borderRadius: 8,
+                                    fontWeight: 600,
+                                    border: isSelected ? '2px solid #1677ff' : undefined
+                                  }}
+                                  onClick={() => handleSelectBlock(date, row)}
+                                >
+                                  {isSelected ? 'Đang chọn' : 'Có lịch làm'}
+                                </Tag>
+                              </Tooltip>
+                            );
+                          }
+                        }
+                        // Trống
                         return (
                           <Tooltip title={`Ngày: ${date}\nKhung giờ: ${row.start} - ${row.end}`}> 
                             <Tag

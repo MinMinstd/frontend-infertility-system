@@ -1,17 +1,54 @@
 import { useParams } from "react-router-dom";
 import { Typography } from "antd";
 import { CalendarOutlined } from "@ant-design/icons";
-import sampleStories from "../../data/sampleStoriesData"; // Đảm bảo đường dẫn đúng với file chứa dữ liệu mẫu
+import UserApi from "../../servers/user.api";
+import type { BlogPost } from "../../types/user.d";
 import { SlideSplit } from "../../components/SlideSplit";
+import { useEffect, useState } from "react";
 
 const { Title, Text, Paragraph } = Typography;
 
 export const GratefulDetail = () => {
   const { id } = useParams();
+  const [story, setStory] = useState<BlogPost | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Tìm story từ id
-  const story = sampleStories.find((s) => s.id === id);
+  useEffect(() => {
+    const fetchDetail = async () => {
+      setLoading(true);
+      try {
+        const res = await UserApi.GetBlogPosts();
+        if (Array.isArray(res.data)) {
+          const found = res.data.find((s: BlogPost) => String(s.blogPostId) === String(id));
+          setStory(found || null);
+        }
+        if (id) {
+          // Fetch ảnh dạng blob
+          const imgRes = await fetch(`https://localhost:7065/api/BlogPost/Image/${id}`);
+          if (imgRes.ok) {
+            const blob = await imgRes.blob();
+            const url = URL.createObjectURL(blob);
+            setImageUrl(url);
+          } else {
+            setImageUrl(null);
+          }
+        }
+      } catch {
+        setStory(null);
+        setImageUrl(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDetail();
+    // Cleanup object URL khi unmount
+    return () => {
+      if (imageUrl) URL.revokeObjectURL(imageUrl);
+    };
+  }, [id]);
 
+  if (loading) return <div>Đang tải...</div>;
   if (!story) {
     return <div>Không tìm thấy câu chuyện</div>;
   }
@@ -26,21 +63,20 @@ export const GratefulDetail = () => {
             {story.title}
           </Title>
           <Text strong className="text-xl mb-4">
-            {story.userName}
+            Ẩn danh
           </Text>
           <Paragraph className="text-gray-600 text-lg leading-relaxed mb-8">
             {story.story}
           </Paragraph>
-          <div className="grid grid-cols-2 gap-4 px-2 py-4">
-            {/* Đây là chỗ post hình ảnh */}
-            <img src="../public/Images/Banner.jpg" alt="bayby" />
-            <img src="../public/Images/Banner.jpg" alt="bayby" />
-            <img src="../public/Images/Banner.jpg" alt="bayby" />
-          </div>
+          {imageUrl && (
+            <div className="flex justify-center py-4">
+              <img src={imageUrl} alt="blog" style={{maxWidth: '100%', maxHeight: 400}} />
+            </div>
+          )}
           {/* Thời gian thực hiện bài post */}
           <div className="flex items-center gap-4 text-gray-500">
             <span className="flex items-center gap-2">
-              <CalendarOutlined /> Thời gian: {story.duration}
+              <CalendarOutlined /> Thời gian: {story.treatmentType}
             </span>
             <span>
               Chia sẻ: {new Date(story.date).toLocaleDateString("vi-VN")}

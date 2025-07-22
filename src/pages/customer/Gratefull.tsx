@@ -1,8 +1,9 @@
 // import { Card, Avatar, Typography, Tag } from "antd";
 // import { CalendarOutlined } from "@ant-design/icons";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import sampleStories from "../../data/sampleStoriesData"; // Đảm bảo đường dẫn đúng với file chứa dữ liệu mẫu
+import UserApi from "../../servers/user.api";
+import type { BlogPost } from "../../types/user.d";
 import { Calendar, Star, ArrowRight } from "lucide-react";
 
 // const { Title, Text, Paragraph } = Typography;
@@ -13,82 +14,74 @@ interface GratefullProps {
 
 export const Gratefull = ({ limit }: GratefullProps) => {
   const navigate = useNavigate();
-  // State cho modal và form
   const [isModalOpen, setIsModalOpen] = useState(false);
-  // State cho danh sách bài post (bao gồm cả bài mới)
-  const [posts, setPosts] = useState(sampleStories);
-  // State cho dữ liệu form
+  const [posts, setPosts] = useState<BlogPost[]>([]);
   const [form, setForm] = useState({
-    userName: "",
-    treatmentType: "",
     title: "",
+    treatmentType: "",
     story: "",
-    avatarUrl: "",
-    contentImage: "",
+    imageFile: null as File | null,
   });
-  // State cho lỗi đơn giản
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const res = await UserApi.GetBlogPosts();
+        if (Array.isArray(res.data)) {
+          setPosts(res.data);
+        }
+      } catch {
+        // Xử lý lỗi nếu cần
+      }
+    };
+    fetchPosts();
+  }, []);
 
   const displayStories = limit ? posts.slice(0, limit) : posts;
 
-  const handleCardClick = (storyId: string) => {
-    navigate(`/gratefull/${storyId}`);
+  const handleCardClick = (blogPostId: number) => {
+    navigate(`/gratefull/${blogPostId}`);
   };
 
-  // Xử lý thay đổi form
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
   };
-
-  // Xử lý upload ảnh đại diện
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files && e.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setForm((prev) => ({ ...prev, avatarUrl: imageUrl }));
-    }
+    setForm((prev) => ({ ...prev, imageFile: file || null }));
   };
-
-  // Xử lý upload ảnh nội dung
-  const handleContentImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files && e.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setForm((prev) => ({ ...prev, contentImage: imageUrl }));
-    }
-  };
-
-  // Xử lý submit form
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Validate đơn giản
-    if (!form.userName || !form.treatmentType || !form.title || !form.story) {
+    if (!form.treatmentType || !form.title || !form.story) {
       setError("Vui lòng điền đầy đủ thông tin.");
       return;
     }
-    // Tạo bài post mới
-    const newPost = {
-      id: Date.now().toString(),
-      userName: form.userName,
-      treatmentType: form.treatmentType,
-      title: form.title,
-      story: form.story,
-      avatarUrl: form.avatarUrl || "",
-      contentImage: form.contentImage || "",
-      rating: 5, // Mặc định 5 sao
-      duration: "",
-      date: new Date().toISOString(),
-    };
-    setPosts([newPost, ...posts]);
-    setForm({ userName: "", treatmentType: "", title: "", story: "", avatarUrl: "", contentImage: "" });
-    setError("");
-    setIsModalOpen(false);
+    const formData = new FormData();
+    formData.append("Title", form.title);
+    formData.append("Story", form.story);
+    formData.append("TreatmentType", form.treatmentType);
+    if (form.imageFile) {
+      formData.append("ImageFile", form.imageFile);
+    }
+    try {
+      await UserApi.PostBlog(formData);
+      // Sau khi đăng thành công, reload lại danh sách bài viết
+      const res = await UserApi.GetBlogPosts();
+      if (Array.isArray(res.data)) {
+        setPosts(res.data);
+      }
+      setForm({ title: "", treatmentType: "", story: "", imageFile: null });
+      setError("");
+      setIsModalOpen(false);
+    } catch {
+      setError("Đăng bài thất bại. Vui lòng thử lại.");
+    }
   };
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12 bg-gradient-to-b from-pink-50 to-blue-50 rounded-3xl shadow-lg">
-      {/* Nút chia sẻ câu chuyện */}
       <div className="flex justify-end mb-6">
         <button
           className="bg-gradient-to-r from-pink-500 to-blue-500 text-white px-6 py-2 rounded-full font-semibold shadow hover:from-pink-600 hover:to-blue-600 transition-all duration-300"
@@ -97,7 +90,6 @@ export const Gratefull = ({ limit }: GratefullProps) => {
           Chia sẻ câu chuyện
         </button>
       </div>
-      {/* Modal đăng bài */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
           <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-lg relative">
@@ -109,18 +101,7 @@ export const Gratefull = ({ limit }: GratefullProps) => {
               ×
             </button>
             <h3 className="text-xl font-bold mb-4 text-pink-600">Chia sẻ câu chuyện của bạn</h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tên của bạn</label>
-                <input
-                  type="text"
-                  name="userName"
-                  value={form.userName}
-                  onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-400"
-                  placeholder="Nhập tên của bạn"
-                />
-              </div>
+            <form onSubmit={handleSubmit} className="space-y-4" encType="multipart/form-data">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Dịch vụ bạn sử dụng</label>
                 <input
@@ -154,40 +135,13 @@ export const Gratefull = ({ limit }: GratefullProps) => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Hình ảnh đại diện</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Hình ảnh (tùy chọn)</label>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2"
                 />
-                {form.avatarUrl && (
-                  <div className="mt-2 flex justify-center">
-                    <img
-                      src={form.avatarUrl}
-                      alt="avatar preview"
-                      className="w-20 h-20 rounded-full object-cover border border-pink-300 shadow"
-                    />
-                  </div>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Hình ảnh cho nội dung bài viết</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleContentImageChange}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                />
-                {form.contentImage && (
-                  <div className="mt-2 flex justify-center">
-                    <img
-                      src={form.contentImage}
-                      alt="content preview"
-                      className="w-32 h-32 object-cover border border-blue-300 shadow rounded-lg"
-                    />
-                  </div>
-                )}
               </div>
               {error && <div className="text-red-500 text-sm text-center">{error}</div>}
               <div className="flex justify-end">
@@ -202,7 +156,6 @@ export const Gratefull = ({ limit }: GratefullProps) => {
           </div>
         </div>
       )}
-      {/* Header */}
       <div className="text-center lg:text-left">
         <h2 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-pink-600 to-blue-600 bg-clip-text text-transparent mb-4">
           Hành Trình Đi Tìm Thiên Thần
@@ -213,36 +166,23 @@ export const Gratefull = ({ limit }: GratefullProps) => {
         </p>
         <div className="w-24 h-1 bg-gradient-to-r from-pink-500 to-blue-500 mt-4 rounded-full lg:mx-0 mx-auto" />
       </div>
-
-      {/* Stories Grid */}
       <div className="space-y-6">
         {displayStories.map((story) => (
           <div
-            key={story.id}
-            onClick={() => handleCardClick(story.id)}
+            key={story.blogPostId}
+            onClick={() => handleCardClick(story.blogPostId)}
             className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 hover:border-pink-200 cursor-pointer"
           >
             <div className="p-2">
               <div className="flex items-start space-x-4">
-                {/* Avatar */}
-                <div className="flex-shrink-0">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-pink-400 to-blue-400 p-0.5">
-                    <img
-                      src={story.avatarUrl || "/placeholder.svg"}
-                      alt={story.userName}
-                      className="w-full h-full rounded-full object-cover bg-white"
-                    />
-                  </div>
-                </div>
-
-                {/* Content */}
+                {/* Không hiển thị avatar hay bất kỳ hình ảnh nào */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="text-lg font-bold text-gray-800 group-hover:text-pink-600 transition-colors">
-                      {story.userName}
+                      Ẩn danh
                     </h3>
                     <div className="flex items-center space-x-1">
-                      {[...Array(story.rating)].map((_, i) => (
+                      {[...Array(5)].map((_, i) => (
                         <Star
                           key={i}
                           className="w-4 h-4 text-yellow-400 fill-current"
@@ -250,25 +190,21 @@ export const Gratefull = ({ limit }: GratefullProps) => {
                       ))}
                     </div>
                   </div>
-
                   <div className="flex items-center space-x-3 mb-3">
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-pink-100 to-pink-200 text-pink-700">
                       {story.treatmentType}
                     </span>
                     <span className="text-sm text-gray-500 flex items-center">
                       <Calendar className="w-4 h-4 mr-1" />
-                      {story.duration}
+                      {new Date(story.date).toLocaleDateString("vi-VN")}
                     </span>
                   </div>
-
                   <h4 className="text-xl font-semibold text-gray-800 mb-3 group-hover:text-blue-600 transition-colors">
                     {story.title}
                   </h4>
-
                   <p className="text-gray-600 leading-relaxed mb-4 line-clamp-3">
                     {story.story}
                   </p>
-
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-500">
                       Chia sẻ: {new Date(story.date).toLocaleDateString("vi-VN")}
@@ -281,94 +217,11 @@ export const Gratefull = ({ limit }: GratefullProps) => {
                 </div>
               </div>
             </div>
-
-            {/* Hover effect bar */}
             <div className="h-1 bg-gradient-to-r from-pink-500 to-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
           </div>
         ))}
       </div>
-
-      {/* View All Button */}
-      {/* <div className="text-center pt-6">
-        <button className="inline-flex items-center bg-gradient-to-r from-pink-500 to-blue-500 text-white px-8 py-3 rounded-full font-semibold hover:from-pink-600 hover:to-blue-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-          Xem tất cả câu chuyện
-          <Heart className="w-5 h-5 ml-2" />
-        </button>
-      </div> */}
     </div>
-
-    // <div className="min-h-screen bg-gradient-to-b from-pink-50 to-pink-50 py-12">
-    //   <div className="max-w-7xl mx-auto">
-    //     <div className="text-center mb-12">
-    //       <Title level={1} className="text-pink-600 !mb-4 font-bold">
-    //         Câu Chuyện Thành Công
-    //       </Title>
-    //       <Paragraph className="text-gray-600 text-lg">
-    //         Những câu chuyện truyền cảm hứng từ các gia đình đã thành công trong
-    //         hành trình điều trị hiếm muộn
-    //       </Paragraph>
-    //     </div>
-
-    //     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-14">
-    //       {sampleStories.map((story) => (
-    //         <Card
-    //           key={story.id}
-    //           onClick={() => handleCardClick(story.id)}
-    //           className="rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-0 aspect-square cursor-pointer"
-    //           style={{
-    //             background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
-    //           }}
-    //           bodyStyle={{ padding: 0 }}
-    //         >
-    //           {" "}
-    //           <div className="flex flex-col items-center justify-center p-6">
-    //             {/* Avatar Section */}
-    //             <div className="mb-6 w-full flex flex-col items-center">
-    //               <div className="w-1/2 aspect-square relative mb-4">
-    //                 <Avatar
-    //                   src={story.avatarUrl}
-    //                   className="!w-full !h-full border-4 border-pink-200"
-    //                   style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
-    //                 />
-    //               </div>
-    //               <Text strong className="block text-lg text-center">
-    //                 {story.userName}
-    //               </Text>
-    //               <div className="mt-2 flex justify-center"></div>
-    //             </div>
-
-    //             {/* Content Section */}
-    //             <div className="space-y-4 w-full">
-    //               <div className="text-center">
-    //                 <Title level={4} className="text-blue-700 !mb-2">
-    //                   {story.title}
-    //                 </Title>
-    //                 <Tag color="pink" className="rounded-full px-4 py-1">
-    //                   {story.treatmentType}
-    //                 </Tag>
-    //               </div>
-
-    //               <Paragraph className="text-gray-600 text-base leading-relaxed px-2 text-center line-clamp-4">
-    //                 {story.story}
-    //               </Paragraph>
-
-    //               {/* Footer Section */}
-    //               <div className="flex flex-col items-center gap-2 text-sm text-gray-500 pt-4 border-t border-gray-100">
-    //                 <span className="flex items-center gap-2">
-    //                   <CalendarOutlined /> Thời gian: {story.duration}
-    //                 </span>
-    //                 <span className="flex items-center gap-2">
-    //                   Chia sẻ:{" "}
-    //                   {new Date(story.date).toLocaleDateString("vi-VN")}
-    //                 </span>
-    //               </div>
-    //             </div>
-    //           </div>
-    //         </Card>
-    //       ))}
-    //     </div>
-    //   </div>
-    // </div>
   );
 };
 

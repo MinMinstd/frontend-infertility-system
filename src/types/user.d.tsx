@@ -62,3 +62,26 @@ export interface FeedbackCreateRequest {
   comments: string;
   rating: number;
 }
+
+export interface BlogPost {
+  blogPostId: number;
+  title: string;
+  story: string;
+  treatmentType: string;
+  date: string;
+  status: string;
+  customerId?: number;
+  customer?: unknown;
+  managerId?: number;
+  manager?: unknown;
+  image?: File | null; // Đường dẫn hình ảnh từ API
+}
+
+export type BlogPostImageResponse = File | null;
+
+export interface BlogPostCreateRequest {
+  Title: string;
+  Story: string;
+  TreatmentType: string;
+  ImageFile?: File | null;
+}
