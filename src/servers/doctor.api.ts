@@ -1,4 +1,8 @@
 import type {
+  MedicalRecordComplete,
+  MedicalRecordOngoing,
+} from "../types/doctor";
+import type {
   CreateEmbryo,
   CreateTreatmentResultWithTypeTest,
   UpdateConsulation,
@@ -295,6 +299,36 @@ const DoctorApi = {
   // schedule for job
   GetListSchedule: () => {
     return axiosClient.get(`/DoctorSchedule/GetFullScheduleForDoctor`);
+  },
+
+  //Thông kê
+  GetAmountPatient: () => {
+    return axiosClient.get(`Doctor/amountCustomer`);
+  },
+  GetAmountMedicalRecord: () => {
+    return axiosClient.get(`Doctor/amountMedicalRecord`);
+  },
+  GetAmountMdStatisSuccess: () => {
+    return axiosClient.get(`Doctor/amountMedicalRecordWithStatusComplete`);
+  },
+  GetAmountBooking: () => {
+    return axiosClient.get(`Doctor/amountBookingCustomer`);
+  },
+  GetStatisForChartDashboard: () => {
+    return axiosClient.get(`Doctor/medicalRecordWithStartDate`);
+  },
+
+  //Trang lịch sử điều trị
+  GetMedicalRecordComplete: async (): Promise<{
+    data: MedicalRecordComplete[];
+  }> => {
+    return axiosClient.get("Doctor/medicalRecordComplete");
+  },
+
+  GetMedicalRecordOngoing: async (): Promise<{
+    data: MedicalRecordOngoing[];
+  }> => {
+    return axiosClient.get("Doctor/medicalRecordOngoing");
   },
 };
 

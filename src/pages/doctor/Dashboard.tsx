@@ -18,6 +18,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import DoctorApi from "../../servers/doctor.api";
 
 ChartJS.register(
   CategoryScale,
@@ -45,26 +46,26 @@ interface ChartData {
 }
 
 // Mock data - thay thế bằng API thực tế sau này
-const mockData = {
-  totalPatients: 127, // Tổng số bệnh nhân từ Customers
-  activeRecords: 23, // Hồ sơ điều trị đang theo dõi (status ≠ "Thành công")
-  completedSteps: 45, // Bước điều trị hoàn tất (status = "Complete")
-  doctorAppointments: 89, // Số lượt khám bác sĩ đã thực hiện
-  monthlyRecords: {
-    "Th1 2024": 8,
-    "Th2 2024": 12,
-    "Th3 2024": 15,
-    "Th4 2024": 18,
-    "Th5 2024": 22,
-    "Th6 2024": 25,
-    "Th7 2024": 20,
-    "Th8 2024": 28,
-    "Th9 2024": 30,
-    "Th10 2024": 26,
-    "Th11 2024": 32,
-    "Th12 2024": 35,
-  },
-};
+// const mockData = {
+//   totalPatients: 127, // Tổng số bệnh nhân từ Customers
+//   activeRecords: 23, // Hồ sơ điều trị đang theo dõi (status ≠ "Thành công")
+//   completedSteps: 45, // Bước điều trị hoàn tất (status = "Complete")
+//   doctorAppointments: 89, // Số lượt khám bác sĩ đã thực hiện
+//   monthlyRecords: {
+//     "Th1 2024": 8,
+//     "Th2 2024": 12,
+//     "Th3 2024": 15,
+//     "Th4 2024": 18,
+//     "Th5 2024": 22,
+//     "Th6 2024": 25,
+//     "Th7 2024": 20,
+//     "Th8 2024": 28,
+//     "Th9 2024": 30,
+//     "Th10 2024": 26,
+//     "Th11 2024": 32,
+//     "Th12 2024": 35,
+//   },
+// };
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
@@ -76,33 +77,62 @@ export default function Dashboard() {
   });
   const [chartData, setChartData] = useState<ChartData | null>(null);
 
+  const groupByMonth = (records: { startDate: string }[]) => {
+    const result: Record<string, number> = {};
+
+    records.forEach((r) => {
+      const date = new Date(r.startDate);
+      const label = date.toLocaleString("vi-VN", {
+        month: "short", // "Thg 7"
+        year: "numeric", // "2025"
+      });
+
+      result[label] = (result[label] || 0) + 1;
+    });
+
+    return result;
+  };
+
+
+
+
   useEffect(() => {
     const fetchDashboardData = async () => {
+      setLoading(true);
       try {
-        // Simulate API call delay
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        const [totalPatients, completedSteps, activeRecords, doctorAppointments, chart] = await Promise.all([
+          DoctorApi.GetAmountPatient(),
+          DoctorApi.GetAmountMdStatisSuccess(),
+          DoctorApi.GetAmountMedicalRecord(),
+          DoctorApi.GetAmountBooking(),
+          DoctorApi.GetStatisForChartDashboard(),
+        ]);
+
+        const grouped = groupByMonth(chart.data);
 
         // Set mock data
         setDashboardStats({
-          totalPatients: mockData.totalPatients,
-          activeRecords: mockData.activeRecords,
-          completedSteps: mockData.completedSteps,
-          doctorAppointments: mockData.doctorAppointments,
+          totalPatients: totalPatients.data,
+          activeRecords: activeRecords.data,
+          completedSteps: completedSteps.data,
+          doctorAppointments: doctorAppointments.data,
         });
 
         // Prepare chart data
         setChartData({
-          labels: Object.keys(mockData.monthlyRecords),
+          labels: Object.keys(grouped),
           datasets: [
             {
               label: "Hồ sơ điều trị theo tháng",
-              data: Object.values(mockData.monthlyRecords),
+              data: Object.values(chart.data),
               borderColor: "#ff69b4",
               backgroundColor: "rgba(255, 105, 180, 0.1)",
               tension: 0.4,
               fill: true,
             },
           ],
+
         });
       } catch (err) {
         console.error("Dashboard load error", err);
