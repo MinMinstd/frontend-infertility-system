@@ -118,7 +118,7 @@ export default function Dashboard() {
     <DoctorSidebar>
       <div>
         <Title level={2} style={{ color: "#ff69b4" }}>
-          Dashboard Bác Sĩ
+          Thống kê số liệu điều trị
         </Title>
         {loading ? (
           <Spin size="large" />
@@ -260,7 +260,7 @@ export default function Dashboard() {
                 boxShadow: "0 4px 12px rgba(255, 105, 180, 0.15)",
               }}
             >
-              <div
+              {/* <div
                 style={{
                   color: "#666",
                   fontSize: "14px",
@@ -268,7 +268,7 @@ export default function Dashboard() {
                 }}
               >
                 Dữ liệu từ MedicalRecords.StartDate group by month
-              </div>
+              </div> */}
               {chartData && (
                 <div style={{ height: "400px" }}>
                   <Line

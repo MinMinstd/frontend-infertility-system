@@ -15,7 +15,6 @@ import {
   Tag,
 } from "antd";
 import {
-  ClockCircleOutlined,
   CalendarOutlined,
   SearchOutlined,
   UserOutlined,
@@ -123,11 +122,15 @@ export default function DoctorSchedule() {
       <div className="mb-8">
         <Row justify="space-between" align="middle">
           <Col>
-            <Title level={2} className="text-pink-500 mb-2">
-              Patient Appointments
+            <Title
+              level={2}
+              style={{ color: "#FF1493 " }}
+              className="text-pink-500 mb-2"
+            >
+              Lịch Khám Bệnh Nhân
             </Title>
             <Text type="secondary" className="text-gray-600">
-              Manage patient appointments and scheduling
+              Quản lí lịch hẹn và lịch khám bệnh của bệnh nhân
             </Text>
           </Col>
         </Row>
@@ -167,7 +170,7 @@ export default function DoctorSchedule() {
           <Card
             title={
               <span className="text-pink-500 font-semibold">
-                Patient Appointments ({filteredPatients.length})
+                Danh sách bệnh nhân đặt lịch ({filteredPatients.length})
               </span>
             }
             className="border-pink-200 shadow-lg"
@@ -219,7 +222,7 @@ export default function DoctorSchedule() {
                           <Col xs={24} sm={12} md={8}>
                             <Space direction="vertical" size="small">
                               <Text type="secondary" className="font-medium">
-                                Personal Info
+                                Thông tin bệnh nhân
                               </Text>
                               <Space>
                                 <CalendarOutlined className="text-pink-500" />
@@ -237,7 +240,7 @@ export default function DoctorSchedule() {
                               </Space>
                             </Space>
                           </Col>
-                          <Col xs={24} sm={12} md={8}>
+                          {/* <Col xs={24} sm={12} md={8}>
                             <Space direction="vertical" size="small">
                               <Text type="secondary" className="font-medium">
                                 Appointment Info
@@ -252,7 +255,7 @@ export default function DoctorSchedule() {
                                 {patient.serviceName || "No service specified"}
                               </Tag>
                             </Space>
-                          </Col>
+                          </Col> */}
                         </Row>
                       </div>
                     }

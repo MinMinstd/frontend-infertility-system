@@ -46,8 +46,8 @@ export default function PatientsPage() {
 
   const treatmentCounts = {
     all: patients.length,
-    ivf: patients.filter((p) => p.serviceName.includes("IVF")).length,
-    iui: patients.filter((p) => p.serviceName.includes("IUI")).length,
+    ivf: patients.filter((p) => p.serviceName?.includes("IVF")).length,
+    iui: patients.filter((p) => p.serviceName?.includes("IUI")).length,
   };
 
   const navigate = useNavigate();
@@ -128,7 +128,7 @@ export default function PatientsPage() {
     <div>
       <div style={{ marginBottom: 32 }}>
         <Title level={2} style={{ color: "#ff69b4" }}>
-          Patient Management
+          Danh sách bệnh nhân điều trị
         </Title>
         <Text style={{ color: "#666" }}>
           Quản lý và theo dõi tất cả bệnh nhân đang điều trị hiếm muộn
@@ -190,7 +190,7 @@ export default function PatientsPage() {
                 children: (
                   <div>
                     {patients
-                      .filter((p) => p.serviceName.includes("IVF"))
+                      .filter((p) => p.serviceName?.includes("IVF"))
                       .map(renderPatientCard)}
                   </div>
                 ),
@@ -201,7 +201,7 @@ export default function PatientsPage() {
                 children: (
                   <div>
                     {patients
-                      .filter((p) => p.serviceName.includes("IUI"))
+                      .filter((p) => p.serviceName?.includes("IUI"))
                       .map(renderPatientCard)}
                   </div>
                 ),

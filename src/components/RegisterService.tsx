@@ -234,323 +234,327 @@ export const RegisterService = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-blue-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        {/* Header Section */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Đăng Ký Dịch Vụ
-          </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Vui lòng điền đầy đủ thông tin để đăng ký dịch vụ khám và điều trị tại phòng khám của chúng tôi
-          </p>
-        </div>
-
-        {/* Main Form Card */}
+    <div className="bg-gradient-to-br from-pink-50 to-blue-50 min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-          <div className="bg-gradient-to-r from-pink-500 to-blue-500 px-8 py-6">
-            <h2 className="text-2xl font-semibold text-white">
-              Thông Tin Đăng Ký
+          {/* Header */}
+          <div className="bg-gradient-to-r from-pink-500 to-pink-600 px-8 py-6">
+            <h2 className="text-center text-3xl font-bold text-white">
+              🏥 Đăng ký dịch vụ y tế
             </h2>
+            <p className="text-center text-pink-100 mt-2">
+              Vui lòng điền đầy đủ thông tin để đăng ký dịch vụ
+            </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="p-8 space-y-8">
-            {/* Personal Information Section */}
-            <div className="space-y-6">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900">Thông Tin Cá Nhân</h3>
-              </div>
+          <div className="p-8">
+            <form onSubmit={handleSubmit} className="space-y-8">
+              {/* Thông tin cá nhân */}
+              <div className="bg-gray-50 rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                  👥 Thông tin cá nhân
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Họ và Tên Chồng <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Nhập họ tên chồng"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 hover:border-pink-300"
+                      value={husbandName}
+                      onChange={(e) => setHusbandName(e.target.value)}
+                    />
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Họ và Tên Chồng <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition duration-200"
-                    placeholder="Nhập họ và tên chồng"
-                    value={husbandName}
-                    onChange={(e) => setHusbandName(e.target.value)}
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Họ và Tên Vợ <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Nhập họ tên vợ"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 hover:border-pink-300"
+                      value={wifeName}
+                      onChange={(e) => setWifeName(e.target.value)}
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Họ và Tên Vợ <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition duration-200"
-                    placeholder="Nhập họ và tên vợ"
-                    value={wifeName}
-                    onChange={(e) => setWifeName(e.target.value)}
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Số điện thoại <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="Nhập số điện thoại"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 hover:border-pink-300"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Số Điện Thoại <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="tel"
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition duration-200"
-                    placeholder="Nhập số điện thoại"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Địa Chỉ <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition duration-200"
-                    placeholder="Nhập địa chỉ"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Service Selection Section */}
-            <div className="space-y-6">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900">Chọn Dịch Vụ & Bác Sĩ</h3>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Dịch Vụ <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    required
-                    value={selectedService}
-                    onChange={(e) => {
-                      setSelectedService(e.target.value);
-                      setSelectedDoctor("");
-                    }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition duration-200"
-                  >
-                    <option value="">
-                      {loadingServices ? "Đang tải..." : "Chọn dịch vụ"}
-                    </option>
-                    {services.map((service) => (
-                      <option
-                        key={service.serviceDBId}
-                        value={service.serviceDBId.toString()}
-                      >
-                        {service.name}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="text-xs text-gray-500">
-                    Tổng số dịch vụ: {services.length}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Địa chỉ <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Nhập địa chỉ"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 hover:border-pink-300"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                    />
                   </div>
                 </div>
+              </div>
 
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Bác Sĩ <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    required
-                    value={selectedDoctor}
-                    onChange={(e) => setSelectedDoctor(e.target.value)}
-                    disabled={!selectedService || loadingDoctors}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                  >
-                    <option value="">
-                      {!selectedService
-                        ? "Vui lòng chọn dịch vụ trước"
-                        : loadingDoctors
-                        ? "Đang tải..."
-                        : "Chọn bác sĩ"}
-                    </option>
-                    {selectedService &&
-                      doctors.map((doctor) => (
+              {/* Khối chọn dịch vụ và bác sĩ */}
+              <div className="bg-blue-50 rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                  🏥 Thông tin dịch vụ
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Chọn dịch vụ <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      required
+                      value={selectedService}
+                      onChange={(e) => {
+                        setSelectedService(e.target.value);
+                        setSelectedDoctor(""); // Reset doctor when service changes
+                      }}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-blue-300 bg-white"
+                    >
+                      <option value="">
+                        {loadingServices ? "🔄 Đang tải..." : "📋 Chọn dịch vụ"}
+                      </option>
+                      {services.map((service) => (
                         <option
-                          key={doctor.doctorId}
-                          value={doctor.doctorId.toString()}
+                          key={service.serviceDBId}
+                          value={service.serviceDBId.toString()}
                         >
-                          {doctor.fullName}
-                          {doctor.specialty ? ` - ${doctor.specialty}` : ""}
+                          {service.name}
                         </option>
                       ))}
-                  </select>
-                  <div className="text-xs text-gray-500">
-                    Tổng số bác sĩ: {doctors.length}
+                    </select>
+                    <div className="text-xs text-blue-600 mt-1 flex items-center">
+                      📊 Tổng số dịch vụ: {services.length}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Chọn bác sĩ <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      required
+                      value={selectedDoctor}
+                      onChange={(e) => setSelectedDoctor(e.target.value)}
+                      disabled={!selectedService || loadingDoctors} // Disable if no service selected
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-blue-300 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-500"
+                    >
+                      <option value="">
+                        {!selectedService
+                          ? "⚠️ Vui lòng chọn dịch vụ trước"
+                          : loadingDoctors
+                          ? "🔄 Đang tải..."
+                          : "👨‍⚕️ Chọn bác sĩ"}
+                      </option>
+                      {selectedService &&
+                        doctors.map((doctor) => (
+                          <option
+                            key={doctor.doctorId}
+                            value={doctor.doctorId.toString()}
+                          >
+                            👨‍⚕️ {doctor.fullName}
+                            {doctor.specialty ? ` - ${doctor.specialty}` : ""}
+                          </option>
+                        ))}
+                    </select>
+                    <div className="text-xs text-blue-600 mt-1 flex items-center">
+                      👥 Tổng số bác sĩ: {doctors.length}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Schedule Selection Section */}
-            <div className="space-y-6">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900">Chọn Lịch Hẹn</h3>
-              </div>
+              {/* Khối chọn ngày và giờ */}
+              <div className="bg-green-50 rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                  📅 Thời gian hẹn
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Chọn ngày <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      required
+                      // min={today}
+                      value={selectedDate}
+                      onChange={(e) => setSelectedDate(e.target.value)}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-green-300 bg-white"
+                    />
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Ngày Hẹn <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition duration-200"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Khung Giờ <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    required
-                    value={selectedTime}
-                    onChange={(e) => {
-                      setSelectedTime(e.target.value);
-                      const slot = doctorSchedules.find(
-                        (s) => s.doctorScheduleId.toString() === e.target.value
-                      );
-                      if (slot) {
-                        setSelectedTimeString(
-                          `${slot.startTime.substring(
-                            0,
-                            5
-                          )} - ${slot.endTime.substring(0, 5)}`
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Chọn giờ <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      required
+                      value={selectedTime}
+                      onChange={(e) => {
+                        setSelectedTime(e.target.value);
+                        const slot = doctorSchedules.find(
+                          (s) =>
+                            s.doctorScheduleId.toString() === e.target.value
                         );
-                      } else {
-                        setSelectedTimeString("");
+                        if (slot) {
+                          setSelectedTimeString(
+                            `${slot.startTime.substring(
+                              0,
+                              5
+                            )} - ${slot.endTime.substring(0, 5)}`
+                          );
+                        } else {
+                          setSelectedTimeString("");
+                        }
+                      }}
+                      disabled={
+                        !selectedDoctor || !selectedDate || loadingSchedule
                       }
-                    }}
-                    disabled={!selectedDoctor || !selectedDate || loadingSchedule}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition duration-200"
-                  >
-                    <option value="">
-                      {loadingSchedule
-                        ? "Đang tải lịch..."
-                        : doctorSchedules.length > 0
-                        ? "Chọn khung giờ"
-                        : "Vui lòng chọn bác sĩ và ngày"}
-                    </option>
-                    {doctorSchedules.map((schedule) => (
-                      <option
-                        key={schedule.doctorScheduleId}
-                        value={schedule.doctorScheduleId}
-                      >
-                        {schedule.startTime.substring(0, 5)} -{" "}
-                        {schedule.endTime.substring(0, 5)}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-green-300 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-500"
+                    >
+                      <option value="">
+                        {loadingSchedule
+                          ? "🔄 Đang tải lịch..."
+                          : doctorSchedules.length > 0
+                          ? "⏰ Chọn khung giờ"
+                          : "⚠️ Vui lòng chọn bác sĩ và ngày"}
                       </option>
-                    ))}
-                  </select>
+                      {doctorSchedules.map((schedule) => (
+                        <option
+                          key={schedule.doctorScheduleId}
+                          value={schedule.doctorScheduleId}
+                        >
+                          ⏰ {schedule.startTime.substring(0, 5)} -{" "}
+                          {schedule.endTime.substring(0, 5)}
+                        </option>
+                      ))}
+                    </select>
+                    {doctorSchedules.length > 0 && (
+                      <div className="text-xs text-green-600 mt-1 flex items-center">
+                        ⏰ Có {doctorSchedules.length} khung giờ khả dụng
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <div className="flex items-center">
-                  <svg className="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span className="text-sm text-red-600">{error}</span>
-                </div>
-              </div>
-            )}
-
-            {/* Terms and Conditions */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <div className="flex items-start space-x-3">
-                <input
-                  id="terms-checkbox"
-                  type="checkbox"
-                  required
-                  className="mt-1 w-4 h-4 text-pink-600 bg-gray-100 border-gray-300 rounded focus:ring-pink-500 focus:ring-2"
-                />
-                <label
-                  htmlFor="terms-checkbox"
-                  className="text-sm text-gray-700 leading-relaxed"
-                >
-                  Tôi đồng ý với{" "}
-                  <a
-                    href="#"
-                    className="text-pink-600 hover:text-pink-700 underline font-medium"
-                  >
-                    Điều khoản dịch vụ và chính sách
-                  </a>{" "}
-                  của phòng khám.
-                </label>
-              </div>
-            </div>
-
-            {/* Submit Section */}
-            <div className="space-y-4">
-              {submitMessage && (
-                <div
-                  className={`text-center p-4 rounded-lg ${
-                    submitMessage.includes("thành công")
-                      ? "bg-green-50 text-green-700 border border-green-200"
-                      : "bg-red-50 text-red-700 border border-red-200"
-                  }`}
-                >
-                  {submitMessage}
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                  <div className="flex items-center">
+                    <div className="text-red-400 mr-3">⚠️</div>
+                    <div className="text-sm text-red-700 font-medium">
+                      {error}
+                    </div>
+                  </div>
                 </div>
               )}
-              
-              <button
-                type="submit"
-                className="w-full bg-gradient-to-r from-pink-500 to-blue-500 text-white font-semibold py-4 px-6 rounded-lg hover:from-pink-600 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transition duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                disabled={submitting || submitted}
-              >
-                {submitting ? (
-                  <div className="flex items-center justify-center space-x-2">
-                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span>Đang gửi...</span>
+
+              {/* Điều khoản */}
+              <div className="bg-yellow-50 rounded-xl p-6">
+                <div className="flex items-start space-x-3">
+                  <input
+                    id="link-checkbox"
+                    type="checkbox"
+                    required
+                    className="w-5 h-5 text-pink-600 bg-white border-2 border-gray-300 rounded focus:ring-pink-500 focus:ring-2 mt-0.5"
+                  />
+                  <label
+                    htmlFor="link-checkbox"
+                    className="text-sm font-medium text-gray-700 leading-relaxed"
+                  >
+                    📋 Tôi đồng ý với{" "}
+                    <a
+                      href="#"
+                      className="text-pink-600 hover:text-pink-700 underline font-semibold"
+                    >
+                      Điều khoản dịch vụ và chính sách bảo mật
+                    </a>{" "}
+                    của phòng khám.
+                  </label>
+                </div>
+              </div>
+
+              {/* Submit button */}
+              <div className="pt-4">
+                {submitMessage && (
+                  <div
+                    className={`text-center p-4 rounded-xl mb-4 ${
+                      submitMessage.includes("thành công")
+                        ? "bg-green-50 border border-green-200 text-green-700"
+                        : "bg-red-50 border border-red-200 text-red-700"
+                    }`}
+                  >
+                    <div className="flex items-center justify-center">
+                      <span className="mr-2">
+                        {submitMessage.includes("thành công") ? "✅" : "❌"}
+                      </span>
+                      <span className="font-medium">{submitMessage}</span>
+                    </div>
                   </div>
-                ) : submitted ? (
-                  <div className="flex items-center justify-center space-x-2">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Đã đăng ký thành công</span>
-                  </div>
-                ) : (
-                  "Đăng Ký Ngay"
                 )}
-              </button>
-            </div>
-          </form>
+                <button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white font-semibold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-lg"
+                  disabled={submitting || submitted}
+                >
+                  <span className="flex items-center justify-center">
+                    {submitting ? (
+                      <>
+                        <svg
+                          className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                        Đang gửi yêu cầu...
+                      </>
+                    ) : submitted ? (
+                      <>✅ Đã đăng ký thành công</>
+                    ) : (
+                      <>🚀 Đăng ký dịch vụ ngay</>
+                    )}
+                  </span>
+                </button>
+              </div>
+            </form>
+          </div>
+
         </div>
       </div>
     </div>
