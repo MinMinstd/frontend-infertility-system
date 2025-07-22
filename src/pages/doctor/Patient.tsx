@@ -99,10 +99,10 @@ export default function PatientsPage() {
 
         <Col xs={24} md={6}>
           <div style={{ textAlign: "center" }}>
-            <Text type="secondary">Start Date</Text>
+            <Text type="secondary">Mô tả dịch vụ</Text>
             <div>
               <Text strong style={{ color: "#ff69b4" }}>
-                {patient.startDate}
+                {patient.descriptionService}
               </Text>
             </div>
           </div>
@@ -149,13 +149,13 @@ export default function PatientsPage() {
             <Col xs={24} md={8}>
               <Input
                 prefix={<SearchOutlined style={{ color: "#ff69b4" }} />}
-                placeholder="Search patients..."
+                placeholder="Tìm kiếm bệnh nhân..."
                 style={{ borderColor: "#ff69b4" }}
               />
             </Col>
             <Col xs={24} md={6}>
               <Select
-                placeholder="Filter by status"
+                placeholder="Lọc theo trạng thái"
                 style={{ width: "100%", borderColor: "#ff69b4" }}
                 options={[
                   { value: "all", label: "All Patients" },

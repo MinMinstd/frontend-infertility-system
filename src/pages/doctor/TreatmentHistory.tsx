@@ -6,7 +6,6 @@ import {
   Badge,
   Button,
   Typography,
-  Progress,
   Row,
   Col,
   Space,
@@ -20,88 +19,71 @@ import {
   CheckCircleOutlined,
 } from "@ant-design/icons";
 import { DoctorSidebar } from "./DoctorSidebar";
+import type { MedicalRecordComplete, MedicalRecordOngoing } from "../../types/doctor";
+import { useEffect, useState } from "react";
+import DoctorApi from "../../servers/doctor.api";
 
 const { Title, Text } = Typography;
 
 export default function TreatmentHistoryPage() {
-  const completedTreatments = [
-    {
-      id: 1,
-      patient: "Jennifer Smith",
-      treatment: "IVF",
-      startDate: "2023-08-01",
-      endDate: "2023-10-15",
-      outcome: "Successful Pregnancy",
-      cycles: 1,
-      status: "success",
-    },
-    {
-      id: 2,
-      patient: "Amanda Johnson",
-      treatment: "IUI",
-      startDate: "2023-09-15",
-      endDate: "2023-11-20",
-      outcome: "Successful Pregnancy",
-      cycles: 3,
-      status: "success",
-    },
-    {
-      id: 3,
-      patient: "Rachel Brown",
-      treatment: "IVF",
-      startDate: "2023-06-01",
-      endDate: "2023-09-30",
-      outcome: "Treatment Discontinued",
-      cycles: 2,
-      status: "discontinued",
-    },
-    {
-      id: 4,
-      patient: "Michelle Davis",
-      treatment: "IUI",
-      startDate: "2023-10-01",
-      endDate: "2023-12-15",
-      outcome: "Successful Pregnancy",
-      cycles: 2,
-      status: "success",
-    },
-  ];
+  const [completedTreatments, setCompletedTreatments] = useState<MedicalRecordComplete[]>([]);
+  const [ongoingTreatments, setOngoingTreatments] = useState<MedicalRecordOngoing[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const ongoingTreatments = [
-    {
-      id: 1,
-      patient: "Sarah Johnson",
-      treatment: "IVF",
-      startDate: "2024-01-01",
-      currentStage: "Egg Stimulation",
-      progress: 65,
-      cycle: 1,
-    },
-    {
-      id: 2,
-      patient: "Maria Garcia",
-      treatment: "IUI",
-      startDate: "2024-01-10",
-      currentStage: "Monitoring",
-      progress: 40,
-      cycle: 1,
-    },
-  ];
+  useEffect(() => {
+    const fetchCompletedTreatments = async () => {
+      try {
+        setLoading(true);
+        const response = await DoctorApi.GetMedicalRecordComplete();
+        setCompletedTreatments(response.data);
+        setError(null);
+      } catch (err) {
+        console.error('Lỗi khi tải dữ liệu:', err);
+        setError('Không thể tải dữ liệu điều trị');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCompletedTreatments();
+  }, []);
+
+  useEffect(() => {
+    const fetchOngoingTreatments = async () => {
+      try {
+        setLoading(true);
+        const response = await DoctorApi.GetMedicalRecordOngoing();
+        setOngoingTreatments(response.data);
+        setError(null);
+      } catch (err) {
+        console.error('Lỗi khi tải dữ liệu đang điều trị:', err);
+        setError('Không thể tải dữ liệu điều trị đang thực hiện');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOngoingTreatments();
+  }, []);
 
   const treatmentStats = {
     totalCompleted: completedTreatments.length,
     successfulPregnancies: completedTreatments.filter(
-      (t) => t.status === "success"
+      (t) => t.status === "Thành công"
     ).length,
-    successRate: Math.round(
-      (completedTreatments.filter((t) => t.status === "success").length /
-        completedTreatments.length) *
-        100
-    ),
-    averageCycles: Math.round(
-      completedTreatments.reduce((acc, t) => acc + t.cycles, 0) /
+    successRate: completedTreatments.length > 0
+      ? Math.round(
+        (completedTreatments.filter((t) => t.status === "Thành công").length /
+          completedTreatments.length) * 100
+      )
+      : 0,
+    averageCycles: completedTreatments.length > 0
+      ? Math.round(
+        completedTreatments.reduce((acc, t) => acc + t.attempt, 0) /
         completedTreatments.length
-    ),
+      )
+      : 0,
   };
 
   const TreatmentHistoryContent = () => (
@@ -225,177 +207,223 @@ export default function TreatmentHistoryPage() {
             label: `Tổng số ca hoàn thành (${completedTreatments.length})`,
             children: (
               <div>
-                {completedTreatments.map((treatment) => (
-                  <Card
-                    key={treatment.id}
-                    style={{
-                      marginBottom: 16,
-                      borderColor: "#ffb6c1",
-                      boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
-                      backgroundColor: "#fff5f7",
-                    }}
-                  >
-                    <Row align="middle" justify="space-between">
-                      <Col xs={24} md={6}>
-                        <div>
-                          <Text
-                            strong
-                            style={{ fontSize: 16, color: "#ff69b4" }}
-                          >
-                            {treatment.patient}
-                          </Text>
+                {loading ? (
+                  <div className="text-center py-8">
+                    <Text>Đang tải dữ liệu...</Text>
+                  </div>
+                ) : error ? (
+                  <div className="text-center py-8">
+                    <Text type="danger">{error}</Text>
+                  </div>
+                ) : (
+                  completedTreatments.map((treatment) => (
+                    <Card
+                      key={treatment.medicalRecordId}
+                      style={{
+                        marginBottom: 16,
+                        borderColor: "#ffb6c1",
+                        boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
+                        backgroundColor: "#fff5f7",
+                      }}
+                    >
+                      <Row align="middle" justify="space-between">
+                        <Col xs={24} md={6}>
                           <div>
-                            <Text type="secondary">
-                              {treatment.treatment} Treatment
+                            <Text strong style={{ fontSize: 16, color: "#ff69b4" }}>
+                              {treatment.fullName}
                             </Text>
+                            <div>
+                              <Text type="secondary">
+                                {treatment.serviceName} Treatment
+                              </Text>
+                            </div>
+                            <div>
+                              <Text type="secondary" className="text-sm">
+                                Giai đoạn: {treatment.stage}
+                              </Text>
+                            </div>
                           </div>
-                        </div>
-                      </Col>
-                      <Col xs={24} md={4}>
-                        <div style={{ textAlign: "center" }}>
-                          <Text type="secondary">Duration</Text>
-                          <div>
-                            <Text>
-                              {treatment.startDate} - {treatment.endDate}
-                            </Text>
+                        </Col>
+                        <Col xs={24} md={4}>
+                          <div style={{ textAlign: "center" }}>
+                            <Text type="secondary">Thời gian dự kiến</Text>
+                            <div>
+                              <Text>
+                                {treatment.startDate} đến {treatment.endDate}
+                              </Text>
+                            </div>
                           </div>
-                        </div>
-                      </Col>
-                      <Col xs={24} md={4}>
-                        <div style={{ textAlign: "center" }}>
-                          <Text type="secondary">Cycles</Text>
-                          <div>
-                            <Text strong style={{ color: "#ff69b4" }}>
-                              {treatment.cycles}
-                            </Text>
+                        </Col>
+                        <Col xs={24} md={4}>
+                          <div style={{ textAlign: "center" }}>
+                            <Text type="secondary">Lần thử</Text>
+                            <div>
+                              <Text strong style={{ color: "#ff69b4" }}>
+                                {treatment.attempt}
+                              </Text>
+                            </div>
                           </div>
-                        </div>
-                      </Col>
-                      <Col xs={24} md={6}>
-                        <div style={{ textAlign: "center" }}>
-                          <Text type="secondary">Outcome</Text>
-                          <div>
-                            <Badge
-                              color={
-                                treatment.status === "success"
-                                  ? "#ff1493"
-                                  : "#ff69b4"
-                              }
-                              text={treatment.outcome}
-                            />
+                        </Col>
+                        <Col xs={24} md={6}>
+                          <div style={{ textAlign: "center" }}>
+                            <Text type="secondary">Kết quả</Text>
+                            <div>
+                              <Badge
+                                color={
+                                  treatment.status === "Thành công"
+                                    ? "#ff1493"
+                                    : "#ff69b4"
+                                }
+                                text={treatment.status}
+                              />
+                            </div>
+                            <div className="mt-1">
+                              <Text type="secondary" className="text-xs">
+                                {treatment.diagnosis}
+                              </Text>
+                            </div>
                           </div>
-                        </div>
-                      </Col>
-                      <Col xs={24} md={4}>
-                        <Space direction="vertical">
-                          <Button
-                            type="primary"
-                            style={{
-                              backgroundColor: "#ff69b4",
-                              borderColor: "#ff69b4",
-                            }}
-                          >
-                            View Details
-                          </Button>
-                          <Button
-                            style={{
-                              borderColor: "#ff69b4",
-                              color: "#ff69b4",
-                            }}
-                          >
-                            Download Report
-                          </Button>
-                        </Space>
-                      </Col>
-                    </Row>
-                  </Card>
-                ))}
+                        </Col>
+                        <Col xs={24} md={4}>
+                          <Space direction="vertical">
+                            <Button
+                              type="primary"
+                              style={{
+                                backgroundColor: "#ff69b4",
+                                borderColor: "#ff69b4",
+                              }}
+                            >
+                              View Details
+                            </Button>
+                            <Button
+                              style={{
+                                borderColor: "#ff69b4",
+                                color: "#ff69b4",
+                              }}
+                            >
+                              Download Report
+                            </Button>
+                          </Space>
+                        </Col>
+                      </Row>
+                    </Card>
+                  ))
+                )}
               </div>
             ),
           },
           {
             key: "ongoing",
-            label: `Tổng số ca đang điều trị (${ongoingTreatments.length})`,
+            label: `Tổng số ca đang điều trị (${loading ? '...' : ongoingTreatments.length})`,
             children: (
               <div>
-                {ongoingTreatments.map((treatment) => (
-                  <Card
-                    key={treatment.id}
-                    style={{
-                      marginBottom: 16,
-                      borderColor: "#ffb6c1",
-                      boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
-                      backgroundColor: "#fff5f7",
-                    }}
-                  >
-                    <Row align="middle" justify="space-between">
-                      <Col xs={24} md={6}>
-                        <div>
-                          <Text
-                            strong
-                            style={{ fontSize: 16, color: "#ff69b4" }}
-                          >
-                            {treatment.patient}
-                          </Text>
-                          <div>
-                            <Text type="secondary">
-                              {treatment.treatment} Treatment
-                            </Text>
-                          </div>
-                        </div>
-                      </Col>
-                      <Col xs={24} md={4}>
-                        <div style={{ textAlign: "center" }}>
-                          <Text type="secondary">Start Date</Text>
-                          <div>
-                            <Text>{treatment.startDate}</Text>
-                          </div>
-                        </div>
-                      </Col>
-                      <Col xs={24} md={4}>
-                        <div style={{ textAlign: "center" }}>
-                          <Text type="secondary">Current Stage</Text>
-                          <div>
-                            <Text strong style={{ color: "#ff69b4" }}>
-                              {treatment.currentStage}
-                            </Text>
-                          </div>
-                        </div>
-                      </Col>
-                      <Col xs={24} md={6}>
-                        <div style={{ textAlign: "center" }}>
-                          <Text type="secondary">Progress</Text>
-                          <Progress
-                            percent={treatment.progress}
-                            size="small"
-                            strokeColor="#ff69b4"
-                          />
-                        </div>
-                      </Col>
-                      <Col xs={24} md={4}>
-                        <Space direction="vertical">
-                          <Button
-                            type="primary"
-                            style={{
-                              backgroundColor: "#ff69b4",
-                              borderColor: "#ff69b4",
-                            }}
-                          >
-                            View Details
-                          </Button>
-                          <Button
-                            style={{
-                              borderColor: "#ff69b4",
-                              color: "#ff69b4",
-                            }}
-                          >
-                            Update Progress
-                          </Button>
-                        </Space>
-                      </Col>
-                    </Row>
+                {loading ? (
+                  <Card loading={true} style={{ marginBottom: 16 }} />
+                ) : error ? (
+                  <Card style={{ marginBottom: 16, borderColor: "#ff4d4f" }}>
+                    <Text type="danger">{error}</Text>
                   </Card>
-                ))}
+                ) : ongoingTreatments.length === 0 ? (
+                  <Card style={{ marginBottom: 16, textAlign: "center" }}>
+                    <Text type="secondary">Không có ca điều trị đang thực hiện</Text>
+                  </Card>
+                ) : (
+                  ongoingTreatments.map((treatment) => (
+                    <Card
+                      key={treatment.medicalRecordId}
+                      style={{
+                        marginBottom: 16,
+                        borderColor: "#ffb6c1",
+                        boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
+                        backgroundColor: "#fff5f7",
+                      }}
+                    >
+                      <Row align="middle" justify="space-between">
+                        <Col xs={24} md={6}>
+                          <div>
+                            <Text
+                              strong
+                              style={{ fontSize: 16, color: "#ff69b4" }}
+                            >
+                              {treatment.fullName}
+                            </Text>
+                            <div>
+                              <Text type="secondary">
+                                {treatment.serviceName}
+                              </Text>
+                            </div>
+                            {treatment.diagnosis && (
+                              <div>
+                                <Text type="secondary" italic>
+                                  Chẩn đoán: {treatment.diagnosis}
+                                </Text>
+                              </div>
+                            )}
+                          </div>
+                        </Col>
+                        <Col xs={24} md={4}>
+                          <div style={{ textAlign: "center" }}>
+                            <Text type="secondary">Ngày bắt đầu</Text>
+                            <div>
+                              <Text>{treatment.startDate}</Text>
+                            </div>
+                          </div>
+                        </Col>
+                        <Col xs={24} md={4}>
+                          <div style={{ textAlign: "center" }}>
+                            <Text type="secondary">Giai đoạn hiện tại</Text>
+                            <div>
+                              <Text strong style={{ color: "#ff69b4" }}>
+                                {treatment.stage}
+                              </Text>
+                            </div>
+                          </div>
+                        </Col>
+                        <Col xs={24} md={4}>
+                          <div style={{ textAlign: "center" }}>
+                            <Text type="secondary">Trạng thái</Text>
+                            <div>
+                              <Badge
+                                status="processing"
+                                text={treatment.status}
+                                style={{ color: "#ff69b4" }}
+                              />
+                            </div>
+                          </div>
+                        </Col>
+                        <Col xs={24} md={2}>
+                          <div style={{ textAlign: "center" }}>
+                            <Text type="secondary">Lần thử</Text>
+                            <div>
+                              <Text strong>{treatment.attempt}</Text>
+                            </div>
+                          </div>
+                        </Col>
+                        <Col xs={24} md={4}>
+                          <Space direction="vertical">
+                            <Button
+                              type="primary"
+                              style={{
+                                backgroundColor: "#ff69b4",
+                                borderColor: "#ff69b4",
+                              }}
+                            >
+                              Xem chi tiết
+                            </Button>
+                            <Button
+                              style={{
+                                borderColor: "#ff69b4",
+                                color: "#ff69b4",
+                              }}
+                            >
+                              Cập nhật tiến độ
+                            </Button>
+                          </Space>
+                        </Col>
+                      </Row>
+                    </Card>
+                  ))
+                )}
               </div>
             ),
           },
