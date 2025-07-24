@@ -25,24 +25,48 @@ export default function PaymentResult() {
       const orderId = searchParams.get("orderId") || "";
       const transactionId = searchParams.get("transactionId") || "";
       const orderDescription = searchParams.get("message") || "";
+      const vnpResponseCode = searchParams.get("vnp_ResponseCode");
+      const vnpTransactionStatus = searchParams.get("vnp_TransactionStatus");
 
       // Xác định trạng thái thanh toán
       let isSuccess = false;
-      let paymentStatus = "error"; // error, success, cancel
-      
-      if (status === "return") {
-        // Trường hợp quay về từ VNPay (có thể thành công hoặc thất bại)
-        isSuccess = vnpaySuccess;
-        paymentStatus = vnpaySuccess ? "success" : "error";
-      } else if (status === "cancel") {
-        // Trường hợp người dùng hủy thanh toán
-        isSuccess = false;
-        paymentStatus = "cancel";
-      } else {
-        // Fallback cho các trường hợp khác
-        isSuccess = vnpaySuccess;
-        paymentStatus = vnpaySuccess ? "success" : "error";
-      }
+      let paymentStatus = "error"; // error, success, cancel, incomplete
+
+      // Kiểm tra trường hợp đặc biệt: transactionId = "0" hoặc "" nghĩa là chưa xử lý
+      const isIncompleteTransaction = transactionId === "0" || transactionId === "" || orderDescription.includes("Chưa Xử lý");
+
+      // Backend chỉ trả về success, orderId, transactionId, message
+       // Không có vnp_ResponseCode hay status từ VNPay
+       
+       // Kiểm tra trường hợp cancel dựa trên message
+       const isCancelTransaction = orderDescription.includes("hủy") || orderDescription.includes("cancel") || orderDescription.includes("Hủy");
+       
+       if (isIncompleteTransaction) {
+         // Trường hợp người dùng nhấn "Quay lại" mà chưa hoàn tất thanh toán
+         console.log("Phát hiện giao dịch chưa hoàn tất (transactionId=0 hoặc chứa 'Chưa Xử lý')");
+         isSuccess = false;
+         paymentStatus = "incomplete";
+       } else if (isCancelTransaction) {
+         // Trường hợp người dùng hủy thanh toán
+         console.log("Phát hiện giao dịch bị hủy (message chứa từ khóa hủy)");
+         isSuccess = false;
+         paymentStatus = "cancel";
+       } else if (vnpaySuccess && orderId && transactionId && transactionId !== "0") {
+         // Trường hợp thanh toán thành công: có success=true, orderId, và transactionId hợp lệ
+         console.log("Thanh toán thành công từ backend");
+         isSuccess = true;
+         paymentStatus = "success";
+       } else if (!vnpaySuccess) {
+         // Trường hợp thanh toán thất bại: success=false
+         console.log("Thanh toán thất bại từ backend");
+         isSuccess = false;
+         paymentStatus = "error";
+       } else {
+         // Fallback cho các trường hợp khác
+         console.log("Trường hợp không xác định, coi như thất bại");
+         isSuccess = false;
+         paymentStatus = "error";
+       }
 
       setTransactionInfo({
         orderDescription,
@@ -52,30 +76,45 @@ export default function PaymentResult() {
       });
 
       setResult(isSuccess ? "success" : "error");
-      
+
       // Log thông tin để debug
       console.log("Payment Result Debug:", {
         status,
         vnpaySuccess,
+        vnpResponseCode,
+        vnpTransactionStatus,
         paymentStatus,
         isSuccess,
         orderId,
-        transactionId
+        transactionId,
+        allParams: Object.fromEntries(searchParams.entries())
       });
 
       if (isSuccess) {
         try {
-          // Lấy paymentId từ localStorage
-          const pendingPayment = localStorage.getItem("pendingPayment");
-          if (pendingPayment) {
-            const paymentData = JSON.parse(pendingPayment);
-            const paymentId = paymentData.paymentId;
+          // Kiểm tra thêm lần nữa trước khi cập nhật
+          // Chỉ cập nhật khi có success=true và transactionId hợp lệ (không phải "0")
+          const shouldUpdate = vnpaySuccess && orderId && transactionId && transactionId !== "0";
 
-            if (paymentId) {
-              // Cập nhật trạng thái thanh toán
-              await UserApi.UpdateSatatusPayment(paymentId);
-              console.log("Đã cập nhật trạng thái thanh toán thành công");
+          if (shouldUpdate) {
+            const pendingPayment = localStorage.getItem("pendingPayment");
+            if (pendingPayment) {
+              const paymentData = JSON.parse(pendingPayment);
+              const paymentId = paymentData.paymentId;
+
+              if (paymentId) {
+                // Cập nhật trạng thái thanh toán
+                await UserApi.UpdateSatatusPayment(paymentId);
+                console.log("Đã cập nhật trạng thái thanh toán thành công");
+              }
             }
+          } else {
+            console.log("Không cập nhật do thông tin không hợp lệ:", {
+              vnpaySuccess,
+              orderId,
+              transactionId,
+              isIncompleteTransaction
+            });
           }
         } catch (error) {
           console.error("Lỗi khi cập nhật trạng thái thanh toán:", error);
@@ -84,18 +123,22 @@ export default function PaymentResult() {
         message.success(
           `Thanh toán thành công! Mã giao dịch: ${transactionId}`
         );
-        setTimeout(
-          () => navigate("/user/history_payment", { replace: true }),
-          2000
-        );
+        // setTimeout(
+        //   () => navigate("/user/history_payment", { replace: true }),
+        //   200000
+        // );
       } else {
-          if (paymentStatus === "cancel") {
-            message.warning("Bạn đã hủy thanh toán.");
-          } else {
-            message.error("Thanh toán thất bại. Vui lòng kiểm tra lại thông tin và thử lại.");
-          }
-          setTimeout(() => navigate("/user/payment", { replace: true }), 3000);
+        if (paymentStatus === "cancel") {
+          message.warning("Bạn đã hủy thanh toán.");
+        } else if (paymentStatus === "incomplete" || isIncompleteTransaction) {
+          message.info("Bạn đã quay lại từ trang thanh toán mà chưa hoàn tất giao dịch. Vui lòng thử lại để hoàn tất thanh toán.");
+        } else if (!vnpaySuccess) {
+          message.error("Thanh toán thất bại. Vui lòng kiểm tra lại thông tin và thử lại.");
+        } else {
+          message.warning("Có lỗi xảy ra trong quá trình xử lý thanh toán. Vui lòng thử lại.");
         }
+        // setTimeout(() => navigate("/user/payment", { replace: true }), 30000);
+      }
 
       setLoading(false);
       localStorage.removeItem("pendingPayment");
@@ -149,13 +192,32 @@ export default function PaymentResult() {
     },
     error: {
       status: "error" as const,
-      title: result === "error" && searchParams.get("status") === "cancel" ? "Đã hủy thanh toán" : "Thanh toán thất bại",
+      title: (() => {
+        const orderDescription = searchParams.get("message") || "";
+        const isCancelTransaction = orderDescription.includes("hủy") || orderDescription.includes("cancel") || orderDescription.includes("Hủy");
+        const isIncompleteTransaction = searchParams.get("transactionId") === "0" || orderDescription.includes("Chưa Xử lý");
+        
+        if (isCancelTransaction) return "Đã hủy thanh toán";
+        if (isIncompleteTransaction) return "Giao dịch chưa hoàn tất";
+        return "Thanh toán thất bại";
+      })(),
       subTitle: (
         <div className="space-y-2">
           <p>
-            {result === "error" && searchParams.get("status") === "cancel"
-              ? "Bạn đã hủy giao dịch thanh toán. Bạn có thể thử lại bất cứ lúc nào." 
-              : "Có lỗi xảy ra trong quá trình thanh toán. Vui lòng kiểm tra lại thông tin thẻ, số dư tài khoản hoặc kết nối mạng và thử lại."}
+            {(() => {
+              const orderDescription = searchParams.get("message") || "";
+              const isCancelTransaction = orderDescription.includes("hủy") || orderDescription.includes("cancel") || orderDescription.includes("Hủy");
+              const isIncompleteTransaction = searchParams.get("transactionId") === "0" || orderDescription.includes("Chưa Xử lý");
+              
+              if (isCancelTransaction) {
+                return "Bạn đã hủy giao dịch thanh toán. Bạn có thể thử lại bất cứ lúc nào.";
+              }
+              if (isIncompleteTransaction) {
+                return "Bạn đã quay lại từ trang thanh toán mà chưa hoàn tất giao dịch. Vui lòng thử lại để hoàn tất thanh toán.";
+              }
+              return "Có lỗi xảy ra trong quá trình thanh toán. Vui lòng kiểm tra lại thông tin thẻ, số dư tài khoản hoặc kết nối mạng và thử lại.";
+            })()
+            }
           </p>
           {transactionInfo && transactionInfo.transactionId && (
             <div className="text-sm text-gray-600 mt-4">
