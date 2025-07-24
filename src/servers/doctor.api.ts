@@ -100,14 +100,14 @@ const DoctorApi = {
     medicalRecordDetailId: number,
     data: {
       date: string;
-      testResult: string;
-      note: string;
+      testResult?: string;
+      note?: string;
       status: string;
     }
   ) => {
     return axiosClient.put(
       `Doctor/UpdateMedicalRecordDetail/${customerId}/${medicalRecordDetailId}`,
-      data
+      { dto: data }
     );
   },
 

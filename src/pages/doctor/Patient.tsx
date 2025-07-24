@@ -4,7 +4,6 @@ import {
   Select,
   Button,
   Tabs,
-  Badge,
   Typography,
   Avatar,
   Space,
@@ -89,10 +88,7 @@ export default function PatientsPage() {
                   Age: {patient.age} • {patient.serviceName}
                 </Text>
               </div>
-              <Space style={{ marginTop: 8 }}>
-                <Badge color="#ff69b4" text={patient.serviceName} />
-                <Badge color="#ff1493" text={patient.status} />
-              </Space>
+
             </div>
           </Space>
         </Col>
@@ -116,7 +112,7 @@ export default function PatientsPage() {
               onClick={() => detailLink(patient.customerId)}
               style={{ backgroundColor: "#ff69b4", borderColor: "#ff69b4" }}
             >
-              View Details
+              Xem thông tin chi tiết
             </Button>
           </Space>
         </Col>

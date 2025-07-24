@@ -87,13 +87,24 @@ const LoginPage = () => {
   };
 
   // Hàm kiểm tra user/email
+  // const validateUsername = (value: string) => {
+  //   if (!value) return "Vui lòng nhập user hoặc email";
+  //   // Regex kiểm tra email
+  //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  //   if (value.includes("@")) {
+  //     if (!emailRegex.test(value)) return "Email không hợp lệ";
+  //   }
+  //   return true;
+  // };
+
   const validateUsername = (value: string) => {
-    if (!value) return "Vui lòng nhập user hoặc email";
-    // Regex kiểm tra email
+    if (!value) return "Vui lòng nhập email";
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (value.includes("@")) {
-      if (!emailRegex.test(value)) return "Email không hợp lệ";
+    if (!emailRegex.test(value)) {
+      return "Vui lòng nhập email hợp lệ";
     }
+
     return true;
   };
 
@@ -110,14 +121,14 @@ const LoginPage = () => {
       });
 
       const systemToken = loginResponse.data.token;
-      
+
       if (!systemToken) {
         throw new Error("Token không hợp lệ");
       }
 
       // Lưu token vào AuthContext
       await login(systemToken);
-      
+
       message.success("Đăng nhập bằng Google thành công!");
 
       // Lấy thông tin user để điều hướng theo role
@@ -149,7 +160,7 @@ const LoginPage = () => {
 
     } catch (err: any) {
       console.error("Google OAuth error:", err);
-      
+
       // Kiểm tra nếu là lỗi từ API (token không hợp lệ)
       if (err.response?.data?.message) {
         message.error(err.response.data.message);
@@ -215,11 +226,10 @@ const LoginPage = () => {
               <input
                 type="text"
                 {...register("Username", { validate: validateUsername })}
-                className={`w-full px-4 py-3 pl-12 border rounded-xl focus:outline-none focus:ring-3 focus:ring-pink-300 focus:border-pink-400 transition-all duration-200 bg-white/70 backdrop-blur-sm ${
-                  errors.Username
-                    ? "border-red-400 focus:border-red-500 focus:ring-red-200"
-                    : "border-pink-200 hover:border-pink-300"
-                }`}
+                className={`w-full px-4 py-3 pl-12 border rounded-xl focus:outline-none focus:ring-3 focus:ring-pink-300 focus:border-pink-400 transition-all duration-200 bg-white/70 backdrop-blur-sm ${errors.Username
+                  ? "border-red-400 focus:border-red-500 focus:ring-red-200"
+                  : "border-pink-200 hover:border-pink-300"
+                  }`}
                 placeholder="Nhập user hoặc email"
                 disabled={isLoading}
               />
@@ -245,11 +255,10 @@ const LoginPage = () => {
                 {...register("password", {
                   required: "Vui lòng nhập mật khẩu",
                 })}
-                className={`w-full px-4 py-3 pl-12 border rounded-xl focus:outline-none focus:ring-3 focus:ring-pink-300 focus:border-pink-400 transition-all duration-200 bg-white/70 backdrop-blur-sm ${
-                  errors.password
-                    ? "border-red-400 focus:border-red-500 focus:ring-red-200"
-                    : "border-pink-200 hover:border-pink-300"
-                }`}
+                className={`w-full px-4 py-3 pl-12 border rounded-xl focus:outline-none focus:ring-3 focus:ring-pink-300 focus:border-pink-400 transition-all duration-200 bg-white/70 backdrop-blur-sm ${errors.password
+                  ? "border-red-400 focus:border-red-500 focus:ring-red-200"
+                  : "border-pink-200 hover:border-pink-300"
+                  }`}
                 placeholder="Nhập mật khẩu"
                 disabled={isLoading}
               />
@@ -274,11 +283,10 @@ const LoginPage = () => {
                   disabled={isLoading}
                 />
                 <div
-                  className={`w-5 h-5 rounded border-2 transition-all duration-200 flex items-center justify-center ${
-                    rememberMe
-                      ? "bg-pink-500 border-pink-500"
-                      : "border-pink-300 group-hover:border-pink-400"
-                  }`}
+                  className={`w-5 h-5 rounded border-2 transition-all duration-200 flex items-center justify-center ${rememberMe
+                    ? "bg-pink-500 border-pink-500"
+                    : "border-pink-300 group-hover:border-pink-400"
+                    }`}
                   onClick={() => setValue("rememberMe", !rememberMe)}
                 >
                   {rememberMe && (

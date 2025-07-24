@@ -178,11 +178,10 @@ const RegisterPage = () => {
                       message: "Họ và tên phải có ít nhất 2 ký tự",
                     },
                   })}
-                  className={`w-full px-4 py-3 pl-12 border rounded-xl focus:outline-none focus:ring-3 focus:ring-pink-300 focus:border-pink-400 transition-all duration-200 bg-white/70 backdrop-blur-sm ${
-                    errors.fullName
+                  className={`w-full px-4 py-3 pl-12 border rounded-xl focus:outline-none focus:ring-3 focus:ring-pink-300 focus:border-pink-400 transition-all duration-200 bg-white/70 backdrop-blur-sm ${errors.fullName
                       ? "border-red-400 focus:border-red-500 focus:ring-red-200"
                       : "border-pink-200 hover:border-pink-300"
-                  }`}
+                    }`}
                   placeholder="Nhập họ và tên"
                   disabled={isLoading}
                 />
@@ -214,11 +213,10 @@ const RegisterPage = () => {
                       message: "Email không hợp lệ",
                     },
                   })}
-                  className={`w-full px-4 py-3 pl-12 border rounded-xl focus:outline-none focus:ring-3 focus:ring-pink-300 focus:border-pink-400 transition-all duration-200 bg-white/70 backdrop-blur-sm ${
-                    errors.email
+                  className={`w-full px-4 py-3 pl-12 border rounded-xl focus:outline-none focus:ring-3 focus:ring-pink-300 focus:border-pink-400 transition-all duration-200 bg-white/70 backdrop-blur-sm ${errors.email
                       ? "border-red-400 focus:border-red-500 focus:ring-red-200"
                       : "border-pink-200 hover:border-pink-300"
-                  }`}
+                    }`}
                   placeholder="Nhập email"
                   disabled={isLoading}
                 />
@@ -252,11 +250,10 @@ const RegisterPage = () => {
                       message: "Số điện thoại không hợp lệ (10-11 số)",
                     },
                   })}
-                  className={`w-full px-4 py-3 pl-12 border rounded-xl focus:outline-none focus:ring-3 focus:ring-pink-300 focus:border-pink-400 transition-all duration-200 bg-white/70 backdrop-blur-sm ${
-                    errors.phone
+                  className={`w-full px-4 py-3 pl-12 border rounded-xl focus:outline-none focus:ring-3 focus:ring-pink-300 focus:border-pink-400 transition-all duration-200 bg-white/70 backdrop-blur-sm ${errors.phone
                       ? "border-red-400 focus:border-red-500 focus:ring-red-200"
                       : "border-pink-200 hover:border-pink-300"
-                  }`}
+                    }`}
                   placeholder="Nhập số điện thoại"
                   disabled={isLoading}
                 />
@@ -283,11 +280,10 @@ const RegisterPage = () => {
                   {...register("gender", {
                     required: "Vui lòng chọn giới tính",
                   })}
-                  className={`w-full px-4 py-3 pl-12 border rounded-xl focus:outline-none focus:ring-3 focus:ring-pink-300 focus:border-pink-400 transition-all duration-200 bg-white/70 backdrop-blur-sm ${
-                    errors.gender
+                  className={`w-full px-4 py-3 pl-12 border rounded-xl focus:outline-none focus:ring-3 focus:ring-pink-300 focus:border-pink-400 transition-all duration-200 bg-white/70 backdrop-blur-sm ${errors.gender
                       ? "border-red-400 focus:border-red-500 focus:ring-red-200"
                       : "border-pink-200 hover:border-pink-300"
-                  }`}
+                    }`}
                   disabled={isLoading}
                 >
                   <option value="">Chọn giới tính</option>
@@ -327,11 +323,10 @@ const RegisterPage = () => {
                       return age >= 13 || "Bạn phải từ 13 tuổi trở lên";
                     },
                   })}
-                  className={`w-full px-4 py-3 pl-12 border rounded-xl focus:outline-none focus:ring-3 focus:ring-pink-300 focus:border-pink-400 transition-all duration-200 bg-white/70 backdrop-blur-sm ${
-                    errors.birthday
+                  className={`w-full px-4 py-3 pl-12 border rounded-xl focus:outline-none focus:ring-3 focus:ring-pink-300 focus:border-pink-400 transition-all duration-200 bg-white/70 backdrop-blur-sm ${errors.birthday
                       ? "border-red-400 focus:border-red-500 focus:ring-red-200"
                       : "border-pink-200 hover:border-pink-300"
-                  }`}
+                    }`}
                   disabled={isLoading}
                 />
                 <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-pink-400" />
@@ -358,11 +353,10 @@ const RegisterPage = () => {
                   {...register("address", {
                     required: "Vui lòng nhập địa chỉ",
                   })}
-                  className={`w-full px-4 py-3 pl-12 border rounded-xl focus:outline-none focus:ring-3 focus:ring-pink-300 focus:border-pink-400 transition-all duration-200 bg-white/70 backdrop-blur-sm ${
-                    errors.address
+                  className={`w-full px-4 py-3 pl-12 border rounded-xl focus:outline-none focus:ring-3 focus:ring-pink-300 focus:border-pink-400 transition-all duration-200 bg-white/70 backdrop-blur-sm ${errors.address
                       ? "border-red-400 focus:border-red-500 focus:ring-red-200"
                       : "border-pink-200 hover:border-pink-300"
-                  }`}
+                    }`}
                   placeholder="Nhập địa chỉ"
                   disabled={isLoading}
                 />
@@ -399,11 +393,10 @@ const RegisterPage = () => {
                     message: "Mật khẩu phải có chữ hoa, chữ thường và số",
                   },
                 })}
-                className={`w-full px-4 py-3 pl-12 border rounded-xl focus:outline-none focus:ring-3 focus:ring-pink-300 focus:border-pink-400 transition-all duration-200 bg-white/70 backdrop-blur-sm ${
-                  errors.password
+                className={`w-full px-4 py-3 pl-12 border rounded-xl focus:outline-none focus:ring-3 focus:ring-pink-300 focus:border-pink-400 transition-all duration-200 bg-white/70 backdrop-blur-sm ${errors.password
                     ? "border-red-400 focus:border-red-500 focus:ring-red-200"
                     : "border-pink-200 hover:border-pink-300"
-                }`}
+                  }`}
                 placeholder="Nhập mật khẩu"
                 disabled={isLoading}
               />
@@ -430,11 +423,10 @@ const RegisterPage = () => {
                   disabled={isLoading}
                 />
                 <div
-                  className={`w-5 h-5 rounded border-2 transition-all duration-200 flex items-center justify-center ${
-                    agreeTerms
+                  className={`w-5 h-5 rounded border-2 transition-all duration-200 flex items-center justify-center ${agreeTerms
                       ? "bg-pink-500 border-pink-500"
                       : "border-pink-300 group-hover:border-pink-400"
-                  }`}
+                    }`}
                   onClick={() => setValue("agreeTerms", !agreeTerms)}
                 >
                   {agreeTerms && (

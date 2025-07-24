@@ -65,11 +65,22 @@ export function MedicalDetailModal({
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      onSubmit({
+
+      const formattedValues = {
         ...values,
-        date: dayjs(values.date).format("YYYY-MM-DD"),
-      });
-      console.log("SUBMIT VALUES", values);
+        date: dayjs(values.date).format("YYYY-MM-DD"), // xử lý date tại đây
+      };
+
+      // onSubmit({
+      //   ...values,
+      //   date: dayjs(values.date).format("YYYY-MM-DD"),
+      // });
+
+      onSubmit(formattedValues);
+      console.log("SUBMIT VALUES", formattedValues);
+      console.log("FORMATTED VALUES", formattedValues);
+      console.log("Date sent to backend:", formattedValues.date);
+      console.log("Type of date:", typeof formattedValues.date);
     } catch (error) {
       console.log("Lỗi khi submit form:", error);
       message.error("Xảy ra lỗi khi xác thực form");
@@ -164,6 +175,22 @@ export function MedicalDetailModal({
                 <Option value="Consultation">Tư vấn</Option>
                 <Option value="Treatment">Điều trị</Option>
                 <Option value="Result">Kết quả</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+
+          <Col span={12}>
+            <Form.Item
+              label={<span style={{ color: "#ff69b4" }}>Trạng thái</span>}
+              name="status"
+              rules={[{ required: true, message: "Vui lòng chọn trạng thái!" }]}
+            >
+              <Select placeholder="Chọn trạng thái">
+                <Option value="Đang điều trị">Đang điều trị</Option>
+                <Option value="Hoàn thành">Hoàn thành</Option>
+                <Option value="Thất bại">Thất bại</Option>
+
               </Select>
             </Form.Item>
           </Col>
