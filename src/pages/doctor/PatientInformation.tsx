@@ -19,7 +19,7 @@ export function PatientInformation({ patient }: PatientInformationProps) {
 
   return (
     <Card
-      title={<span style={{ color: "#ff69b4" }}>Patient Information</span>}
+      title={<span style={{ color: "#ff69b4" }}>Thông tin bệnh nhân</span>}
       style={{
         borderColor: "#ff69b4",
         boxShadow: "0 2px 8px rgba(255, 105, 180, 0.1)",
@@ -54,7 +54,7 @@ export function PatientInformation({ patient }: PatientInformationProps) {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
-                label={<span style={{ color: "#ff69b4" }}>Wife's Name</span>}
+                label={<span style={{ color: "#ff69b4" }}>Họ và Tên Vợ</span>}
               >
                 <Input
                   value={patient.wife}
@@ -65,7 +65,7 @@ export function PatientInformation({ patient }: PatientInformationProps) {
             </Col>
             <Col span={12}>
               <Form.Item
-                label={<span style={{ color: "#ff69b4" }}>Husband's Name</span>}
+                label={<span style={{ color: "#ff69b4" }}>Họ và Tên Chồng</span>}
               >
                 <Input
                   value={patient.husband}
@@ -76,7 +76,7 @@ export function PatientInformation({ patient }: PatientInformationProps) {
             </Col>
             <Col span={12}>
               <Form.Item
-                label={<span style={{ color: "#ff69b4" }}>Phone</span>}
+                label={<span style={{ color: "#ff69b4" }}>Số điện thoại</span>}
               >
                 <Input
                   value={patient.phone}
@@ -100,7 +100,7 @@ export function PatientInformation({ patient }: PatientInformationProps) {
             </Col>
             <Col span={12}>
               <Form.Item
-                label={<span style={{ color: "#ff69b4" }}>Birthday</span>}
+                label={<span style={{ color: "#ff69b4" }}>Ngày sinh</span>}
               >
                 <Input
                   value={patient.birthday}
@@ -111,7 +111,7 @@ export function PatientInformation({ patient }: PatientInformationProps) {
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item label={<span style={{ color: "#ff69b4" }}>Age</span>}>
+              <Form.Item label={<span style={{ color: "#ff69b4" }}>Tuổi</span>}>
                 <Input
                   value={patient.age}
                   readOnly
@@ -121,7 +121,7 @@ export function PatientInformation({ patient }: PatientInformationProps) {
             </Col>
             <Col span={24}>
               <Form.Item
-                label={<span style={{ color: "#ff69b4" }}>Address</span>}
+                label={<span style={{ color: "#ff69b4" }}>Địa chỉ thường trú</span>}
               >
                 <Input
                   value={patient.address}

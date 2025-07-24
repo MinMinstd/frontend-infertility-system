@@ -140,7 +140,7 @@ export default function DoctorSchedule() {
       <Row gutter={[16, 16]} className="mb-6">
         <Col xs={24} md={12}>
           <Input
-            placeholder="Search by name, customer ID, or service..."
+            placeholder="Tìm kiếm bệnh nhân theo tên...."
             prefix={<SearchOutlined className="text-pink-500" />}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -149,7 +149,7 @@ export default function DoctorSchedule() {
         </Col>
         <Col xs={24} md={6}>
           <Select
-            placeholder="Lọc theo trạng thái"
+            placeholder="Lọc Theo Trạng Thái"
             value={statusFilter}
             onChange={setStatusFilter}
             className="w-full"

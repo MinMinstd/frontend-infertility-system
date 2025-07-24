@@ -327,13 +327,32 @@ export function MedicalManagement({
   }) => {
     if (!customerId || !editingMedicalDetail) return;
 
+    // Validation
+    if (!updated.date || !updated.status) {
+      message.error("Ngày và trạng thái là bắt buộc!");
+      return;
+    }
+
+
+    const formattedDate = dayjs.isDayjs(updated.date)
+      ? updated.date.format("YYYY-MM-DD")
+      : dayjs(updated.date, "DD/MM/YYYY").format("YYYY-MM-DD");
+
+
+    console.log("Data gửi đi:", {
+      date: formattedDate, // phải là "2025-07-24"
+      testResult: updated.testResult?.trim() || "N/A",
+      note: updated.note || "",
+      status: updated.status,
+    });
+
     try {
       await DoctorApi.UpdateMedicalRecordDetail(
         customerId,
         editingMedicalDetail.medicalRecordDetailId,
         {
-          date: updated.date,
-          testResult: updated.testResult || "",
+          date: formattedDate,
+          testResult: updated.testResult?.trim() || "N/A",
           note: updated.note || "",
           status: updated.status,
         }
@@ -343,11 +362,19 @@ export function MedicalManagement({
       setMedicalRecordDetail((prev) =>
         prev.map((item) =>
           item.medicalRecordDetailId ===
-          editingMedicalDetail.medicalRecordDetailId
-            ? { ...item, ...updated }
+            editingMedicalDetail.medicalRecordDetailId
+            ? {
+              ...item,
+              date: formattedDate,
+              testResult: updated.testResult?.trim() || "N/A",
+              note: updated.note || "",
+              status: updated.status,
+            }
             : item
         )
       );
+
+
 
       message.success("Cập nhật hồ sơ bệnh án thành công");
       setIsUpdateMedicalDetailModalVisible(false);
@@ -832,10 +859,7 @@ export function MedicalManagement({
         open={isUpdateMedicalDetailModalVisible} // Sử dụng state đúng
         onCancel={() => setIsUpdateMedicalDetailModalVisible(false)}
         onSubmit={(values) => {
-          handleUpdateMedicalRecordDetail({
-            ...values,
-            date: dayjs(values.date).format("YYYY-MM-DD"),
-          });
+          handleUpdateMedicalRecordDetail(values);  // ✅ Truyền trực tiếp
         }}
         treatmentRoadmap={treatmentRoadmap}
         treatmentResults={treatmentResult_typeTest}

@@ -62,29 +62,39 @@ export function MedicalRecordModal({
         <Form.Item
           name="dates"
           label="Thời gian điều trị"
-          rules={[{ required: true }]}
+          rules={[{ required: true, message: "Vui lòng chọn thời gian điều trị!" }]}
         >
-          <RangePicker format="DD/MM/YYYY" />
+          <RangePicker format="DD/MM/YYYY" placeholder={["Ngày bắt đầu", "Ngày kết thúc"]} />
         </Form.Item>
 
-        <Form.Item name="stage" label="Giai đoạn" rules={[{ required: true }]}>
-          <Input />
+        <Form.Item
+          name="stage"
+          label="Giai đoạn"
+          rules={[
+            { required: true, message: "Vui lòng nhập giai đoạn điều trị!" },
+            { min: 2, message: "Giai đoạn phải có ít nhất 2 ký tự!" }
+          ]}
+        >
+          <Input placeholder="Nhập giai đoạn điều trị" />
         </Form.Item>
 
         <Form.Item
           name="diagnosis"
           label="Chẩn đoán"
-          rules={[{ required: true }]}
+          rules={[
+            { required: true, message: "Vui lòng nhập chẩn đoán!" },
+            { min: 3, message: "Chẩn đoán phải có ít nhất 3 ký tự!" }
+          ]}
         >
-          <TextArea rows={2} />
+          <TextArea rows={2} placeholder="Nhập chẩn đoán chi tiết" />
         </Form.Item>
 
         <Form.Item
           name="status"
           label="Trạng thái"
-          rules={[{ required: true }]}
+          rules={[{ required: true, message: "Vui lòng chọn trạng thái!" }]}
         >
-          <Select>
+          <Select placeholder="Chọn trạng thái điều trị">
             <Select.Option value="Pending">Đang chờ</Select.Option>
             <Select.Option value="In Progress">Đang điều trị</Select.Option>
             <Select.Option value="Complete">Hoàn tất</Select.Option>
@@ -94,9 +104,12 @@ export function MedicalRecordModal({
         <Form.Item
           name="attempt"
           label="Lần điều trị"
-          rules={[{ required: true }]}
+          rules={[
+            { required: true, message: "Vui lòng nhập số lần điều trị!" },
+            { type: "number", min: 1, message: "Số lần điều trị phải lớn hơn 0!" }
+          ]}
         >
-          <InputNumber min={1} />
+          <InputNumber min={1} max={10} placeholder="Nhập số lần" className="w-full" />
         </Form.Item>
       </Form>
     </Modal>

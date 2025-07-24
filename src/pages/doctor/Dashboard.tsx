@@ -172,15 +172,7 @@ export default function Dashboard() {
                     prefix={<UserOutlined style={{ color: "#ff69b4" }} />}
                     valueStyle={{ color: "#ff69b4", fontSize: "24px" }}
                   />
-                  <div
-                    style={{
-                      color: "#666",
-                      fontSize: "12px",
-                      marginTop: "4px",
-                    }}
-                  >
-                    Từ bảng Customers
-                  </div>
+
                 </Card>
               </Col>
               <Col xs={24} sm={12} lg={6}>
@@ -200,15 +192,7 @@ export default function Dashboard() {
                     prefix={<FileTextOutlined style={{ color: "#ff1493" }} />}
                     valueStyle={{ color: "#ff1493", fontSize: "24px" }}
                   />
-                  <div
-                    style={{
-                      color: "#666",
-                      fontSize: "12px",
-                      marginTop: "4px",
-                    }}
-                  >
-                    MedicalRecords status ≠ Thành công
-                  </div>
+
                 </Card>
               </Col>
               <Col xs={24} sm={12} lg={6}>
@@ -221,7 +205,7 @@ export default function Dashboard() {
                   <Statistic
                     title={
                       <span style={{ color: "#ff69b4", fontWeight: 600 }}>
-                        Bước điều trị hoàn tất
+                        Hồ Sơ Điều Trị Hoàn Tất
                       </span>
                     }
                     value={dashboardStats.completedSteps}
@@ -230,15 +214,7 @@ export default function Dashboard() {
                     }
                     valueStyle={{ color: "#ff69b4", fontSize: "24px" }}
                   />
-                  <div
-                    style={{
-                      color: "#666",
-                      fontSize: "12px",
-                      marginTop: "4px",
-                    }}
-                  >
-                    MedicalRecordDetails status = Complete
-                  </div>
+
                 </Card>
               </Col>
               <Col xs={24} sm={12} lg={6}>
@@ -254,21 +230,13 @@ export default function Dashboard() {
                         🩺 Số lượt khám bác sĩ đã thực hiện
                       </span>
                     }
-                    value={dashboardStats.doctorAppointments}
+                    value={dashboardStats.doctorAppointments || 0}
                     prefix={
                       <MedicineBoxOutlined style={{ color: "#ff1493" }} />
                     }
                     valueStyle={{ color: "#ff1493", fontSize: "24px" }}
                   />
-                  <div
-                    style={{
-                      color: "#666",
-                      fontSize: "12px",
-                      marginTop: "4px",
-                    }}
-                  >
-                    Bookings → DoctorSchedules.DoctorId
-                  </div>
+
                 </Card>
               </Col>
             </Row>
