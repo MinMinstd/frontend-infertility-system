@@ -1,4 +1,5 @@
 import { Award, Globe, Zap, Search } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function WhyChooseUs() {
   const reasons = [
@@ -33,21 +34,22 @@ export default function WhyChooseUs() {
   ];
 
   return (
-    <div className="bg-white rounded-3xl shadow-2xl p-8 lg:p-12 h-fit sticky top-8">
-      <div className="text-center mb-12">
+    <motion.div className="bg-transparent rounded-3xl shadow-2xl p-8 lg:p-12 h-fit sticky top-8" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+      <motion.div className="text-center mb-12" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
         <h2 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-pink-600 to-blue-600 bg-clip-text text-transparent mb-4">
           TẠI SAO CHỌN CHÚNG TÔI
         </h2>
         <div className="w-24 h-1 bg-gradient-to-r from-pink-500 to-blue-500 mx-auto rounded-full" />
-      </div>
+      </motion.div>
 
-      <div className="space-y-12">
+      <motion.div className="space-y-12" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.8 }}>
         {reasons.map((reason, index) => {
           const IconComponent = reason.icon;
           return (
-            <div
+            <motion.div
               key={index}
               className="group relative p-6 rounded-2xl bg-gradient-to-br from-gray-50 to-white border border-gray-100 hover:shadow-xl transition-all duration-500 hover:scale-[1.02]"
+              whileHover={{ scale: 1.04 }}
             >
               {/* Background gradient on hover */}
               <div className="absolute inset-0 bg-gradient-to-br from-pink-50 to-blue-50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -71,11 +73,10 @@ export default function WhyChooseUs() {
               </div>
 
               {/* Decorative element */}
-              <div className="absolute top-4 right-4 w-2 h-2 bg-gradient-to-r from-pink-400 to-blue-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            </div>
+            </motion.div>
           );
         })}
-      </div>
+      </motion.div>
 
       {/* Bottom CTA */}
       {/* <div className="mt-12 text-center">
@@ -83,6 +84,6 @@ export default function WhyChooseUs() {
           Tìm hiểu thêm
         </button>
       </div> */}
-    </div>
+    </motion.div>
   );
 }

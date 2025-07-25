@@ -39,7 +39,7 @@ const Notification = () => {
         onClick={() => setIsOpen((prev) => !prev)}
       >
         <svg
-          className="w-6 h-6 text-gray-600"
+          className="w-6 h-6 text-pink-500"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -77,7 +77,7 @@ const Notification = () => {
           {notifications.length === 0 ? (
             <div className="py-8 text-center text-gray-500">
               <svg
-                className="mx-auto h-12 w-12 text-gray-400"
+                className="mx-auto h-12 w-12 text-pink-300"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"

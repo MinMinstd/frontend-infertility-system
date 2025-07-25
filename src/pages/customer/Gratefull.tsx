@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import UserApi from "../../servers/user.api";
 import type { BlogPost } from "../../types/user.d";
 import { Calendar, Star, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 
 // const { Title, Text, Paragraph } = Typography;
 
@@ -81,15 +82,7 @@ export const Gratefull = ({ limit }: GratefullProps) => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12 bg-gradient-to-b from-pink-50 to-blue-50 rounded-3xl shadow-lg">
-      <div className="flex justify-end mb-6">
-        <button
-          className="bg-gradient-to-r from-pink-500 to-blue-500 text-white px-6 py-2 rounded-full font-semibold shadow hover:from-pink-600 hover:to-blue-600 transition-all duration-300"
-          onClick={() => setIsModalOpen(true)}
-        >
-          Chia sẻ câu chuyện
-        </button>
-      </div>
+    <div className="max-w-7xl mx-auto px-4 py-12 bg-transparent">
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
           <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-lg relative">
@@ -156,71 +149,83 @@ export const Gratefull = ({ limit }: GratefullProps) => {
           </div>
         </div>
       )}
-      <div className="text-center lg:text-left">
-        <h2 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-pink-600 to-blue-600 bg-clip-text text-transparent mb-4">
-          Hành Trình Đi Tìm Thiên Thần
-        </h2>
-        <p className="text-gray-600 text-lg leading-relaxed max-w-2xl">
-          Những câu chuyện truyền cảm hứng từ các gia đình đã thành công trong
-          hành trình điều trị hiếm muộn
-        </p>
-        <div className="w-24 h-1 bg-gradient-to-r from-pink-500 to-blue-500 mt-4 rounded-full lg:mx-0 mx-auto" />
-      </div>
-      <div className="space-y-6">
-        {displayStories.map((story) => (
-          <div
-            key={story.blogPostId}
-            onClick={() => handleCardClick(story.blogPostId)}
-            className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 hover:border-pink-200 cursor-pointer"
+      <motion.div className="bg-transparent rounded-3xl shadow-2xl p-8" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+        <motion.div className="text-center lg:text-left" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+          <h2 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-pink-600 to-blue-600 bg-clip-text text-transparent mb-4">
+            Hành Trình Đi Tìm Thiên Thần
+          </h2>
+          <p className="text-gray-600 text-lg leading-relaxed max-w-2xl">
+            Những câu chuyện truyền cảm hứng từ các gia đình đã thành công trong
+            hành trình điều trị hiếm muộn
+          </p>
+          <div className="w-24 h-1 bg-gradient-to-r from-pink-500 to-blue-500 mt-4 rounded-full lg:mx-0 mx-auto" />
+        </motion.div>
+        <motion.div className="flex justify-end mb-6 mt-4" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.8 }}>
+          <motion.button
+            className="bg-gradient-to-r from-pink-500 to-blue-500 text-white px-6 py-2 rounded-full font-semibold shadow hover:from-pink-600 hover:to-blue-600 transition-all duration-300"
+            onClick={() => setIsModalOpen(true)}
+            whileHover={{ scale: 1.08 }}
           >
-            <div className="p-2">
-              <div className="flex items-start space-x-4">
-                {/* Không hiển thị avatar hay bất kỳ hình ảnh nào */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-lg font-bold text-gray-800 group-hover:text-pink-600 transition-colors">
-                      {story.customerName || "Ẩn danh"}
-                    </h3>
-                    <div className="flex items-center space-x-1">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className="w-4 h-4 text-yellow-400 fill-current"
-                        />
-                      ))}
+            Chia sẻ câu chuyện
+          </motion.button>
+        </motion.div>
+        <motion.div className="space-y-6 mt-6" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.8 }}>
+          {displayStories.map((story) => (
+            <motion.div
+              key={story.blogPostId}
+              onClick={() => handleCardClick(story.blogPostId)}
+              className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 hover:border-pink-200 cursor-pointer mb-4"
+              whileHover={{ scale: 1.04 }}
+            >
+              <div className="p-2">
+                <div className="flex items-start space-x-4">
+                  {/* Không hiển thị avatar hay bất kỳ hình ảnh nào */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-lg font-bold text-gray-800 group-hover:text-pink-600 transition-colors">
+                        {story.customerName || "Ẩn danh"}
+                      </h3>
+                      <div className="flex items-center space-x-1">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className="w-4 h-4 text-yellow-400 fill-current"
+                          />
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center space-x-3 mb-3">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-pink-100 to-pink-200 text-pink-700">
-                      {story.treatmentType}
-                    </span>
-                    <span className="text-sm text-gray-500 flex items-center">
-                      <Calendar className="w-4 h-4 mr-1" />
-                      {new Date(story.date).toLocaleDateString("vi-VN")}
-                    </span>
-                  </div>
-                  <h4 className="text-xl font-semibold text-gray-800 mb-3 group-hover:text-blue-600 transition-colors">
-                    {story.title}
-                  </h4>
-                  <p className="text-gray-600 leading-relaxed mb-4 line-clamp-3">
-                    {story.story}
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-500">
-                      Chia sẻ: {new Date(story.date).toLocaleDateString("vi-VN")}
-                    </span>
-                    <button className="inline-flex items-center text-pink-600 hover:text-pink-700 font-medium group-hover:translate-x-1 transition-all duration-300">
-                      Đọc thêm
-                      <ArrowRight className="w-4 h-4 ml-1" />
-                    </button>
+                    <div className="flex items-center space-x-3 mb-3">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-pink-100 to-pink-200 text-pink-700">
+                        {story.treatmentType}
+                      </span>
+                      <span className="text-sm text-gray-500 flex items-center">
+                        <Calendar className="w-4 h-4 mr-1" />
+                        {new Date(story.date).toLocaleDateString("vi-VN")}
+                      </span>
+                    </div>
+                    <h4 className="text-xl font-bold text-gray-900 mb-2">
+                      {story.title}
+                    </h4>
+                    <p className="text-gray-600 leading-relaxed mb-4 line-clamp-3">
+                      {story.story}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-500">
+                        Chia sẻ: {new Date(story.date).toLocaleDateString("vi-VN")}
+                      </span>
+                      <motion.button whileHover={{ scale: 1.08 }} className="inline-flex items-center text-pink-600 hover:text-pink-700 font-medium group-hover:translate-x-1 transition-all duration-300">
+                        Đọc thêm
+                        <ArrowRight className="w-4 h-4 ml-1" />
+                      </motion.button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="h-1 bg-gradient-to-r from-pink-500 to-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
-          </div>
-        ))}
-      </div>
+              <div className="h-1 bg-gradient-to-r from-pink-500 to-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+            </motion.div>
+          ))}
+        </motion.div>
+      </motion.div>
     </div>
   );
 };
