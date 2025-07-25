@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Play, Pause } from "lucide-react";
 import newsItems from "../data/newsItems";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const carouselImages = [
   {
@@ -18,6 +19,21 @@ const carouselImages = [
     src: "/Images/KhongGianThanThien.jpg ",
     alt: "Phòng khám hiện đại 3",
     title: "Không gian thân thiện",
+  },
+  {
+    src: "/Images/Doctor1.jpg",
+    alt: "Bác sĩ 1",
+    title: "Đội ngũ bác sĩ 1",
+  },
+  {
+    src: "/Images/Doctor2.jpg",
+    alt: "Bác sĩ 2",
+    title: "Đội ngũ bác sĩ 2",
+  },
+  {
+    src: "/Images/Doctor3.jpg",
+    alt: "Bác sĩ 3",
+    title: "Đội ngũ bác sĩ 3",
   },
 ];
 
@@ -46,13 +62,13 @@ export default function Mission() {
   };
 
   return (
-    <section className="py-16 bg-gradient-to-b from-white to-gray-50">
+    <section className="py-16 bg-transparent">
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Content - 3/4 */}
-          <div className="lg:col-span-3 space-y-8">
+          <motion.div className="lg:col-span-3 space-y-8" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
             {/* Header */}
-            <div className="text-center lg:text-left">
+            <motion.div className="text-center lg:text-left" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
               <h2 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-pink-600 to-blue-600 bg-clip-text text-transparent mb-4">
                 Sứ mệnh & Cơ sở vật chất
               </h2>
@@ -63,17 +79,18 @@ export default function Mission() {
                 và riêng tư.
               </p>
               <div className="w-24 h-1 bg-gradient-to-r from-pink-500 to-blue-500 mt-4 rounded-full lg:mx-0 mx-auto" />
-            </div>
+            </motion.div>
 
             {/* Carousel */}
-            <div className="relative bg-white rounded-3xl shadow-2xl overflow-hidden group">
+            <motion.div className="relative bg-white rounded-3xl shadow-2xl overflow-hidden group" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.8 }}>
               <div className="relative h-[500px] lg:h-[600px]">
                 {carouselImages.map((image, index) => (
-                  <div
+                  <motion.div
                     key={index}
-                    className={`absolute inset-0 transition-opacity duration-1000 ${
-                      index === currentSlide ? "opacity-100" : "opacity-0"
-                    }`}
+                    className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"}`}
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={index === currentSlide ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.98 }}
+                    transition={{ duration: 0.7 }}
                   >
                     <img
                       src={image.src || "/placeholder.svg"}
@@ -84,7 +101,7 @@ export default function Mission() {
                     <div className="absolute bottom-8 left-8 text-white">
                       <h3 className="text-2xl font-bold mb-2">{image.title}</h3>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
 
                 {/* Controls */}
@@ -128,11 +145,11 @@ export default function Mission() {
                   ))}
                 </div>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Sidebar - 1/4 */}
-          <div className="lg:col-span-1 space-y-6">
+          <motion.div className="lg:col-span-1 space-y-6" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
             <div className="bg-gradient-to-br from-pink-50 to-blue-50 rounded-3xl p-6 shadow-lg">
               <h3 className="text-xl font-bold text-gray-800 mb-6 text-center">
                 Tin tức & Sự kiện
@@ -140,9 +157,10 @@ export default function Mission() {
 
               <div className="space-y-6">
                 {newsItems.map((item) => (
-                  <div
+                  <motion.div
                     key={item.id}
                     className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer"
+                    whileHover={{ scale: 1.03 }}
                   >
                     <div className="relative">
                       <img
@@ -172,11 +190,11 @@ export default function Mission() {
                         </Link>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
