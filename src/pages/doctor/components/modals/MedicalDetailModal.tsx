@@ -66,19 +66,28 @@ export function MedicalDetailModal({
     try {
       const values = await form.validateFields();
 
+      // Kiểm tra và format date
+      if (!values.date) {
+        message.error("Vui lòng chọn ngày thực hiện!");
+        return;
+      }
+
+      const formattedDate = dayjs(values.date).isValid() 
+        ? dayjs(values.date).format("YYYY-MM-DD")
+        : null;
+
+      if (!formattedDate) {
+        message.error("Ngày không hợp lệ!");
+        return;
+      }
+
       const formattedValues = {
         ...values,
-        date: dayjs(values.date).format("YYYY-MM-DD"), // xử lý date tại đây
+        date: formattedDate,
       };
-
-      // onSubmit({
-      //   ...values,
-      //   date: dayjs(values.date).format("YYYY-MM-DD"),
-      // });
 
       onSubmit(formattedValues);
       console.log("SUBMIT VALUES", formattedValues);
-      console.log("FORMATTED VALUES", formattedValues);
       console.log("Date sent to backend:", formattedValues.date);
       console.log("Type of date:", typeof formattedValues.date);
     } catch (error) {

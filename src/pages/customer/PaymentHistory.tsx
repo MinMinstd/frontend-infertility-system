@@ -48,24 +48,24 @@ export default function PaymentHistoryPage() {
     return "red";
   };
 
-  const getColorByMethod = (method: string) => {
-    if (!method) return "default";
+  // const getColorByMethod = (method: string) => {
+  //   if (!method) return "default";
 
-    switch (method.toLowerCase()) {
-      case "tiền mặt":
-        return "blue";
-      case "chuyển khoản":
-        return "purple";
-      case "momo":
-        return "magenta";
-      case "vnpay":
-        return "orange";
-      case "card":
-        return "green";
-      default:
-        return "default";
-    }
-  };
+  //   switch (method.toLowerCase()) {
+  //     case "tiền mặt":
+  //       return "blue";
+  //     case "chuyển khoản":
+  //       return "purple";
+  //     case "momo":
+  //       return "magenta";
+  //     case "vnpay":
+  //       return "orange";
+  //     case "card":
+  //       return "green";
+  //     default:
+  //       return "default";
+  //   }
+  // };
 
   const fetchPayments = async () => {
     try {
@@ -137,15 +137,15 @@ export default function PaymentHistoryPage() {
         </Text>
       ),
     },
-    {
-      title: "Phương thức",
-      dataIndex: "method",
-      render: (method) => (
-        <Tag color={getColorByMethod(method)} className="font-medium">
-          {method}
-        </Tag>
-      ),
-    },
+    // {
+    //   title: "Phương thức",
+    //   dataIndex: "method",
+    //   render: (method) => (
+    //     <Tag color={getColorByMethod(method)} className="font-medium">
+    //       {method}
+    //     </Tag>
+    //   ),
+    // },
     {
       title: "Trạng thái",
       dataIndex: "status",
