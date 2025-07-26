@@ -22,6 +22,7 @@ import DoctorApi from "../../servers/doctor.api";
 import { TreatmentRoadMapModal } from "./components/modals/TreatmentRoadMapModal";
 import { TreatmentResultModal } from "./components/modals/TreatmentResultModal";
 import { MedicalDetailModal } from "./components/modals/MedicalDetailModal";
+import { UpdateMedicalDetailModal } from "./components/modals/UpdateMedicalDetailModal";
 import { TestResultModal } from "./components/modals/TestResultModal";
 import { CreateTypeTestModal } from "./components/modals/TypeTest.Modal";
 import { EmbryoStorage } from "./components/EmbryoStorage";
@@ -334,9 +335,22 @@ export function MedicalManagement({
     }
 
 
-    const formattedDate = dayjs.isDayjs(updated.date)
-      ? updated.date.format("YYYY-MM-DD")
-      : dayjs(updated.date, "DD/MM/YYYY").format("YYYY-MM-DD");
+    // Xử lý format date an toàn
+    let formattedDate: string;
+    
+    if (dayjs.isDayjs(updated.date)) {
+      formattedDate = updated.date.format("YYYY-MM-DD");
+    } else {
+      // Thử parse với nhiều format khác nhau
+      const parsedDate = dayjs(updated.date, ["DD/MM/YYYY", "YYYY-MM-DD", "MM/DD/YYYY"], true);
+      
+      if (!parsedDate.isValid()) {
+        message.error("Định dạng ngày không hợp lệ!");
+        return;
+      }
+      
+      formattedDate = parsedDate.format("YYYY-MM-DD");
+    }
 
 
     console.log("Data gửi đi:", {
@@ -855,17 +869,11 @@ export function MedicalManagement({
       )}
 
       {/* Medical record detail */}
-      <MedicalDetailModal
-        open={isUpdateMedicalDetailModalVisible} // Sử dụng state đúng
+      <UpdateMedicalDetailModal
+        open={isUpdateMedicalDetailModalVisible}
         onCancel={() => setIsUpdateMedicalDetailModalVisible(false)}
-        onSubmit={(values) => {
-          handleUpdateMedicalRecordDetail(values);  // ✅ Truyền trực tiếp
-        }}
-        treatmentRoadmap={treatmentRoadmap}
-        treatmentResults={treatmentResult_typeTest}
-        consulationResults={consulationResult_typeTest} // ✅ thêm dòng này
+        onSubmit={handleUpdateMedicalRecordDetail}
         form={medicalDetailForm}
-        isEditing={true} //  Thêm prop này để phân biệt chế độ edit
       />
       <MedicalDetailModal
         open={isCreateMedicalDetailModalVisible}
