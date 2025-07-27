@@ -22,32 +22,36 @@ const ServiceDetails = () => {
       <Title level={3} className="mb-6">
         Quy trình điều trị
       </Title>
-      <Steps
-        direction="vertical"
-        current={-1}
-        items={service.steps.map((step) => ({
-          title: (
-            <Text strong className="text-lg">
-              {step.title}
-            </Text>
-          ),
-          description: (
-            <Card className="mt-2" bordered={false}>
-              <Paragraph>{step.description}</Paragraph>
-              {step.duration && (
-                <Text type="secondary" className="block mt-2">
-                  Thời gian: {step.duration}
-                </Text>
-              )}
-              {step.notes && (
-                <Text type="warning" className="block mt-2">
-                  Lưu ý: {step.notes}
-                </Text>
-              )}
-            </Card>
-          ),
-        }))}
-      />
+      {service.steps && service.steps.length > 0 ? (
+        <Steps
+          direction="vertical"
+          current={-1}
+          items={service.steps.map((step) => ({
+            title: (
+              <Text strong className="text-lg">
+                {step.title}
+              </Text>
+            ),
+            description: (
+              <Card className="mt-2" bordered={false}>
+                <Paragraph>{step.description}</Paragraph>
+                {step.duration && (
+                  <Text type="secondary" className="block mt-2">
+                    Thời gian: {step.duration}
+                  </Text>
+                )}
+                {step.notes && (
+                  <Text type="warning" className="block mt-2">
+                    Lưu ý: {step.notes}
+                  </Text>
+                )}
+              </Card>
+            ),
+          }))}
+        />
+      ) : (
+        <Text type="secondary">Chưa có thông tin quy trình điều trị.</Text>
+      )}
     </div>
   );
 };
