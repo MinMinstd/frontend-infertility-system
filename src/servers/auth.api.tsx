@@ -8,11 +8,11 @@ import type {
 import axiosClient from "./axiosClient";
 
 // Thêm interface cho response của check-email API
-interface CheckEmailResponse {
-  exists: boolean;
-  message: string;
-  userRole: string | null;
-}
+// interface CheckEmailResponse {
+//   exists: boolean;
+//   message: string;
+//   userRole: string | null;
+// }
 
 // Thêm interface cho Google login
 interface GoogleLoginRequest {
