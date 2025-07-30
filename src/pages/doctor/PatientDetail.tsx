@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Typography, Row, Col, Tabs, Button, message, Form } from "antd";
-import { FileAddOutlined } from "@ant-design/icons";
+import { Typography, Row, Col, Tabs, Button, message, Form, Badge } from "antd";
+import { FileAddOutlined, UserOutlined, MedicineBoxOutlined } from "@ant-design/icons";
+import { motion } from "framer-motion";
 // import { TestResultModal } from "./components/modals/TestResultModal";
 // import { TreatmentRoadMapModal } from "./components/modals/TreatmentRoadMapModal";
 import { PatientInformation } from "./PatientInformation";
@@ -475,92 +476,164 @@ export default function PatientDetailPage() {
   };
 
   const PatientDetailContent = () => (
-    <div>
-      <div style={{ marginBottom: 32 }}>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #E91E63 0%, #FCE4EC 100%)",
+        padding: "24px"
+      }}
+    >
+      <motion.div
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        style={{
+          marginBottom: 32,
+          background: "linear-gradient(135deg, #E91E63, #D81B60)",
+          padding: "32px",
+          borderRadius: "16px",
+          boxShadow: "0 8px 32px rgba(233, 30, 99, 0.3)",
+          border: "1px solid rgba(255, 255, 255, 0.2)"
+        }}
+      >
         <Row justify="space-between" align="middle">
           <Col>
-            <Title level={2} style={{ color: "#ff69b4" }}>
+            <Title level={2} style={{ color: "white", margin: 0, fontSize: "28px" }}>
               Hồ Sơ Điều Trị Chi tiết
             </Title>
-            <Text style={{ color: "#666" }}>
+            <Text style={{ color: "rgba(255, 255, 255, 0.9)", fontSize: "16px" }}>
               Tổng quan về thông tin bệnh nhân và tiến trình điều trị
             </Text>
+            <div style={{ marginTop: "12px" }}>
+              <Badge
+                count={medicalRecord.length}
+                style={{
+                  backgroundColor: "white",
+                  color: "#E91E63",
+                  fontWeight: "bold",
+                  fontSize: "14px"
+                }}
+              >
+                <Text style={{ color: "white", marginRight: "8px" }}>
+                  Tổng hồ sơ điều trị:
+                </Text>
+              </Badge>
+            </div>
           </Col>
         </Row>
-      </div>
+      </motion.div>
 
-      <Tabs
-        activeKey={activeTab}
-        onChange={(key) => setActiveTab(key)}
-        items={[
-          {
-            key: "overview",
-            label: "Overview",
-            children: (
-              <Row gutter={[24, 24]}>
-                <Col xs={24} lg={12}>
-                  <PatientInformation patient={infoPatient} />
-                </Col>
-                <Col xs={24} lg={12}>
-                  {/* Thêm nút tạo mới hồ sơ */}
-                  <Row
-                    justify="space-between"
-                    align="middle"
-                    style={{ marginBottom: 12 }}
-                  >
-                    <Col>
-                      <Text strong style={{ color: "#ff69b4", fontSize: 16 }}>
-                        Danh sách hồ sơ điều trị
-                      </Text>
-                    </Col>
-                    <Col>
-                      <Button
-                        type="primary"
-                        icon={<FileAddOutlined />}
-                        style={{
-                          backgroundColor: "#ff69b4",
-                          borderColor: "#ff69b4",
-                        }}
-                        onClick={() =>
-                          setIsCreateMedicalRecordModalVisible(true)
-                        }
-                      >
-                        Tạo hồ sơ điều trị
-                      </Button>
-                    </Col>
-                  </Row>
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.4 }}
+        style={{
+          background: "white",
+          borderRadius: "16px",
+          padding: "24px",
+          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
+          border: "2px solid #E91E63"
+        }}
+      >
+        <Tabs
+          activeKey={activeTab}
+          onChange={(key) => setActiveTab(key)}
+          style={{
+            borderRadius: "12px"
+          }}
+          items={[
+            {
+              key: "overview",
+              label: (
+                <span style={{ color: "#E91E63", fontWeight: "600", fontSize: "16px" }}>
+                  <UserOutlined style={{ marginRight: "8px" }} />
+                  Tổng quan
+                </span>
+              ),
+              children: (
+                <Row gutter={[24, 24]}>
+                  <Col xs={24} lg={12}>
+                    <PatientInformation patient={infoPatient} />
+                  </Col>
+                  <Col xs={24} lg={12}>
+                    {/* Thêm nút tạo mới hồ sơ */}
+                    <Row
+                      justify="space-between"
+                      align="middle"
+                      style={{ marginBottom: 12 }}
+                    >
+                      <Col>
+                        <Text strong style={{ color: "#ff69b4", fontSize: 16 }}>
+                          Danh sách hồ sơ điều trị
+                        </Text>
+                      </Col>
+                      <Col>
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <Button
+                            type="primary"
+                            icon={<FileAddOutlined />}
+                            size="large"
+                            style={{
+                              backgroundColor: "#E91E63",
+                              borderColor: "#E91E63",
+                              borderRadius: "12px",
+                              boxShadow: "0 4px 16px rgba(233, 30, 99, 0.3)",
+                              fontWeight: "600",
+                              height: "48px",
+                              padding: "0 24px"
+                            }}
+                            onClick={() =>
+                              setIsCreateMedicalRecordModalVisible(true)
+                            }
+                          >
+                            Tạo hồ sơ điều trị
+                          </Button>
+                        </motion.div>
+                      </Col>
+                    </Row>
 
-                  <MedicalRecordOverview
-                    medicalRecord={medicalRecord}
-                    onSelectRecord={(bookingId, medicalRecordId) => {
-                      setSelectedBookingId(bookingId);
-                      setSelectedMedicalRecordId(medicalRecordId);
-                      setActiveTab("medications"); // chuyển sang tab chứa MedicalManagement
-                    }}
-                    onEditRecord={showUpdateStatusModal} // ✅ truyền ở đây
-                    editingRecord={editingRecord}
-                    isUpdateModalOpen={isUpdateModalOpen}
-                    onCancelUpdate={() => setIsUpdateModalOpen(false)}
-                    onUpdateMedicalRecord={handleUpdateMedicalRecord}
-                  />
-                  <MedicalRecordModal
-                    open={isCreateMedicalRecordModalVisible}
-                    onCancel={() => setIsCreateMedicalRecordModalVisible(false)}
-                    onSubmit={handleCreateMedicalRecord}
-                  />
-                </Col>
-              </Row>
-            ),
-          },
-          {
-            key: "medications",
-            label: "Medical Management",
-            children: (
-              <>
-                <MedicalManagement
-                  customerId={customerIdNumber!}
-                  bookingId={selectedBookingId}
-                  medicalRecordId={selectedMedicalRecordId}
+                    <MedicalRecordOverview
+                      medicalRecord={medicalRecord}
+                      onSelectRecord={(bookingId, medicalRecordId) => {
+                        setSelectedBookingId(bookingId);
+                        setSelectedMedicalRecordId(medicalRecordId);
+                        setActiveTab("medications"); // chuyển sang tab chứa MedicalManagement
+                      }}
+                      onEditRecord={showUpdateStatusModal} // ✅ truyền ở đây
+                      editingRecord={editingRecord}
+                      isUpdateModalOpen={isUpdateModalOpen}
+                      onCancelUpdate={() => setIsUpdateModalOpen(false)}
+                      onUpdateMedicalRecord={handleUpdateMedicalRecord}
+                    />
+                    <MedicalRecordModal
+                      open={isCreateMedicalRecordModalVisible}
+                      onCancel={() => setIsCreateMedicalRecordModalVisible(false)}
+                      onSubmit={handleCreateMedicalRecord}
+                    />
+                  </Col>
+                </Row>
+              ),
+            },
+            {
+              key: "medications",
+              label: (
+                <span style={{ color: "#E91E63", fontWeight: "600", fontSize: "16px" }}>
+                  <MedicineBoxOutlined style={{ marginRight: "8px" }} />
+                  Quản lý y tế
+                </span>
+              ),
+              children: (
+                <>
+                  <MedicalManagement
+                    customerId={customerIdNumber!}
+                    bookingId={selectedBookingId}
+                    medicalRecordId={selectedMedicalRecordId}
                   // treatmentRoadmap={treatmentRoadmap}
                   // treatmentResults={treatmentResult_typeTest}
                   // medicalRecordDetails={medicalRecordDetails}
@@ -574,10 +647,10 @@ export default function PatientDetailPage() {
                   //   setEditingTreatmentResult(null);
                   //   treatmentResultForm.resetFields();
                   // }}
-                />
+                  />
 
-                {/* Treatment result - type test */}
-                {/* <TreatmentResultModal
+                  {/* Treatment result - type test */}
+                  {/* <TreatmentResultModal
                   open={isUpdateTreatmentResultModalVisible}
                   onCancel={() => setIsUpdateTreatmentResultModalVisible(false)}
                   onSubmit={
@@ -590,7 +663,7 @@ export default function PatientDetailPage() {
                   treatmentRoadmap={treatmentRoadmap}
                   treatmentResult={editingTreatmentResult}
                 /> */}
-                {/* {editingTreatmentResult ? (
+                  {/* {editingTreatmentResult ? (
                   <TreatmentResultModal
                     open={isUpdateTreatmentResultModalVisible}
                     onCancel={() =>
@@ -616,8 +689,8 @@ export default function PatientDetailPage() {
                   />
                 )} */}
 
-                {/* Medical record detail */}
-                {/* <MedicalDetailModal
+                  {/* Medical record detail */}
+                  {/* <MedicalDetailModal
                   open={isUpdateMedicalDetailModalVisible} // Sử dụng state đúng
                   onCancel={() => setIsUpdateMedicalDetailModalVisible(false)}
                   onSubmit={(values) => {
@@ -646,8 +719,8 @@ export default function PatientDetailPage() {
                   isEditing={false}
                 /> */}
 
-                {/* Consulation result - type test */}
-                {/* <TestResultModal
+                  {/* Consulation result - type test */}
+                  {/* <TestResultModal
                   visible={isTestModalVisible}
                   onCancel={() => setIsTestModalVisible(false)}
                   onSubmit={handleConSulationR_typeTSubmit}
@@ -655,12 +728,13 @@ export default function PatientDetailPage() {
                   medicalRecordDetails={medicalRecordDetails}
                   form={treatmentResultForm}
                 /> */}
-              </>
-            ),
-          },
-        ]}
-      />
-    </div>
+                </>
+              ),
+            },
+          ]}
+        />
+      </motion.div>
+    </motion.div>
   );
 
   return (

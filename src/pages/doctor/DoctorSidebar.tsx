@@ -80,14 +80,14 @@ export const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ children }) => {
   };
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
+    <Layout style={{ minHeight: "100vh", background: "#FAFAFA" }}>
       <Sider
         trigger={null}
         collapsible
         collapsed={collapsed}
         style={{
-          background: "linear-gradient(180deg, #ff69b4 0%, #ff1493 100%)",
-          boxShadow: "2px 0 8px rgba(255, 105, 180, 0.3)",
+          background: "linear-gradient(180deg, #E91E63 0%, #D81B60 100%)",
+          boxShadow: "2px 0 8px rgba(233, 30, 99, 0.3)",
         }}
       >
         <div
@@ -95,6 +95,7 @@ export const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ children }) => {
             padding: "16px",
             textAlign: "center",
             borderBottom: "1px solid rgba(255, 255, 255, 0.2)",
+            background: "rgba(252, 228, 236, 0.1)",
           }}
         >
           <Title
@@ -126,17 +127,37 @@ export const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ children }) => {
             borderRight: "none",
           }}
         />
+        <style>
+          {`
+            .ant-menu-dark .ant-menu-item:hover {
+              background-color: rgba(252, 228, 236, 0.2) !important;
+              color: #FCE4EC !important;
+            }
+            .ant-menu-dark .ant-menu-item-selected {
+              background-color: rgba(252, 228, 236, 0.3) !important;
+              color: #FCE4EC !important;
+              border-right: 3px solid #FCE4EC !important;
+            }
+            .ant-menu-dark .ant-menu-item-selected::after {
+              border-right: 3px solid #FCE4EC !important;
+            }
+            .ant-menu-dark .ant-menu-item {
+              color: rgba(255, 255, 255, 0.9) !important;
+            }
+          `}
+        </style>
       </Sider>
 
       <Layout>
         <Header
           style={{
             padding: "0 16px",
-            background: "white",
+            background: "linear-gradient(90deg, #FCE4EC 0%, #FFE0E6 100%)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+            boxShadow: "0 2px 8px rgba(233, 30, 99, 0.15)",
+            borderBottom: "1px solid #F8BBD9",
           }}
         >
           <Space>
@@ -145,10 +166,10 @@ export const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ children }) => {
               {
                 className: "trigger",
                 onClick: () => setCollapsed(!collapsed),
-                style: { fontSize: "18px", color: "#ff69b4" },
+                style: { fontSize: "18px", color: "#E91E63" },
               }
             )}
-            <Title level={4} style={{ margin: 0, color: "#ff69b4" }}>
+            <Title level={4} style={{ margin: 0, color: "#E91E63" }}>
               Chức Năng
             </Title>
           </Space>
@@ -158,15 +179,29 @@ export const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ children }) => {
               onClick: handleUserMenuClick,
             }}
             placement="bottomRight"
+            dropdownRender={(menu) => (
+              <div
+                style={{
+                  background: "white",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 16px rgba(233, 30, 99, 0.15)",
+                  border: "1px solid #FCE4EC",
+                  overflow: "hidden",
+                }}
+              >
+                {menu}
+              </div>
+            )}
           >
             <Space style={{ cursor: "pointer" }}>
               <Avatar
                 style={{
-                  backgroundColor: "#ff69b4",
+                  backgroundColor: "#E91E63",
+                  border: "2px solid #FCE4EC",
                 }}
                 icon={<UserOutlined />}
               />
-              <Text strong style={{ color: "#ff69b4" }}>
+              <Text strong style={{ color: "#D81B60" }}>
                 Dr. Smith
               </Text>
             </Space>
@@ -177,9 +212,10 @@ export const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ children }) => {
             margin: "24px",
             padding: "24px",
             background: "white",
-            borderRadius: "8px",
-            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+            borderRadius: "12px",
+            boxShadow: "0 4px 16px rgba(233, 30, 99, 0.1)",
             minHeight: "calc(100vh - 112px)",
+            border: "1px solid #FCE4EC",
           }}
         >
           {children}

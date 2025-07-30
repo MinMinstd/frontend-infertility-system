@@ -328,7 +328,8 @@ const DoctorApi = {
   GetMedicalRecordOngoing: async (): Promise<{
     data: MedicalRecordOngoing[];
   }> => {
-    return axiosClient.get("Doctor/medicalRecordOngoing");
+    return axiosClient.get("Doctor/medicalRecordInProcess");
+    ///api/Doctor/medicalRecordInProcess
   },
 };
 
