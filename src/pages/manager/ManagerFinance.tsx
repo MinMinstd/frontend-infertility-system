@@ -212,11 +212,7 @@ const ManagerFinance: React.FC = () => {
         return isNaN(num) ? value : num.toLocaleString('vi-VN');
       },
     },
-    {
-      title: <span className="text-pink-600 font-semibold">Phương thức</span>,
-      dataIndex: 'method',
-      key: 'method',
-    },
+   
     {
       title: <span className="text-pink-600 font-semibold">Trạng thái</span>,
       dataIndex: 'status',

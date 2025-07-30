@@ -28,10 +28,9 @@ function addDays(date: Date, days: number) {
 
 // Định nghĩa các block giờ 2 tiếng rưỡi
 const TIME_BLOCKS = [
-  { start: "07:00", end: "09:30" },
-  { start: "09:30", end: "12:00" },
-  { start: "13:00", end: "15:30" },
-  { start: "15:30", end: "18:00" },
+  { start: "08:00", end: "10:30" },
+  { start: "11:00", end: "13:30" },
+  { start: "14:00", end: "16:30" },
 ];
 
 function toTimeOnlyFull(str: string) {

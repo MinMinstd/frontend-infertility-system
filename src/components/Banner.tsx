@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import "../components/Style/Banner.css";
 import { Heart, Award, Users, Clock } from "lucide-react";
-import Search from "./Search";
 import { motion } from "framer-motion";
 //Giới thiệu cơ sở y tế
 
@@ -71,12 +70,6 @@ export default function Banner() {
             gia hàng đầu, trang thiết bị hiện đại, đồng hành cùng bạn trên hành
             trình hạnh phúc.
           </motion.p>
-          {/* Thanh tìm kiếm ở giữa Banner */}
-          <motion.div className="flex justify-center my-8" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.8 }}>
-            <div className="w-full max-w-xl">
-              <Search />
-            </div>
-          </motion.div>
         </motion.div>
 
         {/* Stats */}
