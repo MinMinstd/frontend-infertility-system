@@ -40,6 +40,8 @@ interface AppointmentFormData {
   name: string;
   dob: dayjs.Dayjs;
   gender: string;
+  husband: string;
+  wife: string;
   service: number;
   doctor: number;
   date: dayjs.Dayjs;
@@ -164,6 +166,8 @@ export default function AppointmentForm() {
       }
 
       const bookingData: BookingConsulant = {
+        husband: values.husband,
+        wife: values.wife,
         date: values.date.format("YYYY-MM-DD"),
         time: `${selectedSlot.startTime.substring(
           0,
@@ -260,9 +264,9 @@ export default function AppointmentForm() {
               layout="vertical"
               onFinish={onFinish}
               size="large"
-              className="space-y-2"
+              className="space-y-1"
             >
-              <Row gutter={[24, 0]}>
+              <Row gutter={[16, 8]}>
                 <Col xs={24} md={12}>
                   <Form.Item
                     name="name"
@@ -278,7 +282,7 @@ export default function AppointmentForm() {
                   >
                     <Input
                       placeholder="Nhập họ và tên đầy đủ"
-                      className="rounded-lg border-gray-300 hover:border-pink-400 focus:border-pink-500"
+                      className="rounded-lg border-gray-300 hover:border-pink-400 focus:border-pink-500 h-10 transition-all duration-200 shadow-sm hover:shadow-md focus:shadow-lg"
                     />
                   </Form.Item>
                 </Col>
@@ -298,14 +302,14 @@ export default function AppointmentForm() {
                   >
                     <DatePicker
                       placeholder="Chọn ngày sinh"
-                      className="w-full rounded-lg border-gray-300 hover:border-pink-400 focus:border-pink-500"
+                      className="w-full rounded-lg border-gray-300 hover:border-pink-400 focus:border-pink-500 h-10 transition-all duration-200 shadow-sm hover:shadow-md focus:shadow-lg"
                       format="DD/MM/YYYY"
                     />
                   </Form.Item>
                 </Col>
               </Row>
 
-              <Row gutter={[24, 0]}>
+              <Row gutter={[16, 8]}>
                 <Col xs={24} md={12}>
                   <Form.Item
                     name="gender"
@@ -318,11 +322,53 @@ export default function AppointmentForm() {
                       { required: true, message: "Vui lòng chọn giới tính!" },
                     ]}
                   >
-                    <Select placeholder="Chọn giới tính" className="rounded-lg">
+                    <Select placeholder="Chọn giới tính" className="rounded-lg border-gray-300 hover:border-pink-400 focus:border-pink-500 h-10 transition-all duration-200 shadow-sm hover:shadow-md focus:shadow-lg">
                       <Option value="Nam">Nam</Option>
                       <Option value="Nữ">Nữ</Option>
                       <Option value="Khác">Khác</Option>
                     </Select>
+                  </Form.Item>
+                </Col>
+
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    name="husband"
+                    label={
+                      <span className="text-gray-700 font-semibold flex items-center">
+                        <UserOutlined className="mr-2 text-pink-500" />
+                        Tên chồng
+                      </span>
+                    }
+                    rules={[
+                      { required: true, message: "Vui lòng nhập tên chồng!" },
+                    ]}
+                  >
+                    <Input
+                      placeholder="Nhập tên chồng"
+                      className="rounded-lg border-gray-300 hover:border-pink-400 focus:border-pink-500 h-10 transition-all duration-200 shadow-sm hover:shadow-md focus:shadow-lg"
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Row gutter={[16, 8]}>
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    name="wife"
+                    label={
+                      <span className="text-gray-700 font-semibold flex items-center">
+                        <UserOutlined className="mr-2 text-pink-500" />
+                        Tên vợ
+                      </span>
+                    }
+                    rules={[
+                      { required: true, message: "Vui lòng nhập tên vợ!" },
+                    ]}
+                  >
+                    <Input
+                      placeholder="Nhập tên vợ"
+                      className="rounded-lg border-gray-300 hover:border-pink-400 focus:border-pink-500 h-10 transition-all duration-200 shadow-sm hover:shadow-md focus:shadow-lg"
+                    />
                   </Form.Item>
                 </Col>
 
@@ -341,7 +387,7 @@ export default function AppointmentForm() {
                   >
                     <Select
                       placeholder="Chọn dịch vụ muốn sử dụng"
-                      className="rounded-lg"
+                      className="rounded-lg border-gray-300 hover:border-pink-400 focus:border-pink-500 h-10 transition-all duration-200 shadow-sm hover:shadow-md focus:shadow-lg"
                       showSearch
                       filterOption={(input, option) =>
                         String(option?.label ?? "")
@@ -366,7 +412,7 @@ export default function AppointmentForm() {
                 </Col>
               </Row>
 
-              <Row gutter={[24, 0]}>
+              <Row gutter={[16, 8]}>
                 <Col xs={24}>
                   <Form.Item
                     name="doctor"
@@ -382,7 +428,7 @@ export default function AppointmentForm() {
                   >
                     <Select
                       placeholder="Chọn bác sĩ khám"
-                      className="rounded-lg"
+                      className="rounded-lg border-gray-300 hover:border-pink-400 focus:border-pink-500 h-10 transition-all duration-200 shadow-sm hover:shadow-md focus:shadow-lg"
                       showSearch
                       filterOption={(input, option) =>
                         String(option?.label ?? "")
@@ -415,7 +461,7 @@ export default function AppointmentForm() {
                 </Col>
               </Row>
 
-              <Row gutter={[24, 0]}>
+              <Row gutter={[16, 8]}>
                 <Col xs={24} md={12}>
                   <Form.Item
                     name="date"
@@ -431,7 +477,7 @@ export default function AppointmentForm() {
                   >
                     <DatePicker
                       placeholder="Chọn ngày khám"
-                      className="w-full rounded-lg border-gray-300 hover:border-pink-400 focus:border-pink-500"
+                      className="w-full rounded-lg border-gray-300 hover:border-pink-400 focus:border-pink-500 h-10 transition-all duration-200 shadow-sm hover:shadow-md focus:shadow-lg"
                       format="DD/MM/YYYY"
                       disabledDate={(current) =>
                         current && current < dayjs().startOf("day")
@@ -441,7 +487,7 @@ export default function AppointmentForm() {
                     />
                   </Form.Item>
                   {availabilityMessage && (
-                    <p className="text-red-500 -mt-4 mb-4">
+                    <p className="text-red-500 -mt-2 mb-2">
                       {availabilityMessage}
                     </p>
                   )}
@@ -462,7 +508,7 @@ export default function AppointmentForm() {
                   >
                     <Select
                       placeholder="Chọn khung giờ"
-                      className="rounded-lg"
+                      className="rounded-lg border-gray-300 hover:border-pink-400 focus:border-pink-500 h-10 transition-all duration-200 shadow-sm hover:shadow-md focus:shadow-lg"
                       showSearch
                       disabled={
                         !selectedDate ||
@@ -499,17 +545,38 @@ export default function AppointmentForm() {
                 <TextArea
                   rows={4}
                   placeholder="Mô tả triệu chứng hoặc yêu cầu đặc biệt..."
-                  className="rounded-lg border-gray-300 hover:border-pink-400 focus:border-pink-500"
+                  className="rounded-lg border-gray-300 hover:border-pink-400 focus:border-pink-500 transition-all duration-200 shadow-sm hover:shadow-md focus:shadow-lg resize-none"
                 />
               </Form.Item>
 
-              <div className="pt-6">
+              <div className="pt-4">
                 <Button
                   type="primary"
                   htmlType="submit"
                   loading={loading}
                   size="large"
-                  className="w-full h-12 bg-gradient-to-r from-pink-500 to-rose-400 border-0 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
+                  className="w-full h-12 bg-gradient-to-r from-pink-600 to-pink-400 hover:from-pink-700 hover:to-pink-500 border-0 rounded-lg font-semibold text-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                  style={{
+                    background: 'linear-gradient(135deg, #ec4899, #f472b6)',
+                    border: 'none',
+                    transition: 'all 0.3s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #be185d, #ec4899)';
+                    e.currentTarget.style.transform = 'scale(1.02)';
+                    e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.25)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #ec4899, #f472b6)';
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
+                  }}
+                  onMouseDown={(e) => {
+                    e.currentTarget.style.transform = 'scale(0.98)';
+                  }}
+                  onMouseUp={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.02)';
+                  }}
                   icon={<HeartOutlined />}
                 >
                   {loading ? "Đang xử lý..." : "Đặt lịch hẹn ngay"}
