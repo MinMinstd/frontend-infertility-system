@@ -3,46 +3,27 @@ import { Card, Typography, Row, Col, Statistic, Space, Spin } from "antd";
 import {
   UserOutlined,
   FileTextOutlined,
-  CheckCircleOutlined,
-  MedicineBoxOutlined,
+  TrophyOutlined,
+  HeartOutlined,
 } from "@ant-design/icons";
 import { DoctorSidebar } from "./DoctorSidebar";
-import { Line } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title as ChartTitle,
-  Tooltip,
-  Legend,
-} from "chart.js";
+import { Column } from "@ant-design/plots";
+import { motion } from "framer-motion";
 import DoctorApi from "../../servers/doctor.api";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  ChartTitle,
-  Tooltip,
-  Legend
-);
 
 const { Title } = Typography;
 
-// Interface cho Chart.js data
+// Interface cho Ant Design Plots data
 interface ChartData {
-  labels: string[];
-  datasets: {
-    label: string;
-    data: number[];
-    borderColor: string;
-    backgroundColor: string;
-    tension: number;
-    fill: boolean;
-  }[];
+  month: string;
+  value: number;
+}
+
+// Interface cho tooltip items
+interface TooltipItem {
+  title: string;
+  value: number;
+  color: string;
 }
 
 // Mock data - thay thế bằng API thực tế sau này
@@ -75,7 +56,7 @@ export default function Dashboard() {
     completedSteps: 0,
     doctorAppointments: 0,
   });
-  const [chartData, setChartData] = useState<ChartData | null>(null);
+  const [chartData, setChartData] = useState<ChartData[]>([]);
 
   const groupByMonth = (records: { startDate: string }[]) => {
     const result: Record<string, number> = {};
@@ -119,21 +100,12 @@ export default function Dashboard() {
           doctorAppointments: doctorAppointments.data,
         });
 
-        // Prepare chart data
-        setChartData({
-          labels: Object.keys(grouped),
-          datasets: [
-            {
-              label: "Hồ sơ điều trị theo tháng",
-              data: Object.values(chart.data),
-              borderColor: "#ff69b4",
-              backgroundColor: "rgba(255, 105, 180, 0.1)",
-              tension: 0.4,
-              fill: true,
-            },
-          ],
-
-        });
+        // Prepare chart data for Ant Design Plots
+        const chartDataArray = Object.entries(grouped).map(([month, value]) => ({
+          month,
+          value,
+        }));
+        setChartData(chartDataArray);
       } catch (err) {
         console.error("Dashboard load error", err);
       } finally {
@@ -147,118 +119,167 @@ export default function Dashboard() {
   return (
     <DoctorSidebar>
       <div>
-        <Title level={2} style={{ color: "#ff69b4" }}>
-          Thống kê số liệu điều trị
-        </Title>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <Title level={2} style={{ color: "#E91E63", marginBottom: "24px" }}>
+            📊 Thống kê số liệu điều trị
+          </Title>
+        </motion.div>
         {loading ? (
           <Spin size="large" />
         ) : (
           <Space direction="vertical" size="large" className="w-full">
-            <Row gutter={[16, 16]}>
-              <Col xs={24} sm={12} lg={6}>
-                <Card
-                  style={{
-                    borderColor: "#ff69b4",
-                    boxShadow: "0 4px 12px rgba(255, 105, 180, 0.15)",
-                  }}
-                >
-                  <Statistic
-                    title={
-                      <span style={{ color: "#ff69b4", fontWeight: 600 }}>
-                        Tổng số bệnh nhân
-                      </span>
-                    }
-                    value={dashboardStats.totalPatients}
-                    prefix={<UserOutlined style={{ color: "#ff69b4" }} />}
-                    valueStyle={{ color: "#ff69b4", fontSize: "24px" }}
-                  />
-
-                </Card>
-              </Col>
-              <Col xs={24} sm={12} lg={6}>
-                <Card
-                  style={{
-                    borderColor: "#ff1493",
-                    boxShadow: "0 4px 12px rgba(255, 20, 147, 0.15)",
-                  }}
-                >
-                  <Statistic
-                    title={
-                      <span style={{ color: "#ff1493", fontWeight: 600 }}>
-                        Hồ sơ điều trị đang theo dõi
-                      </span>
-                    }
-                    value={dashboardStats.activeRecords}
-                    prefix={<FileTextOutlined style={{ color: "#ff1493" }} />}
-                    valueStyle={{ color: "#ff1493", fontSize: "24px" }}
-                  />
-
-                </Card>
-              </Col>
-              <Col xs={24} sm={12} lg={6}>
-                <Card
-                  style={{
-                    borderColor: "#ff69b4",
-                    boxShadow: "0 4px 12px rgba(255, 105, 180, 0.15)",
-                  }}
-                >
-                  <Statistic
-                    title={
-                      <span style={{ color: "#ff69b4", fontWeight: 600 }}>
-                        Hồ Sơ Điều Trị Hoàn Tất
-                      </span>
-                    }
-                    value={dashboardStats.completedSteps}
-                    prefix={
-                      <CheckCircleOutlined style={{ color: "#ff69b4" }} />
-                    }
-                    valueStyle={{ color: "#ff69b4", fontSize: "24px" }}
-                  />
-
-                </Card>
-              </Col>
-              <Col xs={24} sm={12} lg={6}>
-                <Card
-                  style={{
-                    borderColor: "#ff1493",
-                    boxShadow: "0 4px 12px rgba(255, 20, 147, 0.15)",
-                  }}
-                >
-                  <Statistic
-                    title={
-                      <span style={{ color: "#ff1493", fontWeight: 600 }}>
-                        🩺 Số lượt khám bác sĩ đã thực hiện
-                      </span>
-                    }
-                    value={dashboardStats.doctorAppointments || 0}
-                    prefix={
-                      <MedicineBoxOutlined style={{ color: "#ff1493" }} />
-                    }
-                    valueStyle={{ color: "#ff1493", fontSize: "24px" }}
-                  />
-
-                </Card>
-              </Col>
-            </Row>
-
-            <Card
-              title={
-                <span
-                  style={{
-                    color: "#ff69b4",
-                    fontSize: "18px",
-                    fontWeight: 600,
-                  }}
-                >
-                  📊 Biểu đồ hồ sơ điều trị theo tháng
-                </span>
-              }
-              style={{
-                borderColor: "#ff69b4",
-                boxShadow: "0 4px 12px rgba(255, 105, 180, 0.15)",
-              }}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
             >
-              {/* <div
+              <Row gutter={[24, 24]}>
+                <Col xs={24} sm={12} lg={6}>
+                  <motion.div
+                    whileHover={{ scale: 1.02, y: -4 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Card
+                      style={{
+                        borderColor: "#E91E63",
+                        borderWidth: "2px",
+                        boxShadow: "0 6px 20px rgba(233, 30, 99, 0.15)",
+                        borderRadius: "12px",
+                        background: "linear-gradient(135deg, #FCE4EC 0%, #FFE0E6 100%)",
+                      }}
+                    >
+                      <Statistic
+                        title={
+                          <span style={{ color: "#D81B60", fontWeight: 600, fontSize: "14px" }}>
+                            👥 Tổng số bệnh nhân
+                          </span>
+                        }
+                        value={dashboardStats.totalPatients}
+                        prefix={<UserOutlined style={{ color: "#E91E63", fontSize: "20px" }} />}
+                        valueStyle={{ color: "#E91E63", fontSize: "28px", fontWeight: "bold" }}
+                      />
+                    </Card>
+                  </motion.div>
+                </Col>
+                <Col xs={24} sm={12} lg={6}>
+                  <motion.div
+                    whileHover={{ scale: 1.02, y: -4 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Card
+                      style={{
+                        borderColor: "#D81B60",
+                        borderWidth: "2px",
+                        boxShadow: "0 6px 20px rgba(216, 27, 96, 0.15)",
+                        borderRadius: "12px",
+                        background: "linear-gradient(135deg, #FFE0E6 0%, #FCE4EC 100%)",
+                      }}
+                    >
+                      <Statistic
+                        title={
+                          <span style={{ color: "#E91E63", fontWeight: 600, fontSize: "14px" }}>
+                            📋 Hồ sơ điều trị đang theo dõi
+                          </span>
+                        }
+                        value={dashboardStats.activeRecords}
+                        prefix={<FileTextOutlined style={{ color: "#D81B60", fontSize: "20px" }} />}
+                        valueStyle={{ color: "#D81B60", fontSize: "28px", fontWeight: "bold" }}
+                      />
+                    </Card>
+                  </motion.div>
+                </Col>
+                <Col xs={24} sm={12} lg={6}>
+                  <motion.div
+                    whileHover={{ scale: 1.02, y: -4 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Card
+                      style={{
+                        borderColor: "#E91E63",
+                        borderWidth: "2px",
+                        boxShadow: "0 6px 20px rgba(233, 30, 99, 0.15)",
+                        borderRadius: "12px",
+                        background: "linear-gradient(135deg, #FCE4EC 0%, #FFE0E6 100%)",
+                      }}
+                    >
+                      <Statistic
+                        title={
+                          <span style={{ color: "#D81B60", fontWeight: 600, fontSize: "14px" }}>
+                            ✅ Hồ Sơ Điều Trị Hoàn Tất
+                          </span>
+                        }
+                        value={dashboardStats.completedSteps}
+                        prefix={
+                          <TrophyOutlined style={{ color: "#E91E63", fontSize: "20px" }} />
+                        }
+                        valueStyle={{ color: "#E91E63", fontSize: "28px", fontWeight: "bold" }}
+                      />
+                    </Card>
+                  </motion.div>
+                </Col>
+                <Col xs={24} sm={12} lg={6}>
+                  <motion.div
+                    whileHover={{ scale: 1.02, y: -4 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Card
+                      style={{
+                        borderColor: "#D81B60",
+                        borderWidth: "2px",
+                        boxShadow: "0 6px 20px rgba(216, 27, 96, 0.15)",
+                        borderRadius: "12px",
+                        background: "linear-gradient(135deg, #FFE0E6 0%, #FCE4EC 100%)",
+                      }}
+                    >
+                      <Statistic
+                        title={
+                          <span style={{ color: "#E91E63", fontWeight: 600, fontSize: "14px" }}>
+                            🩺 Số lượt khám bác sĩ đã thực hiện
+                          </span>
+                        }
+                        value={dashboardStats.doctorAppointments || 0}
+                        prefix={
+                          <HeartOutlined style={{ color: "#D81B60", fontSize: "20px" }} />
+                        }
+                        valueStyle={{ color: "#D81B60", fontSize: "28px", fontWeight: "bold" }}
+                      />
+                    </Card>
+                  </motion.div>
+                </Col>
+              </Row>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
+
+              <Card
+                title={
+                  <span
+                    style={{
+                      color: "#E91E63",
+                      fontSize: "18px",
+                      fontWeight: 600,
+                    }}
+                  >
+                    📊 Biểu đồ hồ sơ điều trị theo tháng
+                  </span>
+                }
+                style={{
+                  borderColor: "#E91E63",
+                  borderWidth: "2px",
+                  boxShadow: "0 6px 20px rgba(233, 30, 99, 0.15)",
+                  borderRadius: "12px",
+                  background: "linear-gradient(135deg, #FCE4EC 0%, #FFE0E6 100%)",
+                }}
+              >
+                {/* <div
                 style={{
                   color: "#666",
                   fontSize: "14px",
@@ -267,39 +288,63 @@ export default function Dashboard() {
               >
                 Dữ liệu từ MedicalRecords.StartDate group by month
               </div> */}
-              {chartData && (
-                <div style={{ height: "400px" }}>
-                  <Line
-                    data={chartData}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      plugins: {
-                        legend: {
-                          position: "top" as const,
+                {chartData && (
+                  <div style={{ height: "400px" }}>
+                    <Column
+                      data={chartData}
+                      xField="month"
+                      yField="value"
+                      color="#E91E63"
+                      columnStyle={{
+                        radius: [6, 6, 0, 0],
+                        cursor: 'pointer',
+                        fill: '#E91E63',
+                        stroke: '#D81B60',
+                        lineWidth: 2,
+                      }}
+                      columnWidthRatio={0.6}
+                      label={{
+                        position: 'top',
+                        offset: 8,
+                        style: {
+                          fill: '#E91E63',
+                          fontSize: 14,
+                          fontWeight: 'bold',
+                          textAlign: 'center',
                         },
-                        title: {
-                          display: false,
+                      }}
+                      tooltip={{
+                        customContent: (items: TooltipItem[]) => {
+                          if (!items || items.length === 0) return null;
+                          const item = items[0];
+                          return (
+                            `<div style="padding: 12px; background: white; border: 2px solid #E91E63; border-radius: 8px; box-shadow: 0 4px 12px rgba(233, 30, 99, 0.2);">
+                               <div style="color: #E91E63; font-weight: bold; margin-bottom: 4px;">${item.title}</div>
+                               <div style="color: #666; font-size: 14px;">Số hồ sơ: <span style="color: #E91E63; font-weight: bold;">${item.value}</span></div>
+                             </div>`
+                          );
                         },
-                      },
-                      scales: {
-                        y: {
-                          beginAtZero: true,
-                          grid: {
-                            color: "rgba(255, 105, 180, 0.1)",
-                          },
+                      }}
+                      meta={{
+                        value: {
+                          alias: 'Số hồ sơ',
                         },
-                        x: {
-                          grid: {
-                            color: "rgba(255, 105, 180, 0.1)",
-                          },
+                        month: {
+                          alias: 'Tháng',
                         },
-                      },
-                    }}
-                  />
-                </div>
-              )}
-            </Card>
+                      }}
+                      animation={{
+                        appear: {
+                          animation: 'grow-in-y',
+                          duration: 1200,
+                          delay: (index: number) => index * 100,
+                        },
+                      }}
+                    />
+                  </div>
+                )}
+              </Card>
+            </motion.div>
           </Space>
         )}
       </div>

@@ -71,12 +71,14 @@ interface BookingHistoryModalProps {
   open: boolean;
   customerId: number;
   onClose: () => void;
+  statusFilter?: string;
 }
 
 export function BookingHistoryModal({
   open,
   customerId,
   onClose,
+  statusFilter = "all",
 }: BookingHistoryModalProps) {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [appointmentsMap, setAppointmentsMap] = useState<
@@ -300,6 +302,11 @@ export function BookingHistoryModal({
     }
   };
 
+  // Lọc bookings dựa trên statusFilter
+  const filteredBookings = statusFilter === "all" 
+    ? bookings 
+    : bookings.filter(booking => booking.status === statusFilter);
+
   return (
     <Modal
       open={open}
@@ -319,8 +326,12 @@ export function BookingHistoryModal({
     >
       <div className="max-h-[70vh] overflow-y-auto">
         <List
-          dataSource={bookings}
-          locale={{ emptyText: "Không có lịch sử booking" }}
+          dataSource={filteredBookings}
+          locale={{ 
+            emptyText: statusFilter === "all" 
+              ? "Không có lịch sử booking" 
+              : `Không có booking nào với trạng thái "${statusFilter}"` 
+          }}
           renderItem={(booking) => {
             const selectedDate = selectedDateMap[booking.bookingId];
             const slotKey = selectedDate?.format("YYYY-MM-DD") || "";
