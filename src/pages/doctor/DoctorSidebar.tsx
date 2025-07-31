@@ -25,7 +25,7 @@ export const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
   const menuItems = [
     {
@@ -56,11 +56,6 @@ export const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ children }) => {
   ];
 
   const userMenuItems: MenuProps["items"] = [
-    {
-      key: "profile",
-      icon: <UserOutlined />,
-      label: "Profile",
-    },
     {
       key: "logout",
       icon: <LogoutOutlined />,
@@ -202,7 +197,7 @@ export const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ children }) => {
                 icon={<UserOutlined />}
               />
               <Text strong style={{ color: "#D81B60" }}>
-                Dr. Smith
+                {user?.name || user?.email || "Bác sĩ"}
               </Text>
             </Space>
           </Dropdown>
