@@ -53,6 +53,7 @@ export default function TreatmentProcess() {
     const fetchTreatmentProcess = async () => {
       try {
         const res = await UserApi.GetMedicalRecordDetail(id!);
+        console.log("Danh sách quá trình điều trị detail:", res.data);
         setTreatments(res.data);
       } catch (error) {
         console.error("Lỗi tải dữ liệu quá trình điều trị:", error);
@@ -117,7 +118,7 @@ export default function TreatmentProcess() {
                 style={{ color: "#FF69B4" }}
                 className="text-pink-600 mb-3"
               >
-                Quá Trình Điều Trị
+                Quá Trình Điều Trị & Kết Quả{treatments.length > 0 ? `: ${treatments[0].stage}` : ""}
               </Title>
               <div className="bg-pink-100 rounded-lg p-3 inline-block">
                 <Text className="text-gray-700 text-lg">
@@ -160,8 +161,8 @@ export default function TreatmentProcess() {
                                     ? "green"
                                     : embryo.quality.toLowerCase() ===
                                       "trung bình"
-                                    ? "orange"
-                                    : "red"
+                                      ? "orange"
+                                      : "red"
                                 }
                               >
                                 {embryo.quality}
@@ -240,7 +241,7 @@ export default function TreatmentProcess() {
                         <Space size="large">
                           <FileTextOutlined className="text-2xl" />
                           <Text className="text-2xl font-bold text-white">
-                            {treatment.stage}
+                            {treatment.stageName}
                           </Text>
                           <div className="bg-white bg-opacity-20 rounded-lg px-3 py-1">
                             <Text className="text-white font-medium">

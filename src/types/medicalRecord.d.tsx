@@ -28,6 +28,7 @@ export interface Treatment {
   typeName: "Consultation" | "Treatment" | "Result"; // nên giới hạn bằng union type
   status: "Complete" | "In Progress" | "Pending"; // tùy vào giá trị backend
   treatmentResultId: number;
+  stageName: string;
   stage: string;
   description: string;
   durationDay: number;

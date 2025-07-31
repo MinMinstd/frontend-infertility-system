@@ -84,11 +84,14 @@ export function UpdateEmbryoModal({
           <Select
             placeholder="Chọn loại phôi"
             options={[
-              { label: "Phôi chất lượng tốt", value: "Phôi chất lượng tốt" },
-              { label: "Phôi trung bình", value: "Phôi trung bình" },
-              { label: "Phôi chất lượng thấp", value: "Phôi chất lượng thấp" },
+              { label: "AA", value: "AA" },
+              { label: "BB", value: "BB" },
+              { label: "2BB", value: "2BB" },
+              { label: "2AC", value: "2AC" },
+              { label: "3CA", value: "3CA" },
             ]}
           />
+
         </Form.Item>
 
         <Form.Item
@@ -102,6 +105,7 @@ export function UpdateEmbryoModal({
               { label: "Đạt chuẩn", value: "Đạt chuẩn" },
               { label: "Không đạt chuẩn", value: "Không đạt chuẩn" },
               { label: "Đã tạo phôi", value: "Đã tạo phôi" },
+              { label: "Tạo phôi thất bại", value: "Tạo phôi thất bại" },
               { label: "Chuyển phôi thất bại", value: "Chuyển phôi thất bại" },
               { label: "Đã chuyển phôi", value: "Đã chuyển phôi" },
             ]}
