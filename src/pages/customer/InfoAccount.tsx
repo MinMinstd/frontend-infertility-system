@@ -9,7 +9,7 @@ const Profile = () => {
     setIsOpen(!isOpen);
   };
 
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
 
   return (
@@ -19,7 +19,7 @@ const Profile = () => {
         className="text-white bg-pink-700 hover:bg-pink-800 focus:ring-4 focus:outline-none focus:ring-purple-700-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center"
         type="button"
       >
-        Welcome User{" "}
+        Welcome {user?.email || "User"}{" "}
         <svg
           className="w-2.5 h-2.5 ms-3"
           aria-hidden="true"
@@ -43,8 +43,8 @@ const Profile = () => {
           ${isOpen ? "block" : "hidden"}`}
       >
         <div className="px-4 py-3 text-sm text-gray-900 dark:text-white">
-          <div>Bonnie Green</div>
-          <div className="font-medium truncate">name@flowbite.com</div>
+          {/* <div>{user?.name || "Người dùng"}</div> */}
+          <div className="font-medium truncate">{user?.email || "email@example.com"}</div>
         </div>
         <ul
           className=" text-sm text-gray-700 dark:text-gray-200"
