@@ -6,7 +6,7 @@
 [![Vite](https://img.shields.io/badge/Vite-6.3.5-646CFF.svg)](https://vitejs.dev/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4.17-38B2AC.svg)](https://tailwindcss.com/)
 
-Ứng dụng frontend quản lý quy trình điều trị hiếm muộn, hỗ trợ bệnh nhân đặt lịch khám, theo dõi tiến trình điều trị và thanh toán. Hệ thống phục vụ 4 nhóm người dùng: Khách hàng, Bác sĩ, Quản lý và Admin.
+Ứng dụng frontend quản lý quy trình điều trị hiếm muộn, hỗ trợ bệnh nhân đặt lịch khám, theo dõi tiến trình điều trị và thanh toán. Hệ thống phục vụ 4 nhóm người dùng: Khách hàng, Bác sĩ, Quản lý
 
 > 🏥 **Hệ thống y tế chuyên nghiệp** - Ứng dụng frontend quản lý lịch khám và hồ sơ bệnh nhân điều trị hiếm muộn, phát triển bằng React + TypeScript + Ant Design + Tailwind CSS, tương tác với backend qua REST API.
 
