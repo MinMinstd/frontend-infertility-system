@@ -25,9 +25,7 @@ export default function Footer() {
             </h2>
             <div className="text-white text-sm">
               <div className="mb-1">
-                <span className="font-medium">Địa chỉ:</span> 431 Tam Trinh (Lô
-                07 – 3A Cụm CN Hoàng Mai), P. Hoàng Văn Thụ, Q. Hoàng Mai, Hà
-                Nội.
+                <span className="font-medium">Địa chỉ:</span> 123 ABC , P. VVV, Q.QQQ, Hồ Chí Minh.
               </div>
               <div className="mb-1">
                 <span className="font-medium">Hotline:</span> 087.XXX.XXX
