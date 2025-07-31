@@ -95,9 +95,9 @@ export function MedicalRecordModal({
           rules={[{ required: true, message: "Vui lòng chọn trạng thái!" }]}
         >
           <Select placeholder="Chọn trạng thái điều trị">
-            <Select.Option value="Pending">Đang chờ</Select.Option>
-            <Select.Option value="In Progress">Đang điều trị</Select.Option>
-            <Select.Option value="Complete">Hoàn tất</Select.Option>
+            <Select.Option value="Thất bại">Thất bại</Select.Option>
+            <Select.Option value="Đang điều trị">Đang điều trị</Select.Option>
+            <Select.Option value="Hoàn Thành">Hoàn Thành</Select.Option>
           </Select>
         </Form.Item>
 
