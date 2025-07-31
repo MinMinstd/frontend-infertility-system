@@ -16,7 +16,7 @@ export default function Contact() {
           <div className="flex-1 space-y-4">
             <div className="flex items-center gap-2">
               <MapPinIcon className="h-6 w-6 text-pink-500" />
-              <span>123 Đường Hạnh Phúc, Quận 1, TP.HCM</span>
+              <span>123 Đường ABC, Quận 1, TP.HCM</span>
             </div>
             <div className="flex items-center gap-2">
               <PhoneIcon className="h-6 w-6 text-blue-500" />
